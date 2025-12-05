@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "KMLapp",
-  description: "Aplikasi KMLapp built with Next.js",
+  description: "KMLapp is SuperAPP for Storage, Comics, Films, Anime",
 };
 
 export default function RootLayout({

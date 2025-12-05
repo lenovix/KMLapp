@@ -1,4 +1,4 @@
-import PlatformActions from "@/components/PlatformActionsHome";
+import PlatformActions from "@/components/Home/PlatformActionsHome";
 
 export default function ProfilePage() {
   return (
