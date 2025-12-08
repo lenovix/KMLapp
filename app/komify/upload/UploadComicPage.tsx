@@ -188,7 +188,10 @@ export default function UploadComicPage({
 
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
-      formData.append(key, Array.isArray(value) ? JSON.stringify(value) : value);
+      formData.append(
+        key,
+        Array.isArray(value) ? JSON.stringify(value) : value
+      );
     });
 
     if (coverFile) formData.append("cover", coverFile);
@@ -431,7 +434,6 @@ export default function UploadComicPage({
           }}
           onSave={savePreviewOrder}
           onCancel={cancelPreviewOrder}
-          onClose={closePreview} // optional: close via X
           onDragEnd={handleDragEnd}
         />
       )}
