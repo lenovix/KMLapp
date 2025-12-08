@@ -42,5 +42,5 @@ next-env.d.ts
 
 /data/komify/comics.json
 /data/komify/comment-history.json
-/public/comics/
+# /public/komify/*
 /public/tmp_upload
