@@ -32,7 +32,7 @@ export default function AllComicHeader({
           className="w-full max-w-md px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         />
         <Link
-          href="/upload"
+          href="/komify/upload"
           className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           title="Upload"
         >

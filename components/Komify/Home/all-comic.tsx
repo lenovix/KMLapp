@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import comics from "@/data/komify/comics.json";
-import AllComicHeader from "@/components/Komify/AllComicHeader";
-import Pagination from "@/components/Komify/Pagination";
-import FilterTags from "@/components/Komify/FilterTags";
+import AllComicHeader from "@/components/Komify/Home/header";
+import Pagination from "@/components/Komify/Home/Pagination";
+import FilterTags from "@/components/Komify/Home/FilterTags";
 
 export default function AllComic() {
   const [searchTerm, setSearchTerm] = useState("");
