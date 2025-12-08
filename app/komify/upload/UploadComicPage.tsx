@@ -278,23 +278,69 @@ export default function UploadComicPage({
     }
   };
 
+  const [originalFiles, setOriginalFiles] = useState<File[]>([]);
+
   const openPreview = (index: number) => {
     setPreviewChapterIndex(index);
+
+    // Simpan urutan awal
+    const chapter = chapters[index];
+    if (chapter && Array.isArray(chapter.files)) {
+      setOriginalFiles([...chapter.files]);
+    }
   };
 
   const closePreview = () => {
     setPreviewChapterIndex(null);
+    setOriginalFiles([]); // reset
+  };
+
+  // SAVE = mempertahankan urutan baru
+  const savePreviewOrder = () => {
+    closePreview();
+  };
+
+  // CANCEL = mengembalikan urutan ke semula
+  const cancelPreviewOrder = () => {
+    if (previewChapterIndex === null) return;
+
+    setChapters((prev) =>
+      prev.map((ch, idx) =>
+        idx === previewChapterIndex ? { ...ch, files: originalFiles } : ch
+      )
+    );
+
+    closePreview();
   };
 
   const handleDragEnd = (result: any) => {
     if (!result.destination || previewChapterIndex === null) return;
 
-    const updatedChapters = [...chapters];
-    const files = [...updatedChapters[previewChapterIndex].files];
-    const [reorderedItem] = files.splice(result.source.index, 1);
-    files.splice(result.destination.index, 0, reorderedItem);
-    updatedChapters[previewChapterIndex].files = files;
-    setChapters(updatedChapters);
+    const sourceIndex = result.source.index;
+    const destIndex = result.destination.index;
+
+    const chapter = chapters[previewChapterIndex];
+    if (!chapter || !Array.isArray(chapter.files)) return;
+
+    const reorderedFiles = Array.from(chapter.files);
+
+    if (
+      sourceIndex < 0 ||
+      sourceIndex >= reorderedFiles.length ||
+      destIndex < 0 ||
+      destIndex >= reorderedFiles.length
+    ) {
+      return;
+    }
+
+    const [movedItem] = reorderedFiles.splice(sourceIndex, 1);
+    reorderedFiles.splice(destIndex, 0, movedItem);
+
+    setChapters((prev) =>
+      prev.map((ch, idx) =>
+        idx === previewChapterIndex ? { ...ch, files: reorderedFiles } : ch
+      )
+    );
   };
   return (
     <>
@@ -376,8 +422,6 @@ export default function UploadComicPage({
           }}
         />
       }
-
-      {/* Modal untuk Preview Gambar dengan Drag-and-Drop */}
       {previewChapterIndex !== null && (
         <ChapterPreviewModal
           visible={true}
@@ -385,7 +429,9 @@ export default function UploadComicPage({
             number: parseInt(chapters[previewChapterIndex].number, 10),
             files: chapters[previewChapterIndex].files,
           }}
-          onClose={closePreview}
+          onSave={savePreviewOrder}
+          onCancel={cancelPreviewOrder}
+          onClose={closePreview} // optional: close via X
           onDragEnd={handleDragEnd}
         />
       )}
