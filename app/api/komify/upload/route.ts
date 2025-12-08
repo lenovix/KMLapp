@@ -2,38 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-export const config = {
-  api: { bodyParser: false },
-};
-
-
-// Convert any File object (web/native) to Buffer
+// Utility: convert File → Buffer
 async function fileToBuffer(file: any): Promise<Buffer | null> {
   if (!file) return null;
 
-  // Case 1 - Web File (browser)
+  // CASE 1 — Web File (browser)
   if (typeof file.arrayBuffer === "function") {
     const arrayBuffer = await file.arrayBuffer();
     return Buffer.from(arrayBuffer);
   }
 
-  // Case 2 - Node fs upload (filepath available)
+  // CASE 2 — formidable or custom upload
   if (file.filepath && fs.existsSync(file.filepath)) {
     return fs.readFileSync(file.filepath);
   }
 
+  console.warn("unknown file format:", file);
   return null;
 }
 
-// Utils
-const uniqueArray = (arr: string[]) =>
-  [...new Set(arr.map((v) => v.trim()).filter(Boolean))];
+// Utility helpers
+const uniqueArray = (arr: string[]) => [
+  ...new Set(arr.map((v) => v.trim()).filter(Boolean)),
+];
 
 const toArray = (value: any): string[] => {
   if (!value) return [];
   if (Array.isArray(value)) return value.flatMap(toArray);
   if (typeof value === "string") {
-    return value.split(",").map((v) => v.trim()).filter(Boolean);
+    return value
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -44,23 +44,28 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
+    // Base path: /public/komify/[slug]
     const uploadDir = path.join(process.cwd(), "public", "komify");
     const slug = formData.get("slug")?.toString() || "unknown";
     const slugPath = path.join(uploadDir, slug);
+
     fs.mkdirSync(slugPath, { recursive: true });
 
     // =========================================================
-    // =================== UPLOAD COVER =========================
+    // ===================== UPLOAD COVER =======================
     // =========================================================
-    const coverFile: any = formData.get("cover");
+    const coverFile = formData.get("cover") as File | null;
     const coverBuffer = await fileToBuffer(coverFile);
 
     if (coverBuffer) {
-      fs.writeFileSync(path.join(slugPath, "cover.jpg"), coverBuffer);
+      const coverPath = path.join(slugPath, "cover.jpg");
+      fs.writeFileSync(coverPath, coverBuffer);
+    } else {
+      console.warn("⚠ Tidak ada cover file yang diterima.");
     }
 
     // =========================================================
-    // =================== CHAPTERS =============================
+    // =================== CHAPTERS UPLOAD ======================
     // =========================================================
     const chaptersStr = formData.get("chapters")?.toString() || "[]";
     const chapters = JSON.parse(chaptersStr);
@@ -71,15 +76,13 @@ export async function POST(req: NextRequest) {
       const chapterDir = path.join(slugPath, "chapters", ch.number);
       fs.mkdirSync(chapterDir, { recursive: true });
 
-      const key = `chapter-${ch.number}`;
-      const uploadedFiles: any[] = formData.getAll(key);
+      const fieldKey = `chapter-${ch.number}`; // sesuai FormData
+      const uploadedFiles = formData.getAll(fieldKey) as File[];
 
       const pages = [];
 
       for (let i = 0; i < uploadedFiles.length; i++) {
-        const file = uploadedFiles[i];
-        const buffer = await fileToBuffer(file);
-
+        const buffer = await fileToBuffer(uploadedFiles[i]);
         if (!buffer) continue;
 
         const filename = `page${i + 1}.jpg`;
@@ -100,9 +103,10 @@ export async function POST(req: NextRequest) {
     }
 
     // =========================================================
-    // ============= SIMPAN METADATA KE JSON ===================
+    // ================= SAVE METADATA JSON =====================
     // =========================================================
     const comicsPath = path.join(process.cwd(), "data/komify", "comics.json");
+    fs.mkdirSync(path.dirname(comicsPath), { recursive: true });
 
     let comics: any[] = [];
     if (fs.existsSync(comicsPath)) {
@@ -150,4 +154,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

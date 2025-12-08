@@ -188,6 +188,7 @@ export default function UploadComicPage({
 
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
+      if (key === "cover") return; // 🚫 JANGAN KIRIM BLOB URL
       formData.append(
         key,
         Array.isArray(value) ? JSON.stringify(value) : value
