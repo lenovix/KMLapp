@@ -1,1 +1,657 @@
-[]
+[
+    {
+        "slug": "comic-one",
+        "title": "Comic One",
+        "cover": "/comic1.jpg",
+        "tags": [
+            "Action",
+            "Adventure"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-01"
+    },
+    {
+        "slug": "comic-two",
+        "title": [
+            "Comic Two"
+        ],
+        "cover": "/comic2.jpg",
+        "tags": [
+            "Fantasy",
+            "Drama"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-03"
+        ]
+    },
+    {
+        "slug": "comic-three",
+        "title": "Comic Three",
+        "cover": "/comic3.jpg",
+        "tags": [
+            "Romance"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-10-28"
+    },
+    {
+        "slug": "comic-four",
+        "title": [
+            "Comic Four"
+        ],
+        "cover": "/comic4.jpg",
+        "tags": [
+            "Comedy",
+            "Slice of Life"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-05"
+        ]
+    },
+    {
+        "slug": "comic-five",
+        "title": "Comic Five",
+        "cover": "/comic5.jpg",
+        "tags": [
+            "Action"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-07"
+    },
+    {
+        "slug": "comic-six",
+        "title": [
+            "Comic Six"
+        ],
+        "cover": "/comic6.jpg",
+        "tags": [
+            "Horror"
+        ],
+        "status": "Completed",
+        "uploaded": [
+            "2025-11-08"
+        ]
+    },
+    {
+        "slug": "comic-seven",
+        "title": "Comic Seven",
+        "cover": "/comic7.jpg",
+        "tags": [
+            "Romance",
+            "Drama"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-09"
+    },
+    {
+        "slug": "comic-eight",
+        "title": [
+            "Comic Eight"
+        ],
+        "cover": "/comic8.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-10"
+        ]
+    },
+    {
+        "slug": "comic-nine",
+        "title": "Comic Nine",
+        "cover": "/comic9.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-02"
+    },
+    {
+        "slug": "comic-ten",
+        "title": [
+            "Comic Ten"
+        ],
+        "cover": "/comic10.jpg",
+        "tags": [
+            "Sci-Fi"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-10-30"
+        ]
+    },
+    {
+        "slug": "comic-eleven",
+        "title": "Comic Eleven",
+        "cover": "/comic11.jpg",
+        "tags": [
+            "Romance"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-10-29"
+    },
+    {
+        "slug": "comic-twelve",
+        "title": [
+            "Comic Twelve"
+        ],
+        "cover": "/comic12.jpg",
+        "tags": [
+            "Comedy"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-06"
+        ]
+    },
+    {
+        "slug": "comic-thirteen",
+        "title": "Comic Thirteen",
+        "cover": "/comic13.jpg",
+        "tags": [
+            "Drama"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-07"
+    },
+    {
+        "slug": "comic-fourteen",
+        "title": [
+            "Comic Fourteen"
+        ],
+        "cover": "/comic14.jpg",
+        "tags": [
+            "Action"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-11"
+        ]
+    },
+    {
+        "slug": "comic-fifteen",
+        "title": "Comic Fifteen",
+        "cover": "/comic15.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-12"
+    },
+    {
+        "slug": "comic-sixteen",
+        "title": [
+            "Comic Sixteen"
+        ],
+        "cover": "/comic16.jpg",
+        "tags": [
+            "Horror"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-04"
+        ]
+    },
+    {
+        "slug": "comic-seventeen",
+        "title": "Comic Seventeen",
+        "cover": "/comic17.jpg",
+        "tags": [
+            "Sci-Fi"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-01"
+    },
+    {
+        "slug": "comic-eighteen",
+        "title": [
+            "Comic Eighteen"
+        ],
+        "cover": "/comic18.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-10-27"
+        ]
+    },
+    {
+        "slug": "comic-nineteen",
+        "title": "Comic Nineteen",
+        "cover": "/comic19.jpg",
+        "tags": [
+            "Drama"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-03"
+    },
+    {
+        "slug": "comic-twenty",
+        "title": [
+            "Comic Twenty"
+        ],
+        "cover": "/comic20.jpg",
+        "tags": [
+            "Comedy",
+            "Romance"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-09"
+        ]
+    },
+    {
+        "slug": "comic-twenty-one",
+        "title": "Comic Twenty One",
+        "cover": "/comic21.jpg",
+        "tags": [
+            "Action"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-10"
+    },
+    {
+        "slug": "comic-twenty-two",
+        "title": [
+            "Comic Twenty Two"
+        ],
+        "cover": "/comic22.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-05"
+        ]
+    },
+    {
+        "slug": "comic-twenty-three",
+        "title": "Comic Twenty Three",
+        "cover": "/comic23.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-06"
+    },
+    {
+        "slug": "comic-twenty-four",
+        "title": [
+            "Comic Twenty Four"
+        ],
+        "cover": "/comic24.jpg",
+        "tags": [
+            "Drama"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-12"
+        ]
+    },
+    {
+        "slug": "comic-twenty-five",
+        "title": "Comic Twenty Five",
+        "cover": "/comic25.jpg",
+        "tags": [
+            "Comedy"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-13"
+    },
+    {
+        "slug": "comic-twenty-six",
+        "title": [
+            "Comic Twenty Six"
+        ],
+        "cover": "/comic26.jpg",
+        "tags": [
+            "Slice of Life"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-08"
+        ]
+    },
+    {
+        "slug": "comic-twenty-seven",
+        "title": "Comic Twenty Seven",
+        "cover": "/comic27.jpg",
+        "tags": [
+            "Romance"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-11"
+    },
+    {
+        "slug": "comic-twenty-eight",
+        "title": [
+            "Comic Twenty Eight"
+        ],
+        "cover": "/comic28.jpg",
+        "tags": [
+            "Horror"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-12"
+        ]
+    },
+    {
+        "slug": "comic-twenty-nine",
+        "title": "Comic Twenty Nine",
+        "cover": "/comic29.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-09"
+    },
+    {
+        "slug": "comic-thirty",
+        "title": [
+            "Comic Thirty"
+        ],
+        "cover": "/comic30.jpg",
+        "tags": [
+            "Sci-Fi"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-10-31"
+        ]
+    },
+    {
+        "slug": "comic-thirty-one",
+        "title": "Comic Thirty One",
+        "cover": "/comic31.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-13"
+    },
+    {
+        "slug": "comic-thirty-two",
+        "title": [
+            "Comic Thirty Two"
+        ],
+        "cover": "/comic32.jpg",
+        "tags": [
+            "Action"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-07"
+        ]
+    },
+    {
+        "slug": "comic-thirty-three",
+        "title": "Comic Thirty Three",
+        "cover": "/comic33.jpg",
+        "tags": [
+            "Drama"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-01"
+    },
+    {
+        "slug": "comic-thirty-four",
+        "title": [
+            "Comic Thirty Four"
+        ],
+        "cover": "/comic34.jpg",
+        "tags": [
+            "Comedy"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-04"
+        ]
+    },
+    {
+        "slug": "comic-thirty-five",
+        "title": "Comic Thirty Five",
+        "cover": "/comic35.jpg",
+        "tags": [
+            "Romance"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-06"
+    },
+    {
+        "slug": "comic-thirty-six",
+        "title": [
+            "Comic Thirty Six"
+        ],
+        "cover": "/comic36.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-03"
+        ]
+    },
+    {
+        "slug": "comic-thirty-seven",
+        "title": "Comic Thirty Seven",
+        "cover": "/comic37.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-12"
+    },
+    {
+        "slug": "comic-thirty-eight",
+        "title": [
+            "Comic Thirty Eight"
+        ],
+        "cover": "/comic38.jpg",
+        "tags": [
+            "Sci-Fi"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-08"
+        ]
+    },
+    {
+        "slug": "comic-thirty-nine",
+        "title": "Comic Thirty Nine",
+        "cover": "/comic39.jpg",
+        "tags": [
+            "Slice of Life"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-10-29"
+    },
+    {
+        "slug": "comic-forty",
+        "title": [
+            "Comic Forty"
+        ],
+        "cover": "/comic40.jpg",
+        "tags": [
+            "Horror"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-02"
+        ]
+    },
+    {
+        "slug": "comic-forty-one",
+        "title": "Comic Forty One",
+        "cover": "/comic41.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-03"
+    },
+    {
+        "slug": "comic-forty-two",
+        "title": [
+            "Comic Forty Two"
+        ],
+        "cover": "/comic42.jpg",
+        "tags": [
+            "Romance"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-09"
+        ]
+    },
+    {
+        "slug": "comic-forty-three",
+        "title": "Comic Forty Three",
+        "cover": "/comic43.jpg",
+        "tags": [
+            "Drama"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-10"
+    },
+    {
+        "slug": "comic-forty-four",
+        "title": [
+            "Comic Forty Four"
+        ],
+        "cover": "/comic44.jpg",
+        "tags": [
+            "Comedy"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-04"
+        ]
+    },
+    {
+        "slug": "comic-forty-five",
+        "title": "Comic Forty Five",
+        "cover": "/comic45.jpg",
+        "tags": [
+            "Romance",
+            "Fantasy"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-06"
+    },
+    {
+        "slug": "comic-forty-six",
+        "title": [
+            "Comic Forty Six"
+        ],
+        "cover": "/comic46.jpg",
+        "tags": [
+            "Sci-Fi"
+        ],
+        "status": [
+            "Ongoing"
+        ],
+        "uploaded": [
+            "2025-11-05"
+        ]
+    },
+    {
+        "slug": "comic-forty-seven",
+        "title": "Comic Forty Seven",
+        "cover": "/comic47.jpg",
+        "tags": [
+            "Adventure"
+        ],
+        "status": "Completed",
+        "uploaded": "2025-11-11"
+    },
+    {
+        "slug": "comic-forty-eight",
+        "title": [
+            "Comic Forty Eight"
+        ],
+        "cover": "/comic48.jpg",
+        "tags": [
+            "Slice of Life"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-01"
+        ]
+    },
+    {
+        "slug": "comic-forty-nine",
+        "title": "Comic Forty Nine",
+        "cover": "/comic49.jpg",
+        "tags": [
+            "Horror",
+            "Drama"
+        ],
+        "status": "Ongoing",
+        "uploaded": "2025-11-12"
+    },
+    {
+        "slug": "comic-fifty",
+        "title": [
+            "Comic Fifty"
+        ],
+        "cover": "/comic50.jpg",
+        "tags": [
+            "Fantasy"
+        ],
+        "status": [
+            "Completed"
+        ],
+        "uploaded": [
+            "2025-11-02"
+        ]
+    }
+]
