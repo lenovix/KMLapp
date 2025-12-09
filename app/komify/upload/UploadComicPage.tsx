@@ -188,7 +188,7 @@ export default function UploadComicPage({
 
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
-      if (key === "cover") return; // 🚫 JANGAN KIRIM BLOB URL
+      if (key === "cover") return;
       formData.append(
         key,
         Array.isArray(value) ? JSON.stringify(value) : value
@@ -287,7 +287,6 @@ export default function UploadComicPage({
   const openPreview = (index: number) => {
     setPreviewChapterIndex(index);
 
-    // Simpan urutan awal
     const chapter = chapters[index];
     if (chapter && Array.isArray(chapter.files)) {
       setOriginalFiles([...chapter.files]);
@@ -296,15 +295,13 @@ export default function UploadComicPage({
 
   const closePreview = () => {
     setPreviewChapterIndex(null);
-    setOriginalFiles([]); // reset
+    setOriginalFiles([]);
   };
 
-  // SAVE = mempertahankan urutan baru
   const savePreviewOrder = () => {
     closePreview();
   };
 
-  // CANCEL = mengembalikan urutan ke semula
   const cancelPreviewOrder = () => {
     if (previewChapterIndex === null) return;
 
@@ -348,11 +345,8 @@ export default function UploadComicPage({
   };
   return (
     <>
-      <HeaderUpload />
+      <HeaderUpload defaulftSlug={comicData.slug}/>
       <main className="max-w-4xl mx-auto p-6 space-y-6">
-        <h1 className="text-2xl font-bold mb-4">
-          📤 Upload Comic #{comicData.slug}
-        </h1>
         {/* FORM */}
         <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
           {/* ========================== */}

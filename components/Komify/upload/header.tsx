@@ -3,9 +3,10 @@
 import Link from "next/link";
 
 interface UploadComicHeaderProps {
+  defaulftSlug: string;
 }
 
-export default function UploadComicHeader({
+export default function UploadComicHeader({defaulftSlug
 }: UploadComicHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -13,7 +14,7 @@ export default function UploadComicHeader({
         <div className="flex items-center gap-4 text-2xl font-bold text-gray-900 dark:text-white">
           <Link href="/komify" className="hover:opacity-80">
             Komify
-          </Link>
+          </Link>:: Upload Comic #{defaulftSlug}
         </div>
       </div>
     </div>
