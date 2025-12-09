@@ -4,7 +4,7 @@ import ComicDetails from "@/components/Komify/upload/ComicDetails";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import { Save } from "lucide-react";
+import { Upload } from "lucide-react";
 
 export interface ComicData {
   slug: string;
@@ -16,8 +16,8 @@ export interface ComicData {
   characters: string[];
   categories: string[];
   tags: string[];
-  uploaded: string; // format YYYY-MM-DD
-  status: "Ongoing" | "Completed" | "Hiatus"; // atau string biasa
+  uploaded: string; // YYYY-MM-DD
+  status: "Ongoing" | "Completed" | "Hiatus";
   cover: string;
 }
 
@@ -73,20 +73,15 @@ export default function ComicForm({
     <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ComicDetails comicData={comicData} onChange={handleComicChange} />
-
-        {/* COVER + BUTTON (kanan) */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
-          {/* Submit Button */}
           <PrimaryButton
             type="submit"
             onClick={handleOpenDialog}
-            icon={<Save size={18} />}
+            icon={<Upload size={18} />}
             iconPosition="left"
           >
-            Simpan Komik
+            Upload Comic
           </PrimaryButton>
-
-          {/* BOX COVER */}
           <ComicCover
             cover={comicData.cover}
             onClick={() => setCoverDialogOpen(true)}
@@ -94,10 +89,6 @@ export default function ComicForm({
           />
         </div>
       </div>
-
-      {/* ========================== */}
-      {/* CHAPTER SECTION (BOTTOM)   */}
-      {/* ========================== */}
       <ChapterSection
         chapters={chapters}
         addChapter={addChapter}

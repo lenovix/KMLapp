@@ -1,5 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import DropdownInput from "@/components/UI/DropdownInput";
+
 interface Chapter {
   number: string;
   title: string;
@@ -27,6 +30,12 @@ export default function ChapterSection({
   handleChapterFile,
   openPreview,
 }: ChapterSectionProps) {
+  const [languages, setLanguages] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/data/config/language.json")
+      .then((res) => res.json())
+      .then(setLanguages);
+  }, []);
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
       {/* Header: Title + Add Button */}
@@ -67,23 +76,14 @@ export default function ChapterSection({
             />
 
             {/* Language (Combobox) */}
-            <div className="relative">
-              <input
-                name="language"
-                list="chapter-languages"
-                placeholder="Language"
-                value={ch.language}
-                onChange={(e) => handleChapterChange(index, e)}
-                className="border p-2 rounded w-full bg-white/20 text-white placeholder-gray-300"
-              />
-
-              <datalist id="chapter-languages">
-                <option value="English" />
-                <option value="Indonesian" />
-                <option value="Japanese" />
-                <option value="Korean" />
-              </datalist>
-            </div>
+            <DropdownInput
+              name="language"
+              listId="chapter-language-list"
+              placeholder="Language"
+              value={ch.language}
+              onChange={(e) => handleChapterChange(index, e)}
+              options={languages}
+            />
 
             {/* Upload File */}
             <input
