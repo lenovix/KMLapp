@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React from "react";
 
 interface DropdownInputProps {
   name: string;
@@ -39,8 +39,6 @@ export default function DropdownInput({
   icon,
   iconPosition = "left",
 }: DropdownInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const sizeClasses = {
     sm: "px-2 py-1 text-sm",
     md: "px-3 py-2 text-sm",
@@ -54,10 +52,19 @@ export default function DropdownInput({
   };
 
   return (
-    <div className="relative w-full flex items-center">
-      {/* Input */}
+    <div className="relative w-full">
+      {/* Icon */}
+      {icon && (
+        <span
+          className={`absolute top-1/2 -translate-y-1/2 text-gray-300 ${
+            iconPosition === "left" ? "left-3" : "right-8"
+          }`}
+        >
+          {icon}
+        </span>
+      )}
+
       <input
-        ref={inputRef}
         name={name}
         list={listId}
         placeholder={placeholder}
@@ -70,7 +77,6 @@ export default function DropdownInput({
           w-full rounded text-white placeholder-gray-300 focus:outline-none
           ${sizeClasses[size]}
           ${variantClasses[variant]}
-          pr-16
           ${icon ? (iconPosition === "left" ? "pl-10" : "pr-10") : ""}
           text-${textAlign}
           ${disabled ? "opacity-50 cursor-not-allowed" : ""}
@@ -78,42 +84,28 @@ export default function DropdownInput({
         `}
       />
 
-      {/* ICON kiri */}
-      {icon && iconPosition === "left" && (
-        <span className="absolute left-3 text-gray-300 pointer-events-none">
-          {icon}
-        </span>
-      )}
-
-      {/* Tombol clear (hapus) */}
+      {/* Tombol X */}
       {value && (
         <button
           type="button"
-          onClick={() => {
-            const fakeEvent = {
+          onClick={(e) => {
+            e.preventDefault();
+
+            onChange({
               target: { name, value: "" },
-            } as any;
-            onChange(fakeEvent);
+            } as React.ChangeEvent<HTMLInputElement>);
+
+            // agar datalist muncul lagi setelah clear
+            const inputEl =
+              e.currentTarget.parentElement!.querySelector("input");
+            setTimeout(() => inputEl?.focus(), 10);
           }}
-          className="absolute right-10 text-gray-300 hover:text-white"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm"
         >
           ✕
         </button>
       )}
 
-      {/* Tombol buka list */}
-      <button
-        type="button"
-        onClick={() => {
-          inputRef.current?.focus();
-          inputRef.current?.setAttribute("list", listId);
-        }}
-        className="absolute right-3 text-gray-300 hover:text-white"
-      >
-        ▼
-      </button>
-
-      {/* datalist */}
       <datalist id={listId}>
         {options.map((opt) => (
           <option key={opt} value={opt} />
