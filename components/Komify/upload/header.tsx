@@ -6,15 +6,19 @@ interface UploadComicHeaderProps {
   defaulftSlug: string;
 }
 
-export default function UploadComicHeader({defaulftSlug
+export default function UploadComicHeader({
+  defaulftSlug,
 }: UploadComicHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 text-2xl font-bold text-gray-900 dark:text-white">
-          <Link href="/komify" className="hover:opacity-80">
-            Komify
-          </Link>:: Upload Comic #{defaulftSlug}
+          <p>
+            <Link href="/komify" className="hover:opacity-80">
+              Komify
+            </Link>
+            <span> :: Upload Comic #{defaulftSlug}</span>
+          </p>
         </div>
       </div>
     </div>

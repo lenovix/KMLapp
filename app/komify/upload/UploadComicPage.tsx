@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/Komify/upload/Alert";
+import Alert from "@/components/General/Alert";
 import DialogBox from "@/components/Komify/upload/DialogBox";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
 import HeaderUpload from "@/components/Komify/upload/header";
@@ -20,9 +20,11 @@ export default function UploadComicPage({
   const [coverDialogOpen, setCoverDialogOpen] = useState(false);
   const [alertData, setAlertData] = useState<{
     title: string;
-    desc?: string;
+    message?: string;
     type: "success" | "warning" | "error" | "onprogress";
     progress?: number;
+    duration?: number;
+    onClose?: () => void;
   } | null>(null);
 
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -123,6 +125,7 @@ export default function UploadComicPage({
     if (!comicData.title) {
       setAlertData({
         title: "Judul Komik Kosong",
+        message: "Judul komik wajib diisi sebelum mengunggah.",
         type: "error",
       });
       return false;
@@ -148,7 +151,7 @@ export default function UploadComicPage({
       if (!ch.number || !ch.title || !ch.language) {
         setAlertData({
           title: "Data Chapter Tidak Lengkap",
-          desc: "Setiap chapter wajib memiliki nomor, judul, dan bahasa.",
+          message: "Setiap chapter wajib memiliki nomor, judul, dan bahasa.",
           type: "error",
         });
         return false;
@@ -219,9 +222,12 @@ export default function UploadComicPage({
 
     try {
       setAlertData({
-        title: "Uploading...",
         type: "onprogress",
+        title: "Uploading...",
+        message: "Please wait",
         progress: 0,
+        duration: 0,
+        onClose: undefined,
       });
 
       const xhr = new XMLHttpRequest();
@@ -240,14 +246,15 @@ export default function UploadComicPage({
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           setAlertData({
-            title: "Upload Berhasil",
-            desc: "Data komik berhasil diunggah.",
             type: "success",
+            title: "Upload Berhasil",
+            message: "Data komik berhasil diunggah.",
+            duration: 5000,
           });
 
           setTimeout(() => {
             router.push("/komify");
-          }, 3000);
+          }, 5000);
         } else {
           let errMessage = "Terjadi kesalahan saat memproses upload.";
           try {
@@ -255,18 +262,21 @@ export default function UploadComicPage({
             errMessage = err.message || errMessage;
           } catch {}
 
-          setAlertData({
-            title: "Gagal Mengunggah",
-            desc: errMessage,
-            type: "error",
-          });
+          setTimeout(() => {
+            setAlertData({
+              type: "error",
+              title: "Gagal Mengunggah",
+              message: errMessage,
+            });
+          }, 0); // Memastikan setState dipanggil setelah render selesai
         }
       };
 
       xhr.onerror = () => {
         setAlertData({
           title: "Kesalahan Jaringan",
-          desc: "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
+          message:
+            "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
           type: "error",
         });
       };
@@ -276,7 +286,8 @@ export default function UploadComicPage({
       console.error("Network error:", error);
       setAlertData({
         title: "Kesalahan Jaringan",
-        desc: "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
+        message:
+          "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
         type: "error",
       });
     }
@@ -343,9 +354,16 @@ export default function UploadComicPage({
       )
     );
   };
+
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push("/komify");
+    }
+  }, [shouldRedirect, router]);
   return (
     <>
-      <HeaderUpload defaulftSlug={comicData.slug}/>
+      <HeaderUpload defaulftSlug={comicData.slug} />
       <main className="max-w-4xl mx-auto p-6 space-y-6">
         {/* FORM */}
         <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
@@ -393,10 +411,11 @@ export default function UploadComicPage({
       {/* Alert */}
       {alertData && (
         <Alert
-          title={alertData.title}
-          desc={alertData.desc}
           type={alertData.type}
+          title={alertData.title}
+          message={alertData.message}
           progress={alertData.progress}
+          duration={alertData.duration}
           onClose={() => setAlertData(null)}
         />
       )}
@@ -424,6 +443,7 @@ export default function UploadComicPage({
         <ChapterPreviewModal
           visible={true}
           chapter={{
+            title: chapters[previewChapterIndex].title,
             number: parseInt(chapters[previewChapterIndex].number, 10),
             files: chapters[previewChapterIndex].files,
           }}

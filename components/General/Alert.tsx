@@ -1,60 +1,132 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  InformationCircleIcon,
-  XCircleIcon,
-} from "@heroicons/react/24/solid";
+  CheckCircle,
+  TriangleAlert,
+  X,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 interface AlertProps {
-  type: "success" | "warning" | "onprogress" | "error";
-  message: string;
-  duration?: number; // optional, ms before auto-hide
+  type?: "success" | "warning" | "error" | "onprogress";
+  title: string;
+  message?: string;
+  duration?: number;
+  progress?: number;
+  onClose: () => void;
 }
 
-export default function Alert({ type, message, duration = 5000 }: AlertProps) {
-  const [visible, setVisible] = useState(true);
+export default function Alert({
+  type = "error",
+  title,
+  message,
+  duration = 5000,
+  progress = 0,
+  onClose,
+}: AlertProps) {
+  const [countdown, setCountdown] = useState(
+    duration && duration > 0 ? Math.ceil(duration / 1000) : 0
+  );
 
+  const calledCloseRef = useRef(false); // ensure onClose called once
+  const intervalRef = useRef<number | null>(null);
+
+  // start countdown interval if duration > 0 and not onprogress
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), duration);
-    return () => clearTimeout(timer);
-  }, [duration]);
+    if (duration <= 0 || type === "onprogress") return;
 
-  if (!visible) return null;
+    const countdownSeconds = Math.ceil(duration / 1000);
+    setCountdown(countdownSeconds);
 
-  const typeMap = {
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      if (!calledCloseRef.current) {
+        calledCloseRef.current = true;
+        onClose(); // langsung panggil di sini, tidak delay
+      }
+    }, duration);
+
+    // cleanup
+    return () => {
+      clearInterval(timer);
+      clearTimeout(timeout);
+    };
+  }, [duration, type, onClose]);
+
+  const icons = {
+    success: <CheckCircle className="w-6 h-6 text-green-600 mt-1" />,
+    warning: <TriangleAlert className="w-6 h-6 text-yellow-600 mt-1" />,
+    error: <AlertCircle className="w-6 h-6 text-red-600 mt-1" />,
+    onprogress: <Loader2 className="w-6 h-6 text-blue-600 mt-1 animate-spin" />,
+  };
+
+  const styles = {
     success: {
-      bg: "bg-green-100",
-      text: "text-green-800",
-      icon: <CheckCircleIcon className="w-5 h-5" />,
+      border: "border-green-300",
+      bg: "bg-green-50",
+      title: "text-green-800",
     },
     warning: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-800",
-      icon: <ExclamationCircleIcon className="w-5 h-5" />,
-    },
-    onprogress: {
-      bg: "bg-blue-100",
-      text: "text-blue-800",
-      icon: <InformationCircleIcon className="w-5 h-5 animate-spin" />,
+      border: "border-yellow-300",
+      bg: "bg-yellow-50",
+      title: "text-yellow-800",
     },
     error: {
-      bg: "bg-red-100",
-      text: "text-red-800",
-      icon: <XCircleIcon className="w-5 h-5" />,
+      border: "border-red-300",
+      bg: "bg-red-50",
+      title: "text-red-800",
+    },
+    onprogress: {
+      border: "border-blue-300",
+      bg: "bg-blue-50",
+      title: "text-blue-800",
     },
   };
 
-  const { bg, text, icon } = typeMap[type];
+  const style = styles[type];
 
   return (
     <div
-      className={`fixed bottom-5 right-5 flex items-center gap-3 px-4 py-3 rounded-lg shadow-md ${bg} ${text} z-50`}
+      className={`
+        fixed bottom-6 right-6
+        w-[90%] max-w-md
+        p-4 rounded-xl border shadow-md 
+        flex flex-col gap-3 z-50
+        transition-all duration-300
+        ${style.bg} ${style.border}
+      `}
+      // Clicking should only close for non-onprogress types.
+      onClick={type !== "onprogress" ? onClose : undefined}
     >
-      {icon}
-      <span className="font-medium">{message}</span>
+      <div className="flex items-start gap-3">
+        {icons[type]}
+
+        <div className="flex-1">
+          <h4 className={`font-bold text-lg ${style.title}`}>{title}</h4>
+          {message && <p className="text-sm text-gray-700">{message}</p>}
+
+          {/* Show countdown when relevant */}
+          {type == "success" && duration > 0 && (
+            <p className="text-xs text-gray-500 mt-1">
+              Redirecting in {countdown}s...
+            </p>
+          )}
+        </div>
+      </div>
+
+      {type === "onprogress" && (
+        <div className="w-full h-2 bg-white rounded-full border border-blue-200 overflow-hidden mt-2">
+          <div
+            className="h-full bg-blue-500 transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      )}
     </div>
   );
 }
