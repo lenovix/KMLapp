@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import DropdownInput from "@/components/UI/DropdownInput";
+import PrimaryButton from "@/components/UI/PrimaryButton";
+import { Plus } from "lucide-react";
+import FileUploadInput from "@/components/UI/FileUploadInput";
+import InputText from "@/components/UI/InputText";
 
 interface Chapter {
   number: string;
@@ -38,87 +42,92 @@ export default function ChapterSection({
   }, []);
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
-      {/* Header: Title + Add Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-200">📄 Chapters</h2>
-
-        <button
+        <PrimaryButton
           type="button"
+          variant="primary"
+          size="md"
+          icon={<Plus size={14} />}
           onClick={addChapter}
-          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
         >
-          + Add
-        </button>
+          Add
+        </PrimaryButton>
       </div>
 
       {chapters.map((ch, index) => (
         <div
           key={index}
-          className="border border-gray-300 rounded-lg p-3 bg-white/10 relative"
+          className="border border-gray-400/40 rounded-xl p-4 bg-white/10 space-y-4"
         >
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+          {/* Row 1: Chapter Number + Title */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
             {/* Chapter Number */}
-            <input
-              name="number"
-              placeholder="Ch. #"
-              value={ch.number}
-              onChange={(e) => handleChapterChange(index, e)}
-              className="border p-2 rounded bg-white/20 text-white placeholder-gray-300"
-            />
+            <p className="text-white font-semibold md:col-span-1">
+              Chapter {ch.number}
+            </p>
 
             {/* Title */}
-            <input
-              name="title"
-              placeholder="Title"
-              value={ch.title}
-              onChange={(e) => handleChapterChange(index, e)}
-              className="border p-2 rounded bg-white/20 text-white placeholder-gray-300"
-            />
+            <div className="md:col-span-5">
+              <InputText
+                name="title"
+                placeholder="Title"
+                value={ch.title}
+                onChange={(e) => handleChapterChange(index, e)}
+              />
+            </div>
+          </div>
 
-            {/* Language (Combobox) */}
-            <DropdownInput
-              name="language"
-              listId="chapter-language-list"
-              placeholder="Language"
-              value={ch.language}
-              onChange={(e) => handleChapterChange(index, e)}
-              options={languages}
-            />
+          {/* Row 2: Language + Upload File + Delete Button */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
+            {/* Language */}
+            <div className="md:col-span-2">
+              <DropdownInput
+                name="language"
+                listId="chapter-language-list"
+                placeholder="Language"
+                value={ch.language}
+                onChange={(e) => handleChapterChange(index, e)}
+                options={languages}
+              />
+            </div>
 
             {/* Upload File */}
-            <input
-              type="file"
-              multiple
-              accept=".zip,.rar,image/*"
-              onChange={(e) => handleChapterFile(index, e.target.files)}
-              className="border p-2 rounded bg-white/20 text-white"
-            />
+            <div className="md:col-span-3">
+              <FileUploadInput
+                multiple
+                accept=".zip,.rar,image/*"
+                onChange={(files) => handleChapterFile(index, files)}
+              />
+            </div>
 
             {/* Delete Chapter */}
-            {index > 0 && (
-              <button
-                type="button"
-                onClick={() => removeChapter(index)}
-                className="p-2 bg-red-600 hover:bg-red-700 text-white rounded"
-              >
-                ✕
-              </button>
-            )}
+            <div className="md:col-span-1 flex md:justify-end">
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={() => removeChapter(index)}
+                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded w-full md:w-auto"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Preview Files */}
           {ch.files?.length > 0 && (
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-500/30">
               <p className="text-sm text-gray-300">
                 {ch.files.length} file dipilih
               </p>
-              <button
+              <PrimaryButton
                 type="button"
+                variant="link"
                 onClick={() => openPreview(index)}
-                className="text-sm text-blue-300 hover:underline"
               >
                 Preview
-              </button>
+              </PrimaryButton>
             </div>
           )}
         </div>

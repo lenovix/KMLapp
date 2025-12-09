@@ -5,8 +5,17 @@ interface PrimaryButtonProps {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   type?: "button" | "submit" | "reset";
   className?: string;
-  icon?: ReactNode; // 👉 icon element
-  iconPosition?: "left" | "right"; // 👉 posisi icon
+
+  icon?: ReactNode;
+  iconPosition?: "left" | "right";
+  variant?: "primary" | "link" | "outline";
+  size?: "sm" | "md" | "lg";
+
+  // tambahan baru
+  align?: "left" | "center" | "right";
+  fullWidth?: boolean;
+  rounded?: "none" | "sm" | "md" | "lg" | "xl" | "full";
+  gap?: string; // contoh "gap-1", "gap-2"
 }
 
 export default function PrimaryButton({
@@ -16,21 +25,52 @@ export default function PrimaryButton({
   className = "",
   icon,
   iconPosition = "left",
+  variant = "primary",
+  size = "md",
+
+  align = "center",
+  fullWidth = false,
+  rounded = "md",
+  gap = "gap-1",
 }: PrimaryButtonProps) {
+  const base = `
+    inline-flex items-center
+    ${gap}
+    transition
+    ${fullWidth ? "w-full justify-center" : ""}
+    ${align === "left" ? "justify-start" : ""}
+    ${align === "center" ? "justify-center" : ""}
+    ${align === "right" ? "justify-end" : ""}
+    ${rounded === "none" ? "rounded-none" : ""}
+    ${rounded === "sm" ? "rounded-sm" : ""}
+    ${rounded === "md" ? "rounded" : ""}
+    ${rounded === "lg" ? "rounded-lg" : ""}
+    ${rounded === "xl" ? "rounded-xl" : ""}
+    ${rounded === "full" ? "rounded-full" : ""}
+  `;
+
+  const variants = {
+    primary: "bg-blue-600 text-white hover:bg-blue-700",
+    outline:
+      "border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white",
+    link: "text-blue-300 hover:underline",
+  };
+
+  const sizes = {
+    sm: "px-2 py-1 text-sm",
+    md: "px-4 py-2 text-sm",
+    lg: "px-5 py-3 text-base",
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2 ${className}`}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
     >
-      {/* ICON LEFT */}
-      {icon && iconPosition === "left" && <span>{icon}</span>}
-
-      {/* TEXT */}
-      <span>{children}</span>
-
-      {/* ICON RIGHT */}
-      {icon && iconPosition === "right" && <span>{icon}</span>}
+      {icon && iconPosition === "left" && icon}
+      {children}
+      {icon && iconPosition === "right" && icon}
     </button>
   );
 }
