@@ -5,10 +5,8 @@ import Alert from "@/components/UI/Alert";
 import DialogBox from "@/components/Komify/upload/DialogBox";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
 import HeaderUpload from "@/components/Komify/upload/header";
-import ComicDetails from "@/components/Komify/upload/ComicDetails";
-import ComicCover from "@/components/Komify/upload/ComicCover";
-import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import ChapterPreviewModal from "@/components/Komify/upload/ChapterPreviewModal";
+import ComicForm from "@/components/Komify/upload/ComicForm";
 
 interface UploadComicHeaderProps {
   defaultSlug: number;
@@ -53,15 +51,6 @@ export default function UploadComicPage({
     onCancel: () => {},
   });
 
-  const handleAskUpload = () => {
-    setDialogData({
-      title: "Upload Komik?",
-      desc: "Pastikan data sudah benar sebelum melanjutkan.",
-      onConfirm: handleUpload, // lanjut proses upload
-      onCancel: () => setDialogOpen(false),
-    });
-  };
-
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [chapters, setChapters] = useState([
     { number: "001", title: "", language: "English", files: [] as File[] },
@@ -72,14 +61,6 @@ export default function UploadComicPage({
 
   const handleComicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setComicData({ ...comicData, [e.target.name]: e.target.value });
-  };
-
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (file) {
-      setCoverFile(file);
-      setComicData({ ...comicData, cover: URL.createObjectURL(file) });
-    }
   };
 
   const handleChapterChange = (
@@ -268,7 +249,7 @@ export default function UploadComicPage({
               title: "Gagal Mengunggah",
               message: errMessage,
             });
-          }, 0); // Memastikan setState dipanggil setelah render selesai
+          }, 0);
         }
       };
 
@@ -365,50 +346,20 @@ export default function UploadComicPage({
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
       <main className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* FORM */}
-        <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
-          {/* ========================== */}
-          {/* DETAIL + COVER SECTION     */}
-          {/* ========================== */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* DETAIL (kiri) */}
-            <ComicDetails comicData={comicData} onChange={handleComicChange} />
-
-            {/* COVER + BUTTON (kanan) */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
-              {/* Submit Button */}
-              <button
-                onClick={handleOpenDialog}
-                type="submit"
-                className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
-              >
-                Simpan Komik
-              </button>
-
-              {/* BOX COVER */}
-              <ComicCover
-                cover={comicData.cover}
-                onClick={() => setCoverDialogOpen(true)}
-                onDelete={() => setComicData({ ...comicData, cover: "" })}
-              />
-            </div>
-          </div>
-
-          {/* ========================== */}
-          {/* CHAPTER SECTION (BOTTOM)   */}
-          {/* ========================== */}
-          <ChapterSection
-            chapters={chapters}
-            addChapter={addChapter}
-            removeChapter={removeChapter}
-            handleChapterChange={handleChapterChange}
-            handleChapterFile={handleChapterFile}
-            openPreview={openPreview}
-          />
-        </form>
+        <ComicForm
+          comicData={comicData}
+          setComicData={setComicData}
+          chapters={chapters}
+          addChapter={addChapter}
+          removeChapter={removeChapter}
+          handleChapterChange={handleChapterChange}
+          handleChapterFile={handleChapterFile}
+          openPreview={openPreview}
+          handleOpenDialog={handleOpenDialog}
+          setCoverDialogOpen={setCoverDialogOpen}
+          handleComicChange={handleComicChange}
+        />
       </main>
-
-      {/* Alert */}
       {alertData && (
         <Alert
           type={alertData.type}
