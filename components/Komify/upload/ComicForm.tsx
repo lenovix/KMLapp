@@ -1,0 +1,111 @@
+"use client";
+
+import ComicDetails from "@/components/Komify/upload/ComicDetails";
+import ComicCover from "@/components/Komify/upload/ComicCover";
+import ChapterSection from "@/components/Komify/upload/ChapterSection";
+import PrimaryButton from "@/components/UI/PrimaryButton";
+import { Save } from "lucide-react";
+
+export interface ComicData {
+  slug: string;
+  title: string;
+  author: string[];
+  artist: string[];
+  groups: string[];
+  parodies: string[];
+  characters: string[];
+  categories: string[];
+  tags: string[];
+  uploaded: string; // format YYYY-MM-DD
+  status: "Ongoing" | "Completed" | "Hiatus"; // atau string biasa
+  cover: string;
+}
+
+export interface ChapterData {
+  number: string;
+  title: string;
+  language: string;
+  files: File[];
+}
+
+interface ComicFormProps {
+  comicData: ComicData;
+  setComicData: React.Dispatch<React.SetStateAction<ComicData>>;
+
+  chapters: ChapterData[];
+  addChapter: () => void;
+  removeChapter: (index: number) => void;
+
+  handleChapterChange: (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+
+  handleChapterFile: (index: number, files: FileList | null) => void;
+
+  openPreview: (index: number) => void;
+
+  handleOpenDialog: (
+    e:
+      | React.FormEvent<HTMLFormElement>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
+
+  setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  handleComicChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export default function ComicForm({
+  comicData,
+  setComicData,
+  chapters,
+  addChapter,
+  removeChapter,
+  handleChapterChange,
+  handleChapterFile,
+  openPreview,
+  handleOpenDialog,
+  setCoverDialogOpen,
+  handleComicChange,
+}: ComicFormProps) {
+  return (
+    <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ComicDetails comicData={comicData} onChange={handleComicChange} />
+
+        {/* COVER + BUTTON (kanan) */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
+          {/* Submit Button */}
+          <PrimaryButton
+            type="submit"
+            onClick={handleOpenDialog}
+            icon={<Save size={18} />}
+            iconPosition="left"
+          >
+            Simpan Komik
+          </PrimaryButton>
+
+          {/* BOX COVER */}
+          <ComicCover
+            cover={comicData.cover}
+            onClick={() => setCoverDialogOpen(true)}
+            onDelete={() => setComicData({ ...comicData, cover: "" })}
+          />
+        </div>
+      </div>
+
+      {/* ========================== */}
+      {/* CHAPTER SECTION (BOTTOM)   */}
+      {/* ========================== */}
+      <ChapterSection
+        chapters={chapters}
+        addChapter={addChapter}
+        removeChapter={removeChapter}
+        handleChapterChange={handleChapterChange}
+        handleChapterFile={handleChapterFile}
+        openPreview={openPreview}
+      />
+    </form>
+  );
+}

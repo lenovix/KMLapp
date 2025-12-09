@@ -28,7 +28,21 @@ export default function UploadComicPage({
   const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
 
-  const [comicData, setComicData] = useState({
+  interface ComicData {
+    slug: string;
+    title: string;
+    author: string[];
+    artist: string[];
+    groups: string[];
+    parodies: string[];
+    characters: string[];
+    categories: string[];
+    tags: string[];
+    uploaded: string;
+    status: "Ongoing" | "Completed" | "Hiatus"; // <- union type
+    cover: string;
+  }
+  const [comicData, setComicData] = useState<ComicData>({
     slug: defaultSlug.toString(),
     title: "",
     author: [] as string[],
