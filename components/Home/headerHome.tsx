@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Alert from "@/components/General/Alert";
+import Alert from "@/components/UI/Alert";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
