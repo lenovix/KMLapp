@@ -1,3 +1,5 @@
+import InputText from "@/components/UI/InputText";
+
 interface ComicData {
   title: string;
   parodies: Array<string>;
@@ -14,7 +16,10 @@ interface ComicDetailsProps {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function ComicDetails({ comicData, onChange }: ComicDetailsProps) {
+export default function ComicDetails({
+  comicData,
+  onChange,
+}: ComicDetailsProps) {
   const fields = [
     { name: "title", placeholder: "Title" },
     { name: "parodies", placeholder: "Parodies" },
@@ -26,20 +31,53 @@ export default function ComicDetails({ comicData, onChange }: ComicDetailsProps)
     { name: "categories", placeholder: "Categories" },
   ];
 
+  const handleArrayOrStringChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+
+    const originalValue = comicData[name as keyof ComicData];
+
+    // Jika field berupa ARRAY → convert string ke array
+    if (Array.isArray(originalValue)) {
+      const arr = value
+        .split(",")
+        .map((v) => v.trim())
+        .filter((v) => v !== "");
+
+      const fakeEvent = {
+        ...e,
+        target: { name, value: arr },
+      };
+
+      onChange(fakeEvent as any);
+      return;
+    }
+
+    // Jika bukan array → langsung kirim
+    onChange(e);
+  };
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
       <div className="grid gap-4">
-        {fields.map((field) => (
-          <input
-            key={field.name}
-            name={field.name}
-            placeholder={field.placeholder}
-            value={comicData[field.name as keyof ComicData]}
-            onChange={onChange}
-            className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-300"
-          />
-        ))}
+        {fields.map((field) => {
+          const rawValue = comicData[field.name as keyof ComicData];
+          const value = Array.isArray(rawValue)
+            ? rawValue.join(", ")
+            : rawValue;
+
+          return (
+            <InputText
+              key={field.name}
+              name={field.name}
+              placeholder={field.placeholder}
+              value={value}
+              onChange={handleArrayOrStringChange}
+            />
+          );
+        })}
       </div>
     </div>
   );
+
 }
