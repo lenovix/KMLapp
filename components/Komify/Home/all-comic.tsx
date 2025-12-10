@@ -52,8 +52,10 @@ export default function AllComic() {
     const tags = comics.flatMap((c) =>
       Array.isArray(c.tags) ? c.tags : [c.tags]
     );
-    return Array.from(new Set(tags));
-  }, []);
+    const cleaned = tags.filter((t) => t && t !== "[]" && t.trim() !== "");
+
+    return Array.from(new Set(cleaned));
+  }, [comics]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
