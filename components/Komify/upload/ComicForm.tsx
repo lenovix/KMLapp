@@ -16,7 +16,7 @@ export interface ComicData {
   characters: string[];
   categories: string[];
   tags: string[];
-  uploaded: string; // YYYY-MM-DD
+  uploaded: string;
   status: "Ongoing" | "Completed" | "Hiatus";
   cover: string;
 }

@@ -39,7 +39,7 @@ export default function UploadComicPage({
     categories: string[];
     tags: string[];
     uploaded: string;
-    status: "Ongoing" | "Completed" | "Hiatus"; // <- union type
+    status: "Ongoing" | "Completed" | "Hiatus";
     cover: string;
   }
   const [comicData, setComicData] = useState<ComicData>({
@@ -119,25 +119,24 @@ export default function UploadComicPage({
   const validateBeforeUpload = () => {
     if (!comicData.title) {
       setAlertData({
-        title: "Judul Komik Kosong",
-        message: "Judul komik wajib diisi sebelum mengunggah.",
         type: "error",
+        title: "Judul Komik Kosong",
       });
       return false;
     }
 
     if (!comicData.cover) {
       setAlertData({
-        title: "Cover Belum Diunggah",
         type: "error",
+        title: "Cover Komik Kosong",
       });
       return false;
     }
 
     if (!chapters.length || !chapters[0].title) {
       setAlertData({
-        title: "Judul Chapter Kosong",
         type: "error",
+        title: "Judul Chapter Kosong",
       });
       return false;
     }
@@ -145,17 +144,17 @@ export default function UploadComicPage({
     for (const ch of chapters) {
       if (!ch.number || !ch.title || !ch.language) {
         setAlertData({
+          type: "error",
           title: "Data Chapter Tidak Lengkap",
           message: "Setiap chapter wajib memiliki nomor, judul, dan bahasa.",
-          type: "error",
         });
         return false;
       }
 
       if (!ch.files || ch.files.length === 0) {
         setAlertData({
-          title: `File Chapter ${ch.number} Kosong`,
           type: "error",
+          title: `File Chapter ${ch.number} Kosong`,
         });
         return false;
       }
@@ -269,10 +268,10 @@ export default function UploadComicPage({
 
       xhr.onerror = () => {
         setAlertData({
+          type: "error",
           title: "Kesalahan Jaringan",
           message:
             "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
-          type: "error",
         });
       };
 
@@ -280,10 +279,10 @@ export default function UploadComicPage({
     } catch (error) {
       console.error("Network error:", error);
       setAlertData({
+        type: "error",
         title: "Kesalahan Jaringan",
         message:
           "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
-        type: "error",
       });
     }
   };

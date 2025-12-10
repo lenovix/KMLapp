@@ -15,7 +15,7 @@ interface FileUploadInputProps {
 
   icon?: React.ReactNode;
   text?: string;
-  countFile:string | number | React.ReactNode;
+  countFile: string | number | React.ReactNode;
 }
 
 export default function FileUploadInput({
@@ -53,8 +53,6 @@ export default function FileUploadInput({
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && <label className="text-sm text-gray-300">{label}</label>}
-
-      {/* Tombol */}
       <button
         type="button"
         onClick={handleClick}
@@ -67,11 +65,8 @@ export default function FileUploadInput({
         `}
       >
         {icon}
-        {text}
-        ({countFile} file{Number(countFile) !== 1 ? "s" : ""})
+        {text}({countFile} file{Number(countFile) !== 1 ? "s" : ""})
       </button>
-
-      {/* Hidden Input */}
       <input
         ref={inputRef}
         type="file"

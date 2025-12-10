@@ -57,7 +57,6 @@ export default function ChapterSection({
 
       {chapters.map((ch, index) => (
         <div key={index} className="relative">
-          {/* Tombol Delete di luar */}
           {index > 0 && (
             <button
               type="button"
@@ -67,22 +66,17 @@ export default function ChapterSection({
               ✕
             </button>
           )}
-
-          {/* Card Chapter */}
           <div className="border border-gray-400/40 rounded-xl p-4 bg-white/10 space-y-4">
             <div
               key={index}
               className="border border-gray-400/40 rounded-xl p-4 bg-white/10"
             >
               <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
-                {/* Chapter Number (2 row) */}
                 <div className="md:col-span-1 md:row-span-2 flex items-start">
                   <p className="text-white font-semibold">
                     Chapter {ch.number}
                   </p>
                 </div>
-
-                {/* Title (Row 1, Right side) */}
                 <div className="md:col-span-5">
                   <InputText
                     name="title"
@@ -91,8 +85,6 @@ export default function ChapterSection({
                     onChange={(e) => handleChapterChange(index, e)}
                   />
                 </div>
-
-                {/* Language (Row 2) */}
                 <div className="md:col-span-2">
                   <DropdownInput
                     name="language"
@@ -103,8 +95,6 @@ export default function ChapterSection({
                     options={languages}
                   />
                 </div>
-
-                {/* Upload (Row 2) */}
                 <div className="md:col-span-2">
                   <FileUploadInput
                     multiple
@@ -113,8 +103,6 @@ export default function ChapterSection({
                     countFile={ch.files.length}
                   />
                 </div>
-
-                {/* Preview (Row 2) */}
                 <div className="md:col-span-1 flex items-center">
                   {ch.files.length > 0 && (
                     <PrimaryButton
