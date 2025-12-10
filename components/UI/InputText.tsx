@@ -5,10 +5,9 @@ import { X } from "lucide-react";
 interface InputTextProps {
   name: string;
   placeholder?: string;
-  value: string;
+  value: any;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
-  // optional clear callback jika parent mau handle differently
   onClear?: () => void;
 }
 
@@ -20,20 +19,18 @@ export default function InputText({
   className = "",
   onClear,
 }: InputTextProps) {
-  // helper to trigger onChange with empty value (keeps existing signature)
   const clearValue = () => {
-    // jika parent memberikan onClear, panggil itu (lebih fleksibel)
     if (onClear) {
       onClear();
       return;
     }
 
-    // buat synthetic event untuk dipassing ke onChange
-    const fakeEvent = {
+    // buat synthetic event yang valid sesuai type
+    const event = {
       target: { name, value: "" },
-    } as unknown as React.ChangeEvent<HTMLInputElement>;
+    } as React.ChangeEvent<HTMLInputElement>;
 
-    onChange(fakeEvent);
+    onChange(event);
   };
 
   return (
@@ -42,12 +39,14 @@ export default function InputText({
         type="text"
         name={name}
         placeholder={placeholder}
-        value={value}
+        value={value ?? ""}
         onChange={onChange}
+        spellCheck={false} // memastikan input tidak diubah autocorrect
+        autoComplete="off"
         className={`border p-2 pr-8 rounded bg-white/20 text-white placeholder-gray-300 w-full ${className}`}
       />
 
-      {/* Tombol X untuk hapus */}
+      {/* Tombol X untuk clear */}
       {value && (
         <button
           type="button"

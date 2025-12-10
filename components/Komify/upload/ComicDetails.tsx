@@ -35,28 +35,61 @@ export default function ComicDetails({
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-
     const originalValue = comicData[name as keyof ComicData];
 
-    // Jika field berupa ARRAY → convert string ke array
     if (Array.isArray(originalValue)) {
+      // Jika user baru mengetik koma → jangan split dulu
+      // biarkan koma muncul di input
+      if (value.endsWith(",")) {
+        const fakeEvent = {
+          target: { name, value }, // biarkan string apa adanya dulu
+        } as any;
+
+        onChange(fakeEvent);
+        return;
+      }
+
+      // Jika tidak diakhiri koma → boleh split
       const arr = value
         .split(",")
         .map((v) => v.trim())
         .filter((v) => v !== "");
 
-      const fakeEvent = {
-        ...e,
-        target: { name, value: arr },
-      };
+      const finalValue = arr.length === 0 ? null : arr;
 
-      onChange(fakeEvent as any);
+      const fakeEvent = {
+        target: { name, value: finalValue },
+      } as any;
+
+      onChange(fakeEvent);
       return;
     }
 
-    // Jika bukan array → langsung kirim
+    // Jika STRING biasa
     onChange(e);
   };
+
+
+  const handleClear = (name: string) => {
+    const original = comicData[name as keyof ComicData];
+
+    // jika array → kosongkan array
+    if (Array.isArray(original)) {
+      const fakeEvent = {
+        target: { name, value: [] }, // bukan null
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      onChange(fakeEvent);
+      return;
+    }
+
+    // jika string → ""
+    const fakeEvent = {
+      target: { name, value: "" },
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    onChange(fakeEvent);
+  };
+
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
       <div className="grid gap-4">
@@ -71,8 +104,9 @@ export default function ComicDetails({
               key={field.name}
               name={field.name}
               placeholder={field.placeholder}
-              value={value}
+              value={typeof value === "string" ? value : ""}
               onChange={handleArrayOrStringChange}
+              onClear={() => handleClear(field.name)}
             />
           );
         })}
