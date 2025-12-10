@@ -25,7 +25,7 @@ export default function ChapterPreviewModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <h2 className="text-lg font-semibold text-black">
-            Preview Chapter {chapter.number} :: {chapter.title} :: {chapter.files.length} Images
+            Chapter {chapter.number} :: {chapter.title} :: {chapter.files.length} Images
           </h2>
 
           <div className="flex items-center gap-3">
