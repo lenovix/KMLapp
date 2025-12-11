@@ -1,57 +1,40 @@
+// components/Komify/Detail/ChaptersList.tsx
+"use client";
+
 import Link from "next/link";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-dayjs.extend(relativeTime);
-
-interface ChapterItem {
-  number: number;
-  title: string;
-  uploadChapter: string;
-}
-
-interface ChaptersListProps {
-  comicSlug: Number;
-  chapters: ChapterItem[];
-  onAddChapter: () => void;
-}
 
 export default function ChaptersList({
-  comicSlug,
+  slug,
   chapters,
-  onAddChapter,
-}: ChaptersListProps) {
+}: {
+  slug: number;
+  chapters: any[];
+}) {
+  if (!chapters || chapters.length === 0) return null;
+
   return (
-    <div className="mt-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-blue-700">📖 Chapters</h2>
-
-        <button
-          onClick={onAddChapter}
-          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-700"
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {chapters.map((ch) => (
+        <Link
+          key={ch.number}
+          href={`/reader/${slug}/${ch.number}`}
+          className="
+            bg-slate-800 border border-slate-700 rounded-2xl p-5
+            shadow-sm hover:shadow-md hover:border-blue-500 
+            hover:bg-slate-750 transition"
         >
-          + Tambah Chapter
-        </button>
-      </div>
+          <div className="text-xl font-semibold text-blue-400 mb-1">
+            Chapter {ch.number}
+          </div>
 
-      {/* Chapter Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-        {chapters.map((ch) => (
-          <Link
-            key={ch.number}
-            href={`/reader/${comicSlug}/${ch.number}`}
-            className="border rounded-lg p-4 bg-white hover:shadow"
-          >
-            <div className="font-bold text-blue-700 text-lg">
-              Chapter {ch.number}
-            </div>
-            <div className="text-gray-700">{ch.title}</div>
-            <div className="text-xs text-gray-500 mt-2">
-              {dayjs(ch.uploadChapter).fromNow()}
-            </div>
-          </Link>
-        ))}
-      </div>
+          <div className="text-slate-300 text-sm">{ch.title}</div>
+
+          <div className="text-xs text-slate-500 mt-4">
+            {dayjs(ch.uploadChapter).fromNow()}
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }

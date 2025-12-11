@@ -10,6 +10,12 @@ import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comics from "@/data/komify/comics.json";
 import { Edit, Trash } from "lucide-react";
 import DialogBox from "@/components/UI/DialogBox";
+import ComicTags from "@/components/Komify/Detail/ComicTags";
+import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
+import ChaptersHeader from "@/components/Komify/Detail/ChaptersHeader";
+import ChaptersList from "@/components/Komify/Detail/ChaptersList";
+import ComicActions from "@/components/Komify/Detail/ComicActions";
+import PrimaryButton from "@/components/UI/PrimaryButton";
 
 dayjs.extend(relativeTime);
 
@@ -95,7 +101,7 @@ export default function ComicDetail() {
     });
 
     if (res.ok) {
-      router.push("/");
+      router.push("/komify");
     } else {
       alert("Gagal menghapus komik!");
     }
@@ -112,27 +118,34 @@ export default function ComicDetail() {
         {/* Cover + Info */}
         <div
           className="relative flex flex-col md:flex-row gap-8 mb-10 
-             bg-slate-900/70 border border-slate-700 
-             rounded-2xl shadow-xl p-6 backdrop-blur"
+                    bg-slate-900/70 border border-slate-700 
+                    rounded-2xl shadow-xl p-6 backdrop-blur"
         >
-          {/* DELETE BUTTON — pojok kanan atas */}
-          <button
-            onClick={() => router.push(`/edit-comic?slug=${comic.slug}`)}
-            className="absolute top-4 right-20 px-4 py-2 rounded-xl bg-blue-600 text-white shadow 
-                   hover:bg-blue-700 active:scale-95 transition"
-          >
-            <Edit />
-          </button>
-          <button
-            onClick={() => setOpenDeleteDialog(true)}
-            disabled={deleting}
-            className="absolute top-4 right-4 px-4 py-2 
-            bg-red-600 text-white rounded-xl shadow 
-            hover:bg-red-700 active:scale-95 transition 
-            disabled:opacity-50 text-sm"
-          >
-            {deleting ? "Menghapus..." : <Trash />}
-          </button>
+          {/* ACTION BUTTONS (Edit & Delete) */}
+          <div className="absolute top-4 right-4 flex gap-3">
+            <PrimaryButton
+              onClick={() => router.push(`/edit-comic?slug=${comic.slug}`)}
+              icon={<Edit />}
+              iconPosition="left"
+              variant="primary"
+              rounded="xl"
+              size="sm"
+              className="shadow"
+            >
+              Edit
+            </PrimaryButton>
+
+            <PrimaryButton
+              onClick={() => setOpenDeleteDialog(true)}
+              icon={<Trash />}
+              iconPosition="left"
+              rounded="xl"
+              size="sm"
+              className="bg-red-600 hover:bg-red-700 disabled:opacity-50 shadow"
+            >
+              {deleting ? "Menghapus..." : "Delete"}
+            </PrimaryButton>
+          </div>
 
           {/* COVER */}
           <img
@@ -142,191 +155,25 @@ export default function ComicDetail() {
                 : "/placeholder-cover.jpg"
             }
             alt={comic.title}
-            className="w-56 h-auto rounded-xl object-cover 
-               border border-slate-700 shadow-lg"
+            className="w-56 h-auto rounded-xl object-cover border border-slate-700 shadow-lg"
           />
 
           {/* RIGHT CONTENT */}
           <div className="flex-1 flex flex-col">
-            {/* TAGS */}
-            <div className="flex flex-wrap gap-2 mb-5">
-              {comic.tags?.map((tag, i) => (
-                <Link
-                  key={i}
-                  href={`/tags/${encodeURIComponent(tag)}`}
-                  className="text-xs bg-blue-900/30 text-blue-300 border border-blue-800 
-                     px-2 py-1 rounded-full shadow-sm hover:bg-blue-900/50 transition"
-                >
-                  {tag}
-                </Link>
-              ))}
-            </div>
-
-            {/* METADATA */}
-            <div
-              className="grid grid-cols-1gap-x-10 gap-y-2 
-                    text-sm text-slate-300 mb-6"
-            >
-              <div>
-                <span className="font-semibold text-slate-100">Status:</span>{" "}
-                {comic.status === "Ongoing" && (
-                  <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded-md">
-                    Ongoing
-                  </span>
-                )}
-                {comic.status === "complete" && (
-                  <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded-md">
-                    Complete
-                  </span>
-                )}
-              </div>
-              {/* Parodies */}
-              {Array.isArray(comic.parodies) &&
-                comic.parodies.length > 0 &&
-                comic.parodies[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Parodies:
-                    </span>{" "}
-                    {comic.parodies.join(", ")}
-                  </div>
-                )}
-
-              {/* Characters */}
-              {Array.isArray(comic.characters) &&
-                comic.characters.length > 0 &&
-                comic.characters[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Characters:
-                    </span>{" "}
-                    {comic.characters.join(", ")}
-                  </div>
-                )}
-
-              {/* Author */}
-              {Array.isArray(comic.author) &&
-                comic.author.length > 0 &&
-                comic.author[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Author:
-                    </span>{" "}
-                    {comic.author.join(", ")}
-                  </div>
-                )}
-
-              {/* Artists */}
-              {Array.isArray(comic.artists) &&
-                comic.artists.length > 0 &&
-                comic.artists[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Artist:
-                    </span>{" "}
-                    {comic.artists.join(", ")}
-                  </div>
-                )}
-
-              {/* Groups */}
-              {Array.isArray(comic.groups) &&
-                comic.groups.length > 0 &&
-                comic.groups[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Groups:
-                    </span>{" "}
-                    {comic.groups.join(", ")}
-                  </div>
-                )}
-
-              {/* Categories */}
-              {Array.isArray(comic.categories) &&
-                comic.categories.length > 0 &&
-                comic.categories[0] !== "[]" && (
-                  <div>
-                    <span className="font-semibold text-slate-100">
-                      Categories:
-                    </span>{" "}
-                    {comic.categories.join(", ")}
-                  </div>
-                )}
-
-              <div>
-                <span className="font-semibold text-slate-100">Uploaded:</span>{" "}
-                {comic.uploaded}
-              </div>
-            </div>
-
-            {/* BUTTONS — sekarang ada di bawah metadata */}
-            <div className="flex flex-wrap items-center gap-3 mt-auto">
-              {/* Bookmark */}
-              <button
-                onClick={handleBookmark}
-                className={`px-4 py-2 rounded-xl shadow text-white transition active:scale-95 ${
-                  bookmarked
-                    ? "bg-yellow-500 hover:bg-yellow-600"
-                    : "bg-slate-700 hover:bg-slate-600"
-                }`}
-              >
-                {bookmarked ? "★ Bookmark" : "☆ Bookmark"}
-              </button>
-
-              {/* ⭐ Rating */}
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => handleRating(star)}
-                    className="text-2xl text-yellow-400 hover:scale-110 transition"
-                  >
-                    {userRating >= star ? "★" : "☆"}
-                  </button>
-                ))}
-
-                <span className="ml-2 text-sm text-slate-400">
-                  ({avgRating}/5)
-                </span>
-              </div>
-            </div>
+            <ComicTags tags={comic.tags} />
+            <ComicMetadata comic={comic} />
+            <ComicActions
+              bookmarked={bookmarked}
+              onBookmark={handleBookmark}
+              userRating={userRating}
+              onRate={handleRating}
+              avgRating={avgRating}
+            />
           </div>
         </div>
 
-        {/* Chapters Header */}
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            Chapters
-          </h2>
-
-          <button
-            onClick={() => router.push(`/add-chapter?slug=${comic.slug}`)}
-            className=" px-4 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 active:scale-95 transition"
-          >
-            + Tambah Chapter
-          </button>
-        </div>
-
-        {/* Chapter List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {comic.chapters.map((ch) => (
-            <Link
-              key={ch.number}
-              href={`/reader/${comic.slug}/${ch.number}`}
-              className="
-                    bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-blue-500 hover:bg-slate-750 transition"
-            >
-              <div className="text-xl font-semibold text-blue-400 mb-1">
-                Chapter {ch.number}
-              </div>
-
-              <div className="text-slate-300 text-sm">{ch.title}</div>
-
-              <div className="text-xs text-slate-500 mt-4">
-                {dayjs(ch.uploadChapter).fromNow()}
-              </div>
-            </Link>
-          ))}
-        </div>
+        <ChaptersHeader slug={comic.slug} />
+        <ChaptersList slug={comic.slug} chapters={comic.chapters} />
         <CommentSection slug={String(comic.slug)} />
       </main>
       {
