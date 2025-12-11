@@ -83,8 +83,8 @@ export default function HeaderHome({
       {showAlert && (
         <Alert
           type="success"
-          message="Logout berhasil"
-          duration={3000}
+          title="Logout berhasil"
+          onClose={() => setShowAlert(false)}
         />
       )}
     </>

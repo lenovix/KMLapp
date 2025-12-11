@@ -151,7 +151,11 @@ export default function CommentSection({ slug }: { slug: string }) {
         </form>
 
         {/* List Komentar */}
-        {comments.length > 0 && (
+        {comments.length === 0 ? (
+          <p className="text-gray-500 text-sm italic text-center">
+            Belum ada komentar untuk komik ini.
+          </p>
+        ) : (
           <div className="space-y-4 bg-gray-900/40 border border-white/10 rounded-xl p-4">
             {[...comments]
               .sort(
