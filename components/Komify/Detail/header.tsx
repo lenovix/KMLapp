@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 interface UploadComicHeaderProps {
-  defaulftSlug: number;
+  defaulftSlug: string;
 }
 
 export default function UploadComicHeader({
@@ -17,7 +17,7 @@ export default function UploadComicHeader({
             <Link href="/komify" className="hover:opacity-80">
               Komify
             </Link>
-            <span> :: #{defaulftSlug}</span>
+            <span> :: {defaulftSlug}</span>
           </p>
         </div>
       </div>

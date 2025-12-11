@@ -5,8 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Header from "@/components/Komify/slug/header";
-import CommentSection from "@/components/Komify/slug/CommentSection";
+import Header from "@/components/Komify/Detail/header";
+import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comics from "@/data/komify/comics.json";
 import {
   isBookmarked,
@@ -15,11 +15,14 @@ import {
   setRating,
   getAverageRating,
 } from "@/lib/BookmarkRatingUtils";
+import { Edit, Trash } from "lucide-react";
+import DialogBox from "@/components/UI/DialogBox";
 
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
-    const [version, setVersion] = useState("");
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [version, setVersion] = useState("");
   const params = useParams();
   const router = useRouter();
 
@@ -58,9 +61,6 @@ export default function ComicDetail() {
   const handleDelete = async () => {
     if (!comic) return;
 
-    if (!confirm("Yakin ingin menghapus komik ini beserta semua chapter-nya?"))
-      return;
-
     setDeleting(true);
 
     const res = await fetch("/api/delete-comic", {
@@ -78,15 +78,39 @@ export default function ComicDetail() {
     setDeleting(false);
   };
 
+
   if (!comic) return <p className="p-6">Loading...</p>;
 
   return (
     <>
-      <Header defaulftSlug={comic.slug} />
-
+      <Header defaulftSlug={comic.title} />
       <main className="p-6 max-w-6xl mx-auto">
         {/* Cover + Info */}
-        <div className="flex flex-col md:flex-row gap-8 mb-10 bg-white rounded-xl shadow-lg p-6">
+        <div
+          className="relative flex flex-col md:flex-row gap-8 mb-10 
+             bg-slate-900/70 border border-slate-700 
+             rounded-2xl shadow-xl p-6 backdrop-blur"
+        >
+          {/* DELETE BUTTON — pojok kanan atas */}
+          <button
+            onClick={() => router.push(`/edit-comic?slug=${comic.slug}`)}
+            className="absolute top-4 right-20 px-4 py-2 rounded-xl bg-blue-600 text-white shadow 
+                   hover:bg-blue-700 active:scale-95 transition"
+          >
+            <Edit />
+          </button>
+          <button
+            onClick={() => setOpenDeleteDialog(true)}
+            disabled={deleting}
+            className="absolute top-4 right-4 px-4 py-2 
+            bg-red-600 text-white rounded-xl shadow 
+            hover:bg-red-700 active:scale-95 transition 
+            disabled:opacity-50 text-sm"
+          >
+            {deleting ? "Menghapus..." : <Trash />}
+          </button>
+
+          {/* COVER */}
           <img
             src={
               comic.cover
@@ -94,27 +118,58 @@ export default function ComicDetail() {
                 : "/placeholder-cover.jpg"
             }
             alt={comic.title}
-            className="w-56 h-auto rounded-lg shadow-lg border-2 border-gray-200 object-cover"
+            className="w-56 h-auto rounded-xl object-cover 
+               border border-slate-700 shadow-lg"
           />
 
-          <div className="flex-1">
-            <h1 className="text-4xl font-extrabold mb-2 text-blue-800">
-              {comic.title}
-            </h1>
+          {/* RIGHT CONTENT */}
+          <div className="flex-1 flex flex-col">
+            {/* TAGS */}
+            <div className="flex flex-wrap gap-2 mb-5">
+              {comic.tags?.map((tag, i) => (
+                <Link
+                  key={i}
+                  href={`/tags/${encodeURIComponent(tag)}`}
+                  className="text-xs bg-blue-900/30 text-blue-300 border border-blue-800 
+                     px-2 py-1 rounded-full shadow-sm hover:bg-blue-900/50 transition"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
 
-            {/* Bookmark, Rating, Delete */}
-            <div className="flex items-center gap-4 mb-4">
-              <button
-                onClick={() => router.push(`/edit-comic?slug=${comic.slug}`)}
-                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-700"
-              >
-                ✏️ Edit Comic
-              </button>
+            {/* METADATA */}
+            <div
+              className="grid grid-cols-1gap-x-10 gap-y-2 
+                    text-sm text-slate-300 mb-6"
+            >
+              <div>
+                <span className="font-semibold text-slate-100">Author:</span>{" "}
+                {comic.author?.join(", ")}
+              </div>
+              <div>
+                <span className="font-semibold text-slate-100">
+                  Categories:
+                </span>{" "}
+                {comic.categories?.join(", ")}
+              </div>
+              <div>
+                <span className="font-semibold text-slate-100">Uploaded:</span>{" "}
+                {comic.uploaded}
+              </div>
+            </div>
 
+            {/* BUTTONS — sekarang ada di bawah metadata */}
+            <div className="flex flex-wrap items-center gap-3 mt-auto">
+              {/* Edit Button */}
+
+              {/* Bookmark */}
               <button
                 onClick={handleBookmark}
-                className={`px-3 py-1 rounded text-white ${
-                  bookmarked ? "bg-yellow-500" : "bg-gray-400"
+                className={`px-4 py-2 rounded-xl shadow text-white transition active:scale-95 ${
+                  bookmarked
+                    ? "bg-yellow-500 hover:bg-yellow-600"
+                    : "bg-slate-700 hover:bg-slate-600"
                 }`}
               >
                 {bookmarked ? "★ Favorit" : "☆ Bookmark"}
@@ -126,80 +181,49 @@ export default function ComicDetail() {
                   <button
                     key={star}
                     onClick={() => handleRating(star)}
-                    className="text-2xl"
+                    className="text-2xl text-yellow-400 hover:scale-110 transition"
                   >
                     {userRating >= star ? "★" : "☆"}
                   </button>
                 ))}
-                <span className="ml-2 text-sm text-gray-600">
+                <span className="ml-2 text-sm text-slate-400">
                   ({avgRating}/5)
                 </span>
-              </div>
-
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-700"
-              >
-                {deleting ? "Menghapus..." : "🗑️ Hapus"}
-              </button>
-            </div>
-
-            {/* TAGS */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {comic.tags?.map((tag, i) => (
-                <Link
-                  key={i}
-                  href={`/tags/${encodeURIComponent(tag)}`}
-                  className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full border"
-                >
-                  #{tag}
-                </Link>
-              ))}
-            </div>
-
-            {/* Metadata */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-black">
-              <div>
-                <span className="font-semibold">Author:</span>{" "}
-                {comic.author?.join(", ")}
-              </div>
-              <div>
-                <span className="font-semibold">Categories:</span>{" "}
-                {comic.categories?.join(", ")}
-              </div>
-              <div>
-                <span className="font-semibold">Uploaded:</span>{" "}
-                {comic.uploaded}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Chapters */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-blue-700">📖 Chapters</h2>
+        {/* Chapters Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
+            Chapters
+          </h2>
 
           <button
             onClick={() => router.push(`/add-chapter?slug=${comic.slug}`)}
-            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-700"
+            className=" px-4 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 active:scale-95 transition"
           >
             + Tambah Chapter
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+        {/* Chapter List */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {comic.chapters.map((ch) => (
             <Link
               key={ch.number}
               href={`/reader/${comic.slug}/${ch.number}`}
-              className="border rounded-lg p-4 bg-white hover:shadow"
+              className="
+                    bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-blue-500 hover:bg-slate-750 transition"
             >
-              <div className="font-bold text-blue-700 text-lg">
+              <div className="text-xl font-semibold text-blue-400 mb-1">
                 Chapter {ch.number}
               </div>
-              <div className="text-gray-700">{ch.title}</div>
-              <div className="text-xs text-gray-500 mt-2">
+
+              <div className="text-slate-300 text-sm">{ch.title}</div>
+
+              <div className="text-xs text-slate-500 mt-4">
                 {dayjs(ch.uploadChapter).fromNow()}
               </div>
             </Link>
@@ -208,6 +232,21 @@ export default function ComicDetail() {
 
         <CommentSection slug={String(comic.slug)} />
       </main>
+      {
+        <DialogBox
+          open={openDeleteDialog}
+          title="Hapus Komik?"
+          desc="Komik ini akan dihapus beserta semua chapter di dalamnya. Tindakan ini tidak bisa dibatalkan."
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={() => {
+            setOpenDeleteDialog(false);
+            handleDelete();
+          }}
+          onCancel={() => setOpenDeleteDialog(false)}
+        />
+      }
     </>
   );
 }
