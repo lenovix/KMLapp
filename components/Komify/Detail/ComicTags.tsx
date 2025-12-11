@@ -12,12 +12,25 @@ export default function ComicTags({ tags = [] }: { tags: string[] }) {
         <Link
           key={i}
           href={`/tags/${encodeURIComponent(tag)}`}
-          className="text-xs bg-blue-900/30 text-blue-300 border border-blue-800 
-             px-2 py-1 rounded-full shadow-sm hover:bg-blue-900/50 transition"
+          className="
+          inline-flex items-center
+          text-xs font-medium
+          bg-blue-800/20 text-blue-400
+          border border-blue-600
+          px-3 py-1
+          rounded-full
+          shadow-sm
+          hover:bg-blue-800/40
+          hover:text-white
+          transition
+          duration-200
+          cursor-pointer
+        "
         >
           {tag}
         </Link>
       ))}
     </div>
   );
+
 }
