@@ -268,7 +268,7 @@ export default function ComicDetail() {
 
         {/* Chapters Header */}
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             Chapters
           </h2>
 
@@ -301,7 +301,6 @@ export default function ComicDetail() {
             </Link>
           ))}
         </div>
-
         <CommentSection slug={String(comic.slug)} />
       </main>
       {
