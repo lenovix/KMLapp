@@ -23,27 +23,23 @@ export default function ComicDetail() {
   const [version, setVersion] = useState("");
   const params = useParams();
   const router = useRouter();
-
   const slug = params.slug;
   const comic = comics.find((c) => String(c.slug) === String(slug));
-
   const [bookmarked, setBookmarked] = useState(false);
   const [userRating, setUserRatingState] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
-
   const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     setVersion(`?v=${Date.now()}`);
   }, []);
 
   useEffect(() => {
     if (!comic?.slug) return;
-
-    fetch(`/api/komify/bookmarks?slug=${comic.slug}`)
+    fetch(`/api/komify/bookmarks?slug=${String(comic.slug)}`)
       .then((res) => res.json())
       .then((data) => setBookmarked(data.bookmarked))
       .catch(() => setBookmarked(false));
-
     fetch(`/api/komify/ratings?slug=${comic.slug}`)
       .then((res) => res.json())
       .then((data) => {
@@ -62,16 +58,16 @@ export default function ComicDetail() {
     const res = await fetch("/api/komify/bookmarks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: comic.slug }),
+      body: JSON.stringify({ slug: String(comic.slug) }), // pastikan string
     });
 
     const data = await res.json();
     setBookmarked(data.bookmarked);
   };
 
+
   const handleRating = async (rating: number) => {
     if (!comic) return;
-
     const res = await fetch("/api/komify/ratings", {
       method: "POST",
       body: JSON.stringify({
@@ -79,7 +75,6 @@ export default function ComicDetail() {
         rating,
       }),
     });
-
     if (res.ok) {
       setUserRatingState(rating);
       setAvgRating(rating);
@@ -88,21 +83,17 @@ export default function ComicDetail() {
 
   const handleDelete = async () => {
     if (!comic) return;
-
     setDeleting(true);
-
     const res = await fetch("/api/delete-comic", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: comic.slug }),
     });
-
     if (res.ok) {
       router.push("/komify");
     } else {
       alert("Gagal menghapus komik!");
     }
-
     setDeleting(false);
   };
 

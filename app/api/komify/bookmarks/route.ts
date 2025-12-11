@@ -30,13 +30,11 @@ function writeBookmarksFile(data: string[]) {
 
 /** GET — cek bookmark per slug */
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const slug = searchParams.get("slug");
-
+  const url = new URL(req.url);
+  const slug = url.searchParams.get("slug"); // tetap string
   const bookmarks = readBookmarksFile();
   const bookmarked = slug ? bookmarks.includes(slug) : false;
-
-  return NextResponse.json({ bookmarked });
+  return NextResponse.json({ bookmarked, bookmarks });
 }
 
 /** POST — toggle bookmark */
