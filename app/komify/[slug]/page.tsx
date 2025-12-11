@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Edit, Trash } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Header from "@/components/Komify/Detail/header";
 import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comics from "@/data/komify/comics.json";
-import { Edit, Trash } from "lucide-react";
 import DialogBox from "@/components/UI/DialogBox";
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Upload, ArrowLeft, Bookmark } from "lucide-react";
 
 interface AllComicHeaderProps {
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
+  searchTerm?: string;
+  setSearchTerm?: (value: string) => void;
 }
 
 export default function AllComicHeader({
@@ -16,26 +16,19 @@ export default function AllComicHeader({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         {/* Left section */}
-        <div className="flex items-center gap-4 text-2xl font-bold text-gray-900 dark:text-white">
-          <Link href="/" className="flex items-center gap-1 hover:opacity-80">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+          <Link
+            href="/komify"
+            className="flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:opacity-80"
+          >
             <ArrowLeft className="w-6 h-6" />
+            <span className="sr-only">Back</span>
           </Link>
 
-          <Link href="/komify" className="hover:opacity-80">
-            Komify
-          </Link>
+          <h1 className="text-3xl font-bold">
+            My Bookmarks
+          </h1>
         </div>
-
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Cari komik..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md px-4 py-2 border rounded-lg
-               focus:outline-none focus:ring-2 focus:ring-blue-500
-               dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-        />
 
         {/* Right section (Bookmark + Upload) */}
         <div className="flex items-center gap-3">
