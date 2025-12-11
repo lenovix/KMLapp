@@ -14,27 +14,30 @@ export default function ChaptersList({
   if (!chapters || chapters.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div className="w-full max-w-6xl mx-auto grid grid-cols-1 gap-6">
       {chapters.map((ch) => (
         <Link
           key={ch.number}
           href={`/reader/${slug}/${ch.number}`}
           className="
-            bg-slate-800 border border-slate-700 rounded-2xl p-5
-            shadow-sm hover:shadow-md hover:border-blue-500 
-            hover:bg-slate-750 transition"
+        w-full
+        bg-slate-800 border border-slate-700 rounded-2xl p-6
+        shadow-md hover:shadow-lg hover:border-blue-500
+        hover:bg-slate-750 transition
+      "
         >
-          <div className="text-xl font-semibold text-blue-400 mb-1">
+          <div className="text-2xl font-bold text-blue-400 mb-2">
             Chapter {ch.number}
           </div>
 
-          <div className="text-slate-300 text-sm">{ch.title}</div>
+          <div className="text-slate-300 text-base mb-2">{ch.title}</div>
 
-          <div className="text-xs text-slate-500 mt-4">
+          <div className="text-xs text-slate-500">
             {dayjs(ch.uploadChapter).fromNow()}
           </div>
         </Link>
       ))}
     </div>
   );
+
 }
