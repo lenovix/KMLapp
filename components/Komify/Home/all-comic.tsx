@@ -77,7 +77,7 @@ export default function AllComic() {
                 {paginatedComics.map((comic) => (
                   <Link
                     key={comic.slug}
-                    href={`/${comic.slug}`}
+                    href={`/komify/${comic.slug}`}
                     className="group bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col"
                   >
                     <img
