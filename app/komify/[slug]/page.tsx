@@ -8,13 +8,6 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Header from "@/components/Komify/Detail/header";
 import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comics from "@/data/komify/comics.json";
-import {
-  isBookmarked,
-  toggleBookmark,
-  getRating,
-  setRating,
-  getAverageRating,
-} from "@/lib/BookmarkRatingUtils";
 import { Edit, Trash } from "lucide-react";
 import DialogBox from "@/components/UI/DialogBox";
 
@@ -32,30 +25,62 @@ export default function ComicDetail() {
   const [bookmarked, setBookmarked] = useState(false);
   const [userRating, setUserRatingState] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
+
   const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     setVersion(`?v=${Date.now()}`);
   }, []);
 
   useEffect(() => {
+    if (!comic?.slug) return;
+
+    fetch(`/api/komify/bookmarks?slug=${comic.slug}`)
+      .then((res) => res.json())
+      .then((data) => setBookmarked(data.bookmarked))
+      .catch(() => setBookmarked(false));
+
+    fetch(`/api/komify/ratings?slug=${comic.slug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setUserRatingState(data.rating || 0);
+        setAvgRating(data.rating || 0);
+      })
+      .catch(() => {
+        setUserRatingState(0);
+        setAvgRating(0);
+      });
+  }, [comic?.slug]);
+
+  const handleBookmark = async () => {
     if (!comic) return;
 
-    setBookmarked(isBookmarked(comic.slug));
-    setUserRatingState(getRating(comic.slug));
-    setAvgRating(getAverageRating(comic.slug));
-  }, [comic]);
+    const res = await fetch("/api/komify/bookmarks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: comic.slug }),
+    });
 
-  const handleBookmark = () => {
-    if (!comic) return;
-    toggleBookmark(comic.slug);
-    setBookmarked(isBookmarked(comic.slug));
+    const data = await res.json();
+
+    // PENTING: update UI sesuai respon API
+    setBookmarked(data.bookmarked);
   };
 
-  const handleRating = (rating: number) => {
+  const handleRating = async (rating: number) => {
     if (!comic) return;
-    setRating(comic.slug, rating);
-    setUserRatingState(rating);
-    setAvgRating(getAverageRating(comic.slug));
+
+    const res = await fetch("/api/komify/ratings", {
+      method: "POST",
+      body: JSON.stringify({
+        slug: comic.slug,
+        rating,
+      }),
+    });
+
+    if (res.ok) {
+      setUserRatingState(rating);
+      setAvgRating(rating); // dahulu getAverageRating()
+    }
   };
 
   const handleDelete = async () => {
@@ -244,7 +269,7 @@ export default function ComicDetail() {
                     : "bg-slate-700 hover:bg-slate-600"
                 }`}
               >
-                {bookmarked ? "★ Favorit" : "☆ Bookmark"}
+                {bookmarked ? "★ Bookmark" : "☆ Bookmark"}
               </button>
 
               {/* ⭐ Rating */}
@@ -258,6 +283,7 @@ export default function ComicDetail() {
                     {userRating >= star ? "★" : "☆"}
                   </button>
                 ))}
+
                 <span className="ml-2 text-sm text-slate-400">
                   ({avgRating}/5)
                 </span>
