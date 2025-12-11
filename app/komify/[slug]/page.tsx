@@ -15,10 +15,13 @@ import ChaptersHeader from "@/components/Komify/Detail/ChaptersHeader";
 import ChaptersList from "@/components/Komify/Detail/ChaptersList";
 import ComicActions from "@/components/Komify/Detail/ComicActions";
 import PrimaryButton from "@/components/UI/PrimaryButton";
+import Alert from "@/components/UI/Alert";
 
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [version, setVersion] = useState("");
   const params = useParams();
@@ -65,7 +68,6 @@ export default function ComicDetail() {
     setBookmarked(data.bookmarked);
   };
 
-
   const handleRating = async (rating: number) => {
     if (!comic) return;
     const res = await fetch("/api/komify/ratings", {
@@ -92,7 +94,8 @@ export default function ComicDetail() {
     if (res.ok) {
       router.push("/komify");
     } else {
-      alert("Gagal menghapus komik!");
+      setAlertMessage("Gagal menghapus komik!");
+      setShowAlert(true);
     }
     setDeleting(false);
   };
@@ -179,6 +182,15 @@ export default function ComicDetail() {
           onCancel={() => setOpenDeleteDialog(false)}
         />
       }
+      {showAlert && (
+        <Alert
+          type="error"
+          title="Error"
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+          duration={5000}
+        />
+      )}
     </>
   );
 }
