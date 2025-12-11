@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Header from "@/components/Komify/Detail/header";
@@ -67,8 +66,6 @@ export default function ComicDetail() {
     });
 
     const data = await res.json();
-
-    // PENTING: update UI sesuai respon API
     setBookmarked(data.bookmarked);
   };
 
@@ -85,7 +82,7 @@ export default function ComicDetail() {
 
     if (res.ok) {
       setUserRatingState(rating);
-      setAvgRating(rating); // dahulu getAverageRating()
+      setAvgRating(rating);
     }
   };
 
