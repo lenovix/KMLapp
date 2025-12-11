@@ -11,8 +11,8 @@ interface Comment {
 }
 
 export default function CommentSection({ slug }: { slug: string }) {
-    const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -79,7 +79,6 @@ export default function CommentSection({ slug }: { slug: string }) {
       setComments(previousComments); // rollback jika gagal
     }
   };
-
 
   // Simpan hasil edit
   const handleEdit = async (id: string) => {
@@ -152,100 +151,102 @@ export default function CommentSection({ slug }: { slug: string }) {
         </form>
 
         {/* List Komentar */}
-        <div className="space-y-4 bg-gray-900/40 border border-white/10 rounded-xl p-4">
-          {[...comments]
-            .sort(
-              (a, b) =>
-                new Date(b.timestamp).getTime() -
-                new Date(a.timestamp).getTime()
-            )
-            .map((cmt) => (
-              <div
-                key={cmt.id}
-                className="p-4 bg-gray-800/50 border border-white/10 rounded-xl shadow-sm 
-                     hover:shadow-lg hover:bg-gray-800/70 transition"
-              >
-                {editingId === cmt.id ? (
-                  <div className="bg-gray-800 p-3 rounded-lg border border-white/10">
-                    <textarea
-                      value={editingText}
-                      onChange={(e) => setEditingText(e.target.value)}
-                      className="w-full p-3 bg-gray-900 text-gray-100 rounded-lg border border-white/10 
-                           focus:ring-2 focus:ring-blue-500 outline-none"
-                      rows={2}
-                    />
+        {comments.length > 0 && (
+          <div className="space-y-4 bg-gray-900/40 border border-white/10 rounded-xl p-4">
+            {[...comments]
+              .sort(
+                (a, b) =>
+                  new Date(b.timestamp).getTime() -
+                  new Date(a.timestamp).getTime()
+              )
+              .map((cmt) => (
+                <div
+                  key={cmt.id}
+                  className="p-4 bg-gray-800/50 border border-white/10 rounded-xl shadow-sm 
+                hover:shadow-lg hover:bg-gray-800/70 transition"
+                >
+                  {editingId === cmt.id ? (
+                    <div className="bg-gray-800 p-3 rounded-lg border border-white/10">
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        className="w-full p-3 bg-gray-900 text-gray-100 rounded-lg border border-white/10 
+                      focus:ring-2 focus:ring-blue-500 outline-none"
+                        rows={2}
+                      />
 
-                    <div className="flex justify-end gap-4 mt-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingId(null);
-                          setEditingText("");
-                        }}
-                        className="text-sm text-gray-400 hover:text-gray-200"
-                      >
-                        Batal
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleEdit(cmt.id)}
-                        className="text-sm text-blue-400 hover:text-blue-300"
-                      >
-                        Simpan
-                      </button>
+                      <div className="flex justify-end gap-4 mt-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditingText("");
+                          }}
+                          className="text-sm text-gray-400 hover:text-gray-200"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(cmt.id)}
+                          className="text-sm text-blue-400 hover:text-blue-300"
+                        >
+                          Simpan
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* Text */}
-                    <p className="text-gray-200 whitespace-pre-line leading-relaxed">
-                      {cmt.text}
-                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Text */}
+                      <p className="text-gray-200 whitespace-pre-line leading-relaxed">
+                        {cmt.text}
+                      </p>
 
-                    {/* Meta info */}
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 font-medium text-gray-300">
-                        <User size={14} className="text-gray-400" />
-                        {cmt.username}
-                      </span>
+                      {/* Meta info */}
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-1 font-medium text-gray-300">
+                          <User size={14} className="text-gray-400" />
+                          {cmt.username}
+                        </span>
 
-                      <span className="flex items-center gap-1 text-gray-400">
-                        {cmt.timestamp}
-                        {cmt.edited && (
-                          <span className="text-xs text-blue-400">
-                            (edited)
-                          </span>
-                        )}
-                      </span>
+                        <span className="flex items-center gap-1 text-gray-400">
+                          {cmt.timestamp}
+                          {cmt.edited && (
+                            <span className="text-xs text-blue-400">
+                              (edited)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex justify-end gap-3 pt-1">
+                        <button
+                          onClick={() => {
+                            setEditingId(cmt.id);
+                            setEditingText(cmt.text);
+                          }}
+                          className="text-xs text-blue-400 hover:underline hover:text-blue-300"
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setDeleteId(cmt.id);
+                            setOpenDeleteDialog(true);
+                          }}
+                          className="text-xs text-red-400 hover:underline hover:text-red-300"
+                        >
+                          Hapus
+                        </button>
+                      </div>
                     </div>
-
-                    {/* Action buttons */}
-                    <div className="flex justify-end gap-3 pt-1">
-                      <button
-                        onClick={() => {
-                          setEditingId(cmt.id);
-                          setEditingText(cmt.text);
-                        }}
-                        className="text-xs text-blue-400 hover:underline hover:text-blue-300"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setDeleteId(cmt.id);
-                          setOpenDeleteDialog(true);
-                        }}
-                        className="text-xs text-red-400 hover:underline hover:text-red-300"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-        </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
       </div>
       {
         <DialogBox
@@ -268,6 +269,4 @@ export default function CommentSection({ slug }: { slug: string }) {
       }
     </>
   );
-
-
 }
