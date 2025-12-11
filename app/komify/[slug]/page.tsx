@@ -21,7 +21,7 @@ import DialogBox from "@/components/UI/DialogBox";
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
-    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [version, setVersion] = useState("");
   const params = useParams();
   const router = useRouter();
@@ -77,7 +77,6 @@ export default function ComicDetail() {
 
     setDeleting(false);
   };
-
 
   if (!comic) return <p className="p-6">Loading...</p>;
 
@@ -144,15 +143,90 @@ export default function ComicDetail() {
                     text-sm text-slate-300 mb-6"
             >
               <div>
-                <span className="font-semibold text-slate-100">Author:</span>{" "}
-                {comic.author?.join(", ")}
+                <span className="font-semibold text-slate-100">Status:</span>{" "}
+                {comic.status === "Ongoing" && (
+                  <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded-md">
+                    Ongoing
+                  </span>
+                )}
+                {comic.status === "complete" && (
+                  <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded-md">
+                    Complete
+                  </span>
+                )}
               </div>
-              <div>
-                <span className="font-semibold text-slate-100">
-                  Categories:
-                </span>{" "}
-                {comic.categories?.join(", ")}
-              </div>
+              {/* Parodies */}
+              {Array.isArray(comic.parodies) &&
+                comic.parodies.length > 0 &&
+                comic.parodies[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Parodies:
+                    </span>{" "}
+                    {comic.parodies.join(", ")}
+                  </div>
+                )}
+
+              {/* Characters */}
+              {Array.isArray(comic.characters) &&
+                comic.characters.length > 0 &&
+                comic.characters[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Characters:
+                    </span>{" "}
+                    {comic.characters.join(", ")}
+                  </div>
+                )}
+
+              {/* Author */}
+              {Array.isArray(comic.author) &&
+                comic.author.length > 0 &&
+                comic.author[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Author:
+                    </span>{" "}
+                    {comic.author.join(", ")}
+                  </div>
+                )}
+
+              {/* Artists */}
+              {Array.isArray(comic.artists) &&
+                comic.artists.length > 0 &&
+                comic.artists[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Artist:
+                    </span>{" "}
+                    {comic.artists.join(", ")}
+                  </div>
+                )}
+
+              {/* Groups */}
+              {Array.isArray(comic.groups) &&
+                comic.groups.length > 0 &&
+                comic.groups[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Groups:
+                    </span>{" "}
+                    {comic.groups.join(", ")}
+                  </div>
+                )}
+
+              {/* Categories */}
+              {Array.isArray(comic.categories) &&
+                comic.categories.length > 0 &&
+                comic.categories[0] !== "[]" && (
+                  <div>
+                    <span className="font-semibold text-slate-100">
+                      Categories:
+                    </span>{" "}
+                    {comic.categories.join(", ")}
+                  </div>
+                )}
+
               <div>
                 <span className="font-semibold text-slate-100">Uploaded:</span>{" "}
                 {comic.uploaded}
@@ -161,8 +235,6 @@ export default function ComicDetail() {
 
             {/* BUTTONS — sekarang ada di bawah metadata */}
             <div className="flex flex-wrap items-center gap-3 mt-auto">
-              {/* Edit Button */}
-
               {/* Bookmark */}
               <button
                 onClick={handleBookmark}

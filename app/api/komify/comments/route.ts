@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const commentsPath = path.join(process.cwd(), "data", "comments.json");
+const commentsPath = path.join(process.cwd(), "data/komify", "comments.json");
 
 // Helper baca file
 function loadComments() {
