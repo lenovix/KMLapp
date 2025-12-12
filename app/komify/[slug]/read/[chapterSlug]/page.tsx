@@ -6,6 +6,7 @@ import Link from "next/link";
 import comics from "@/data/komify/comics.json";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import HeaderRead from "@/components/Komify/read/HeaderRead";
 dayjs.extend(relativeTime);
 
 export default function ReaderPage() {
@@ -65,50 +66,29 @@ export default function ReaderPage() {
       : null;
 
   return (
-    <main className="px-4 py-8 max-w-5xl mx-auto text-gray-900 dark:text-gray-100">
-      {/* Back Link */}
-      <div className="mb-4">
-        <Link
-          href={`/komify/${comic.slug}`}
-          className="text-sm text-blue-600 dark:text-amber-400 hover:underline"
-        >
-          ← Back to {comic.title}
-        </Link>
-      </div>
+    <main className="px-4 py-6 max-w-5xl mx-auto text-gray-900 dark:text-gray-100">
+      <HeaderRead
+        comic={{ slug: comic.slug, title: comic.title }}
+        chapter={chapter}
+      />
 
-      {/* Header Komik */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-1">
-          {comic.title} - Chapter {chapter.number}
-        </h1>
-        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <span className="bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">
-            {chapter.language || "Unknown"}
-          </span>
-          {chapter.uploadChapter && (
-            <span className="bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">
-              Uploaded {dayjs(chapter.uploadChapter).fromNow()}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Navigasi Chapter - atas */}
-      <div className="flex justify-between items-center mb-6">
+      {/* Sticky Navigation */}
+      <div className="sticky top-0 z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md py-3 mb-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
         {prevChapter ? (
           <Link
             href={`/komify/${comic.slug}/read/${prevChapter.number}`}
-            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
           >
             ← Chapter {prevChapter.number}
           </Link>
         ) : (
           <div />
         )}
+
         {nextChapter ? (
           <Link
             href={`/komify/${comic.slug}/read/${nextChapter.number}`}
-            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
           >
             Chapter {nextChapter.number} →
           </Link>
@@ -117,40 +97,45 @@ export default function ReaderPage() {
         )}
       </div>
 
-      {/* Gambar Halaman */}
-      <div className="flex flex-col items-center gap-4">
+      {/* Reading Pages */}
+      <div className="flex flex-col items-center gap-5">
         {pages.length > 0 ? (
           pages.map((filename, i) => (
             <img
               key={filename}
               src={`${imagePath}/${filename}`}
               alt={`Page ${i + 1}`}
-              className="w-full max-w-2xl rounded shadow dark:shadow-gray-800"
+              className="
+              w-full max-w-3xl  shadow-md
+              dark:shadow-black/50
+              border border-gray-200 dark:border-slate-700
+            "
             />
           ))
         ) : (
-          <p className="text-gray-400 dark:text-gray-500">
+          <p className="text-gray-400 dark:text-gray-500 mt-10">
             Tidak ada halaman ditemukan.
           </p>
         )}
       </div>
 
-      {/* Navigasi Chapter - bawah */}
-      <div className="flex justify-between items-center mt-8">
+      {/* Bottom Navigation */}
+      <div className="flex justify-between items-center mt-10 py-5 border-t border-gray-200 dark:border-slate-700">
         {prevChapter ? (
           <Link
             href={`/komify/${comic.slug}/read/${prevChapter.number}`}
-            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
           >
             ← Chapter {prevChapter.number}
           </Link>
         ) : (
           <div />
         )}
+
         {nextChapter ? (
           <Link
             href={`/komify/${comic.slug}/read/${nextChapter.number}`}
-            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
           >
             Chapter {nextChapter.number} →
           </Link>
@@ -160,4 +145,5 @@ export default function ReaderPage() {
       </div>
     </main>
   );
+
 }
