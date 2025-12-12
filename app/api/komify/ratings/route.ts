@@ -2,31 +2,24 @@ import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 
-const RATINGS_PATH = path.join(process.cwd(), "data/komify", "ratings.json");
+const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-// --- FILE HELPERS (Server Only) ---
-
-function readRatingsFile(): Record<string, number> {
+/** Baca comics.json */
+function readComics() {
+  if (!fs.existsSync(COMICS_PATH)) return [];
   try {
-    if (!fs.existsSync(RATINGS_PATH)) return {};
-    const raw = fs.readFileSync(RATINGS_PATH, "utf8");
-    return JSON.parse(raw);
+    return JSON.parse(fs.readFileSync(COMICS_PATH, "utf8"));
   } catch {
-    return {};
+    return [];
   }
 }
 
-function writeRatingsFile(data: Record<string, number>) {
-  try {
-    fs.writeFileSync(RATINGS_PATH, JSON.stringify(data, null, 2), "utf8");
-  } catch (err) {
-    console.error("Failed to write ratings file", err);
-  }
+/** Tulis comics.json */
+function writeComics(data: any[]) {
+  fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
-// --- API ROUTES ---
-
-/** GET → Ambil rating untuk slug tertentu */
+/** GET → dapatkan rating komik */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
@@ -34,32 +27,39 @@ export async function GET(req: Request) {
   if (!slug)
     return NextResponse.json({ error: "slug is required" }, { status: 400 });
 
-  const all = readRatingsFile();
-  const rating = all[slug] || 0;
+  const comics = readComics();
+  const comic = comics.find((c: any) => String(c.slug) === String(slug));
 
-  return NextResponse.json({ slug, rating });
+  return NextResponse.json({
+    slug,
+    rating: comic?.rating ?? 0, // default 0
+  });
 }
 
-/** POST → Set rating */
+/** POST → set rating */
 export async function POST(req: Request) {
   const { slug, rating } = await req.json();
 
   if (!slug)
     return NextResponse.json({ error: "slug is required" }, { status: 400 });
 
-  if (typeof rating !== "number")
-    return NextResponse.json(
-      { error: "rating must be number" },
-      { status: 400 }
-    );
+  if (typeof rating !== "number" || rating < 1 || rating > 5)
+    return NextResponse.json({ error: "rating must be 1-5" }, { status: 400 });
 
-  const all = readRatingsFile();
-  all[String(slug)] = rating;
+  const comics = readComics();
 
-  writeRatingsFile(all);
+  const index = comics.findIndex((c: any) => String(c.slug) === String(slug));
+  if (index === -1)
+    return NextResponse.json({ error: "comic not found" }, { status: 404 });
+
+  // Update rating
+  comics[index].rating = rating;
+
+  writeComics(comics);
 
   return NextResponse.json({
     success: true,
+    slug,
     rating,
   });
 }

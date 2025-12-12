@@ -2,60 +2,62 @@ import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 
-const BOOKMARKS_PATH = path.join(
-  process.cwd(),
-  "data/komify",
-  "bookmarks.json"
-);
+const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-/** Baca file JSON */
-function readBookmarksFile(): string[] {
+/** Baca comics.json */
+function readComics() {
+  if (!fs.existsSync(COMICS_PATH)) return [];
   try {
-    if (!fs.existsSync(BOOKMARKS_PATH)) return [];
-    const raw = fs.readFileSync(BOOKMARKS_PATH, "utf8");
-    return JSON.parse(raw);
+    return JSON.parse(fs.readFileSync(COMICS_PATH, "utf8"));
   } catch {
     return [];
   }
 }
 
-/** Tulis ke file JSON */
-function writeBookmarksFile(data: string[]) {
-  try {
-    fs.writeFileSync(BOOKMARKS_PATH, JSON.stringify(data, null, 2), "utf8");
-  } catch (err) {
-    console.error("Failed to write bookmarks file", err);
-  }
+/** Tulis comics.json */
+function writeComics(data: any[]) {
+  fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
-/** GET — cek bookmark per slug */
+/** GET — cek apakah komik bookmarked */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const slug = url.searchParams.get("slug"); // tetap string
-  const bookmarks = readBookmarksFile();
-  const bookmarked = slug ? bookmarks.includes(slug) : false;
-  return NextResponse.json({ bookmarked, bookmarks });
+  const slug = url.searchParams.get("slug");
+
+  if (!slug)
+    return NextResponse.json({ error: "slug is required" }, { status: 400 });
+
+  const comics = readComics();
+  const comic = comics.find((c: any) => String(c.slug) === String(slug));
+
+  return NextResponse.json({
+    bookmarked: comic?.bookmark === true,
+  });
 }
 
-/** POST — toggle bookmark */
+/** POST — toggle bookmark langsung pada comics.json */
 export async function POST(req: Request) {
   const { slug } = await req.json();
-  if (!slug) {
+
+  if (!slug)
     return NextResponse.json({ error: "slug is required" }, { status: 400 });
-  }
 
-  let bookmarks = readBookmarksFile();
+  const comics = readComics();
 
-  if (bookmarks.includes(slug)) {
-    bookmarks = bookmarks.filter((id) => id !== slug);
-  } else {
-    bookmarks.push(slug);
-  }
+  const index = comics.findIndex((c: any) => String(c.slug) === String(slug));
+  if (index === -1)
+    return NextResponse.json({ error: "Comic not found" }, { status: 404 });
 
-  writeBookmarksFile(bookmarks);
+  // Toggle bookmark
+  const current = comics[index].bookmark === true;
+  const updated = !current;
+
+  comics[index].bookmark = updated;
+
+  writeComics(comics);
 
   return NextResponse.json({
     success: true,
-    bookmarked: bookmarks.includes(slug),
+    bookmarked: updated,
   });
 }

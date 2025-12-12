@@ -86,7 +86,7 @@ export default function ComicDetail() {
   const handleDelete = async () => {
     if (!comic) return;
     setDeleting(true);
-    const res = await fetch("/api/delete-comic", {
+    const res = await fetch("/api/komify/deleteComic", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: comic.slug }),

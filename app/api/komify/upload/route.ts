@@ -128,6 +128,12 @@ export async function POST(req: NextRequest) {
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),
       cover: `/komify/${slug}/cover.jpg`,
+
+      // ======== FIELD BARU ========
+      rating: Number(formData.get("rating") ?? 0), // default 0
+      bookmarked: formData.get("bookmarked") === "true", // default false
+      // =============================
+
       chapters: chaptersWithPages.map((ch) => ({
         number: ch.number,
         title: ch.title,
@@ -138,6 +144,7 @@ export async function POST(req: NextRequest) {
         pages: ch.pages,
       })),
     };
+
 
     const index = comics.findIndex((c) => c.slug === Number(slug));
     if (index !== -1) comics[index] = newComic;
