@@ -18,7 +18,7 @@ export default function ChaptersList({
       {chapters.map((ch) => (
         <Link
           key={ch.number}
-          href={`/reader/${slug}/${ch.number}`}
+          href={`/komify/${slug}/read/${ch.number}`}
           className="
         w-full
         bg-slate-800 border border-slate-700 rounded-2xl p-6
