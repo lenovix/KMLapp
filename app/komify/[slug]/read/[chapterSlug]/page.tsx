@@ -39,7 +39,7 @@ export default function ReaderPage() {
     async function fetchPages() {
       try {
         const res = await fetch(
-          `/api/read?slug=${comic?.slug}&chapter=${chapter?.number}`
+          `/api/komify/read?slug=${comic?.slug}&chapter=${chapter?.number}`
         );
         if (res.ok) {
           const data = await res.json();
