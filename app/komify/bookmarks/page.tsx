@@ -14,28 +14,31 @@ export default function BookmarksPage() {
   const [ratings, setRatings] = useState<Ratings>({});
   const [loading, setLoading] = useState(true);
 
+  /** Ambil semua bookmark dari API */
   useEffect(() => {
     async function fetchBookmarks() {
       try {
         const res = await fetch("/api/komify/bookmarks");
         const data = await res.json();
-        // Urutkan dari bookmark terbaru
-        const bookmarksOrdered = data.bookmarks.slice().reverse();
-        setBookmarked(bookmarksOrdered);
-      } catch (err) {
+
+        // Pastikan array
+        const list = Array.isArray(data.bookmarks) ? data.bookmarks : [];
+
+        // urutkan supaya terbaru di atas
+        setBookmarked(list.slice().reverse());
+      } catch {
         setBookmarked([]);
-      } finally {
-        setLoading(false);
       }
     }
 
     fetchBookmarks();
   }, []);
 
+  /** Ambil rating untuk setiap komik yg di-bookmark */
   useEffect(() => {
-    // Fetch rating tiap komik
     async function fetchRatings() {
       const newRatings: Ratings = {};
+
       for (const slug of bookmarked) {
         try {
           const res = await fetch(`/api/komify/ratings?slug=${slug}`);
@@ -45,40 +48,35 @@ export default function BookmarksPage() {
           newRatings[slug] = 0;
         }
       }
+
       setRatings(newRatings);
       setLoading(false);
     }
 
-    if (bookmarked.length > 0) {
-      fetchRatings();
-    } else {
-      setLoading(false);
-    }
+    if (bookmarked.length > 0) fetchRatings();
+    else setLoading(false);
   }, [bookmarked]);
 
+  /** Filter komik berdasarkan bookmark */
+  const bookmarkedComics = comics.filter((c) =>
+    bookmarked.includes(String(c.slug))
+  );
 
-  const bookmarkedComics = comics
-    .filter((c) => bookmarked.includes(String(c.slug)))
-    .sort(
-      (a, b) =>
-        bookmarked.indexOf(String(a.slug)) - bookmarked.indexOf(String(b.slug))
-    );
+  /** Sort sesuai urutan bookmark */
+  bookmarkedComics.sort(
+    (a, b) =>
+      bookmarked.indexOf(String(a.slug)) - bookmarked.indexOf(String(b.slug))
+  );
 
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          className={i < rating ? "text-yellow-400" : "text-gray-600"}
-        >
-          ★
-        </span>
-      );
-    }
-    return stars;
-  };
-
+  const renderStars = (rating: number) =>
+    [...Array(5)].map((_, i) => (
+      <span
+        key={i}
+        className={i < rating ? "text-yellow-400" : "text-gray-600"}
+      >
+        ★
+      </span>
+    ));
 
   return (
     <>
@@ -96,27 +94,19 @@ export default function BookmarksPage() {
                 href={`/komify/${comic.slug}`}
                 className="block bg-slate-900 border border-slate-700 hover:border-amber-50 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
               >
-                {/* Cover */}
                 <div className="relative w-full h-56 md:h-48 lg:h-52">
                   <img
                     src={comic.cover || "/placeholder-cover.jpg"}
-                    alt={
-                      Array.isArray(comic.title)
-                        ? comic.title.join(", ")
-                        : comic.title
-                    }
+                    alt={comic.title}
                     className="w-full h-full object-cover rounded-t-2xl"
                   />
                 </div>
 
-                {/* Info */}
                 <div className="p-4 flex flex-col gap-1">
                   <div className="font-semibold text-lg line-clamp-2">
-                    {Array.isArray(comic.title)
-                      ? comic.title.join(", ")
-                      : comic.title}
+                    {comic.title}
                   </div>
-                  {/* Rating */}
+
                   <div className="text-sm">
                     {renderStars(ratings[comic.slug] || 0)}
                   </div>

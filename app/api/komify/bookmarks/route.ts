@@ -19,19 +19,28 @@ function writeComics(data: any[]) {
   fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
-/** GET — cek apakah komik bookmarked */
+/** GET - bisa ambil semua bookmark atau 1 bookmark */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug");
 
-  if (!slug)
-    return NextResponse.json({ error: "slug is required" }, { status: 400 });
-
   const comics = readComics();
-  const comic = comics.find((c: any) => String(c.slug) === String(slug));
+
+  // Jika slug diberikan → cek satu komik
+  if (slug) {
+    const comic = comics.find((c: any) => String(c.slug) === String(slug));
+    return NextResponse.json({
+      bookmarked: comic?.bookmark === true,
+    });
+  }
+
+  // Jika tidak ada slug → kirim semua bookmark
+  const bookmarkedSlugs = comics
+    .filter((c: any) => c.bookmark === true)
+    .map((c: any) => String(c.slug));
 
   return NextResponse.json({
-    bookmarked: comic?.bookmark === true,
+    bookmarks: bookmarkedSlugs,
   });
 }
 
@@ -48,7 +57,6 @@ export async function POST(req: Request) {
   if (index === -1)
     return NextResponse.json({ error: "Comic not found" }, { status: 404 });
 
-  // Toggle bookmark
   const current = comics[index].bookmark === true;
   const updated = !current;
 
