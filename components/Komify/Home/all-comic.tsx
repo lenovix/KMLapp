@@ -54,18 +54,49 @@ export default function AllComic() {
   };
 
   const allTags = useMemo(() => {
-    const tags = comics.flatMap((c) =>
-      Array.isArray(c.tags) ? c.tags : [c.tags]
-    );
-    const cleaned = tags.filter((t) => t && t !== "[]" && t.trim() !== "");
+    if (!Array.isArray(comics)) return [];
+
+    const tags = comics.flatMap((c) => {
+      if (!c || !c.tags) return [];
+
+      // Normal array → gunakan langsung
+      if (Array.isArray(c.tags) && typeof c.tags[0] === "string") {
+        return c.tags.flatMap((t) => {
+          try {
+            // Jika "t" ternyata JSON array, parse
+            const parsed = JSON.parse(t);
+            if (Array.isArray(parsed)) return parsed;
+          } catch {}
+          return t;
+        });
+      }
+
+      // Single string → mungkin JSON array
+      if (typeof c.tags === "string") {
+        try {
+          const parsed = JSON.parse(c.tags);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+        return [c.tags];
+      }
+
+      return [];
+    });
+
+    const cleaned = tags
+      .map((t) => (typeof t === "string" ? t.trim() : ""))
+      .filter((t) => t !== "" && t !== "[]" && t !== "undefined");
+
     return Array.from(new Set(cleaned));
   }, [comics]);
+
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
+
 
   // --- Fetch ratings ---
   useEffect(() => {
