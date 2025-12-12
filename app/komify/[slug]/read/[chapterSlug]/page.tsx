@@ -8,23 +8,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-interface ComicData {
-  slug: string;
-  title: string;
-  author: string[];
-  artist: string[];
-  groups: string[];
-  parodies: string[];
-  characters: string[];
-  categories: string[];
-  tags: string[];
-  uploaded: string;
-  status: "Ongoing" | "Completed" | "Hiatus";
-  cover: string;
-}
-
 export default function ReaderPage() {
-  const params = useParams(); // { slug: "1", chapterSlug: "001" }
+  const params = useParams();
   const { slug, chapterSlug } = params;
 
   const comic = comics.find((c) => String(c.slug) === slug);
