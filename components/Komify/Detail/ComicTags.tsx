@@ -3,11 +3,35 @@
 import Link from "next/link";
 
 export default function ComicTags({ tags = [] }: { tags: string[] }) {
-  // Bersihkan tags yang tidak valid
-  const cleanedTags = tags.filter(
-    (t) =>
-      t && t.trim() !== "" && t !== "[]" && t !== "null" && t !== "undefined"
-  );
+  // Convert stringified arrays --> real array
+  const normalizeTag = (t: string): string[] => {
+    if (!t) return [];
+
+    // Jika string seperti ["Manga"] atau ["Action","Drama"]
+    if (t.trim().startsWith("[") && t.trim().endsWith("]")) {
+      try {
+        const parsed = JSON.parse(t);
+
+        // Pastikan hasilnya array of strings
+        if (Array.isArray(parsed)) {
+          return parsed.filter((x) => typeof x === "string" && x.trim() !== "");
+        }
+      } catch {
+        return [];
+      }
+    }
+
+    // Selain itu: anggap sebagai string biasa
+    return [t];
+  };
+
+  // Flatten + clean
+  const cleanedTags = tags
+    .flatMap((t) => normalizeTag(t))
+    .filter(
+      (t) =>
+        t && t.trim() !== "" && t !== "[]" && t !== "null" && t !== "undefined"
+    );
 
   if (cleanedTags.length === 0) return null;
 
