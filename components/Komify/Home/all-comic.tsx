@@ -1,16 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import comics from "@/data/komify/comics.json";
 import AllComicHeader from "@/components/Komify/Home/header";
 import Pagination from "@/components/Komify/Home/Pagination";
 import FilterTags from "@/components/Komify/Home/FilterTags";
 
+interface Ratings {
+  [slug: string]: number;
+}
+
 export default function AllComic() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [ratings, setRatings] = useState<Ratings>({});
 
   const filteredComics = useMemo(() => {
     const filtered = comics.filter((comic) => {
@@ -53,7 +58,6 @@ export default function AllComic() {
       Array.isArray(c.tags) ? c.tags : [c.tags]
     );
     const cleaned = tags.filter((t) => t && t !== "[]" && t.trim() !== "");
-
     return Array.from(new Set(cleaned));
   }, [comics]);
 
@@ -62,6 +66,41 @@ export default function AllComic() {
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
+
+  // --- Fetch ratings ---
+  useEffect(() => {
+    async function fetchRatings() {
+      const newRatings: Ratings = {};
+      for (const comic of filteredComics) {
+        try {
+          const res = await fetch(`/api/komify/ratings?slug=${comic.slug}`);
+          const data = await res.json();
+          newRatings[comic.slug] = data.rating || 0;
+        } catch {
+          newRatings[comic.slug] = 0;
+        }
+      }
+      setRatings(newRatings);
+    }
+
+    if (filteredComics.length > 0) fetchRatings();
+  }, [filteredComics]);
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          className={i < rating ? "text-yellow-400" : "text-gray-400"}
+        >
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
+
   return (
     <>
       <main className="flex flex-col gap-6 h-full justify-between">
@@ -78,7 +117,7 @@ export default function AllComic() {
                   <Link
                     key={comic.slug}
                     href={`/komify/${comic.slug}`}
-                    className="group bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col"
+                    className="group bg-white dark:bg-slate-900 border hover:border-amber-50 border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-lg transition flex flex-col"
                   >
                     <img
                       src={comic.cover || "/placeholder-cover.jpg"}
@@ -87,14 +126,19 @@ export default function AllComic() {
                           ? comic.title
                           : comic.title?.[0]
                       }
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-56 object-cover transition-transform duration-300"
                     />
                     <div className="p-3 flex-1 flex flex-col justify-between">
-                      <h2 className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 truncate">
+                      <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                         {typeof comic.title === "string"
                           ? comic.title
                           : comic.title?.[0]}
                       </h2>
+
+                      {/* Rating */}
+                      <div className="text-sm mt-1 text-gray-700 dark:text-gray-300">
+                        {renderStars(ratings[comic.slug] || 0)}
+                      </div>
                     </div>
                   </Link>
                 ))}
