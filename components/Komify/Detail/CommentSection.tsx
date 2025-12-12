@@ -26,6 +26,8 @@ export default function CommentSection({ slug }: { slug: string }) {
         const res = await fetch(`/api/komify/comments?slug=${slug}`);
         if (!res.ok) throw new Error("Gagal mengambil komentar");
         const data = await res.json();
+
+        // pastikan data array sebelum set
         setComments(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error loading comments:", err);
@@ -39,18 +41,20 @@ export default function CommentSection({ slug }: { slug: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
+
     setLoading(true);
 
     try {
       const res = await fetch(`/api/komify/comments?slug=${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text }), // username optional
       });
 
       const result = await res.json();
 
       if (result?.comment) {
+        // masukkan komentar baru paling atas
         setComments((prev) => [result.comment, ...prev]);
         setText("");
       }
@@ -69,18 +73,23 @@ export default function CommentSection({ slug }: { slug: string }) {
     setComments((prev) => prev.filter((c) => c.id !== id));
 
     try {
-      await fetch(`/api/komify/comments?slug=${slug}`, {
+      const res = await fetch(`/api/komify/comments?slug=${slug}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+
+      if (!res.ok) {
+        // rollback kalau gagal
+        setComments(previousComments);
+      }
     } catch (error) {
-      console.error(error);
-      setComments(previousComments); // rollback jika gagal
+      console.error("Error deleting comment:", error);
+      setComments(previousComments);
     }
   };
 
-  // Simpan hasil edit
+  // Simpan hasil edit komentar
   const handleEdit = async (id: string) => {
     if (!editingText.trim()) return;
 

@@ -2,53 +2,66 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const commentsPath = path.join(process.cwd(), "data/komify", "comments.json");
+const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-// Helper baca file
-function loadComments() {
-  if (!fs.existsSync(commentsPath)) return {};
-  const raw = fs.readFileSync(commentsPath, "utf-8");
+// Load comics.json
+function loadComics() {
+  if (!fs.existsSync(COMICS_PATH)) return [];
+  const raw = fs.readFileSync(COMICS_PATH, "utf-8");
   return JSON.parse(raw);
 }
 
-// Helper save file
-function saveComments(data: any) {
-  fs.writeFileSync(commentsPath, JSON.stringify(data, null, 2));
+// Save comics.json
+function saveComics(data: any) {
+  fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2));
 }
 
+// GET — ambil komentar untuk slug
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
 
-  if (!slug)
+  if (!slug) {
     return NextResponse.json(
       { error: "Slug tidak ditemukan" },
       { status: 400 }
     );
+  }
 
-  const all = loadComments();
-  return NextResponse.json(all[slug] || []);
+  const comics = loadComics();
+  const comic = comics.find((c: any) => String(c.slug) === slug);
+
+  return NextResponse.json(comic?.comments || []);
 }
 
+// POST — tambah komentar
 export async function POST(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
 
-  if (!slug)
+  if (!slug) {
     return NextResponse.json(
       { error: "Slug tidak ditemukan" },
       { status: 400 }
     );
+  }
 
-  const body = await req.json();
-  const { username = "Anon", text } = body;
-
-  if (!text?.trim())
+  const { username = "Anon", text } = await req.json();
+  if (!text?.trim()) {
     return NextResponse.json({ error: "Komentar kosong" }, { status: 400 });
+  }
 
-  const all = loadComments();
-  const list = all[slug] || [];
+  const comics = loadComics();
+  const index = comics.findIndex((c: any) => String(c.slug) === slug);
 
+  if (index === -1) {
+    return NextResponse.json(
+      { error: "Comic tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+  // Buat komentar baru
   const newComment = {
     id: `cmt_${Date.now()}`,
     username,
@@ -58,8 +71,9 @@ export async function POST(req: Request) {
       .replace("T", " "),
   };
 
-  all[slug] = [...list, newComment];
-  saveComments(all);
+  comics[index].comments = [...(comics[index].comments || []), newComment];
+
+  saveComics(comics);
 
   return NextResponse.json({
     message: "Komentar ditambahkan",
@@ -67,82 +81,87 @@ export async function POST(req: Request) {
   });
 }
 
+// PUT — edit komentar
 export async function PUT(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
 
-  if (!slug)
+  const { id, text } = await req.json();
+
+  if (!slug || !id || !text?.trim()) {
     return NextResponse.json(
-      { error: "Slug tidak ditemukan" },
+      { error: "Slug, ID, atau komentar kosong" },
       { status: 400 }
     );
+  }
 
-  const body = await req.json();
-  const { id, text } = body;
+  const comics = loadComics();
+  const comic = comics.find((c: any) => String(c.slug) === slug);
 
-  if (!id || !text?.trim())
+  if (!comic) {
     return NextResponse.json(
-      { error: "ID atau komentar kosong" },
-      { status: 400 }
+      { error: "Comic tidak ditemukan" },
+      { status: 404 }
     );
+  }
 
-  const all = loadComments();
-  const list = all[slug] || [];
-
-  const index = list.findIndex((c: any) => c.id === id);
-  if (index === -1)
+  const idx = (comic.comments || []).findIndex((c: any) => c.id === id);
+  if (idx === -1) {
     return NextResponse.json(
       { error: "Komentar tidak ditemukan" },
       { status: 404 }
     );
+  }
 
-  list[index].text = text;
-  list[index].edited = true;
-  list[index].timestamp = new Date()
+  comic.comments[idx].text = text;
+  comic.comments[idx].edited = true;
+  comic.comments[idx].timestamp = new Date()
     .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
     .replace("T", " ");
 
-  all[slug] = list;
-  saveComments(all);
+  saveComics(comics);
 
   return NextResponse.json({
     message: "Komentar diedit",
-    comment: list[index],
+    comment: comic.comments[idx],
   });
 }
 
+// DELETE — hapus komentar
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
 
-  if (!slug)
+  const { id } = await req.json();
+
+  if (!slug || !id) {
+    return NextResponse.json({ error: "Slug atau ID kosong" }, { status: 400 });
+  }
+
+  const comics = loadComics();
+  const index = comics.findIndex((c: any) => String(c.slug) === slug);
+
+  if (index === -1) {
     return NextResponse.json(
-      { error: "Slug tidak ditemukan" },
-      { status: 400 }
+      { error: "Comic tidak ditemukan" },
+      { status: 404 }
     );
+  }
 
-  const body = await req.json();
-  const { id } = body;
+  const before = comics[index].comments || [];
+  const after = before.filter((c: any) => c.id !== id);
 
-  if (!id)
-    return NextResponse.json(
-      { error: "ID komentar tidak diberikan" },
-      { status: 400 }
-    );
-
-  const all = loadComments();
-  const list = all[slug] || [];
-
-  const filtered = list.filter((c: any) => c.id !== id);
-
-  if (filtered.length === list.length)
+  if (before.length === after.length) {
     return NextResponse.json(
       { error: "Komentar tidak ditemukan" },
       { status: 404 }
     );
+  }
 
-  all[slug] = filtered;
-  saveComments(all);
+  comics[index].comments = after;
+  saveComics(comics);
 
-  return NextResponse.json({ message: "Komentar dihapus" });
+  return NextResponse.json({
+    message: "Komentar dihapus",
+  });
 }
