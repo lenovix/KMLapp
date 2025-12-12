@@ -151,8 +151,8 @@ export default function ComicDetail() {
 
           {/* RIGHT CONTENT */}
           <div className="flex-1 flex flex-col">
-            <ComicTags tags={comic.tags} />
             <ComicMetadata comic={comic} />
+            <ComicTags tags={comic.tags} />
             <ComicActions
               bookmarked={bookmarked}
               onBookmark={handleBookmark}

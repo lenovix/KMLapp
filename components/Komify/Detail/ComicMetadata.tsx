@@ -82,26 +82,10 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
         ))}
       </div>
     );
-
   };
 
   return (
     <div className="grid grid-cols-1 gap-x-10 gap-y-2 text-sm text-slate-300 mb-6">
-      {/* STATUS */}
-      <div>
-        <span className="font-semibold text-slate-100">Status:</span>{" "}
-        {comic.status === "Ongoing" && (
-          <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded-md">
-            Ongoing
-          </span>
-        )}
-        {comic.status === "Complete" && (
-          <span className="ml-2 px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded-md">
-            Complete
-          </span>
-        )}
-      </div>
-
       {renderList("Parodies", comic.parodies)}
       {renderList("Characters", comic.characters)}
       {renderList("Author", comic.author)}
@@ -109,9 +93,21 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
       {renderList("Groups", comic.groups)}
       {renderList("Categories", comic.categories)}
 
-      <div>
-        <span className="font-semibold text-slate-100">Uploaded:</span>{" "}
-        {comic.uploaded}
+      <div className="flex items-center gap-3 text-sm">
+        <span className="font-medium text-slate-300">Uploaded:</span>
+        <span className="text-slate-100">{comic.uploaded}</span>
+
+        {comic.status === "Ongoing" && (
+          <span className="px-2 py-0.5 text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-md">
+            Ongoing
+          </span>
+        )}
+
+        {comic.status === "Complete" && (
+          <span className="px-2 py-0.5 text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30 rounded-md">
+            Complete
+          </span>
+        )}
       </div>
     </div>
   );
