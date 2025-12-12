@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
 
       // ======== FIELD BARU ========
       rating: Number(formData.get("rating") ?? 0), // default 0
-      bookmarked: formData.get("bookmarked") === "true", // default false
+      bookmark: formData.get("bookmarked") === "true", // default false
       // =============================
 
       chapters: chaptersWithPages.map((ch) => ({

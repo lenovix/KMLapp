@@ -61,7 +61,7 @@ export default function ComicDetail() {
     const res = await fetch("/api/komify/bookmarks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: String(comic.slug) }), // pastikan string
+      body: JSON.stringify({ slug: String(comic.slug) }),
     });
 
     const data = await res.json();
