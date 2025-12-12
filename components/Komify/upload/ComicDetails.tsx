@@ -104,7 +104,7 @@ export default function ComicDetails({
               key={field.name}
               name={field.name}
               placeholder={field.placeholder}
-              value={typeof value === "string" ? value : ""}
+              value={rawValue}
               onChange={handleArrayOrStringChange}
               onClear={() => handleClear(field.name)}
             />

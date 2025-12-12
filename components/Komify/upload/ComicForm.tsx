@@ -73,6 +73,7 @@ export default function ComicForm({
     <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ComicDetails comicData={comicData} onChange={handleComicChange} />
+        {/* <ComicDetails comicData={comicData} /> */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
           <PrimaryButton
             type="submit"

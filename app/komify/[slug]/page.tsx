@@ -20,6 +20,8 @@ import Alert from "@/components/UI/Alert";
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
+  const [openDeleteChapterDialog, setOpenDeleteChapterDialog] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -100,6 +102,34 @@ export default function ComicDetail() {
     setDeleting(false);
   };
 
+  const handleDeleteChapter = (chapterNumber: number) => {
+    setChapterToDelete(chapterNumber);
+    setOpenDeleteChapterDialog(true);
+  };
+
+  const confirmDeleteChapter = async () => {
+    if (!comic || chapterToDelete === null) return;
+
+    const res = await fetch("/api/komify/deleteChapter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: comic.slug,
+        chapter: chapterToDelete,
+      }),
+    });
+
+    if (res.ok) {
+      router.refresh();
+    } else {
+      setAlertMessage("Gagal menghapus chapter!");
+      setShowAlert(true);
+    }
+
+    setOpenDeleteChapterDialog(false);
+    setChapterToDelete(null);
+  };
+
   if (!comic) return <p className="p-6">Loading...</p>;
 
   return (
@@ -164,7 +194,11 @@ export default function ComicDetail() {
         </div>
 
         <ChaptersHeader slug={comic.slug} />
-        <ChaptersList slug={comic.slug} chapters={comic.chapters} />
+        <ChaptersList
+          slug={comic.slug}
+          chapters={comic.chapters}
+          onDeleteChapter={handleDeleteChapter}
+        />
         <CommentSection slug={String(comic.slug)} />
       </main>
       {
@@ -191,6 +225,18 @@ export default function ComicDetail() {
           duration={5000}
         />
       )}
+      {
+        <DialogBox
+          open={openDeleteChapterDialog}
+          title="Hapus Chapter?"
+          desc={`Chapter ${chapterToDelete} akan dihapus permanen. Lanjutkan?`}
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={confirmDeleteChapter}
+          onCancel={() => setOpenDeleteChapterDialog(false)}
+        />
+      }
     </>
   );
 }

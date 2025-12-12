@@ -45,13 +45,13 @@ export default function UploadComicPage({
   const [comicData, setComicData] = useState<ComicData>({
     slug: defaultSlug.toString(),
     title: "",
-    author: [] as string[],
-    artist: [] as string[],
-    groups: [] as string[],
-    parodies: [] as string[],
-    characters: [] as string[],
-    categories: [] as string[],
-    tags: [] as string[],
+    author: [],
+    artist: [],
+    groups: [],
+    parodies: [],
+    characters: [],
+    categories: [],
+    tags: [] ,
     uploaded: new Date().toISOString().split("T")[0],
     status: "Ongoing",
     cover: "",
@@ -243,12 +243,12 @@ export default function UploadComicPage({
             type: "success",
             title: "Upload Berhasil",
             message: "Data komik berhasil diunggah.",
-            duration: 5000,
+            duration: 2000,
           });
 
           setTimeout(() => {
             router.push("/komify");
-          }, 5000);
+          }, 2000);
         } else {
           let errMessage = "Terjadi kesalahan saat memproses upload.";
           try {
