@@ -5,8 +5,13 @@ import Link from "next/link";
 import Header from "@/components/Komify/bookmarks/header";
 import comics from "@/data/komify/comics.json";
 
+interface Ratings {
+  [slug: string]: number;
+}
+
 export default function BookmarksPage() {
   const [bookmarked, setBookmarked] = useState<string[]>([]);
+  const [ratings, setRatings] = useState<Ratings>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,13 +32,53 @@ export default function BookmarksPage() {
     fetchBookmarks();
   }, []);
 
+  useEffect(() => {
+    // Fetch rating tiap komik
+    async function fetchRatings() {
+      const newRatings: Ratings = {};
+      for (const slug of bookmarked) {
+        try {
+          const res = await fetch(`/api/komify/ratings?slug=${slug}`);
+          const data = await res.json();
+          newRatings[slug] = data.rating || 0;
+        } catch {
+          newRatings[slug] = 0;
+        }
+      }
+      setRatings(newRatings);
+      setLoading(false);
+    }
+
+    if (bookmarked.length > 0) {
+      fetchRatings();
+    } else {
+      setLoading(false);
+    }
+  }, [bookmarked]);
+
+
   const bookmarkedComics = comics
     .filter((c) => bookmarked.includes(String(c.slug)))
-    // urutkan sesuai urutan bookmarks terbaru → terlama
     .sort(
       (a, b) =>
         bookmarked.indexOf(String(a.slug)) - bookmarked.indexOf(String(b.slug))
     );
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          className={i < rating ? "text-yellow-400" : "text-gray-600"}
+        >
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
+
 
   return (
     <>
@@ -71,7 +116,10 @@ export default function BookmarksPage() {
                       ? comic.title.join(", ")
                       : comic.title}
                   </div>
-                  <div className="text-xs text-gray-400">ID: #{comic.slug}</div>
+                  {/* Rating */}
+                  <div className="text-sm">
+                    {renderStars(ratings[comic.slug] || 0)}
+                  </div>
                 </div>
               </Link>
             ))}
