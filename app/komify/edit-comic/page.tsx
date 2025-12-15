@@ -11,7 +11,7 @@ import { Upload } from "lucide-react";
 import Alert from "@/components/UI/Alert";
 
 interface ComicData {
-  slug: string;
+  slug: number;
   title: string;
   author: string[];
   artist: string[];
@@ -44,7 +44,7 @@ export default function EditComicPage() {
     onCancel: () => {},
   });
   const [comicData, setComicData] = useState<ComicData>({
-    slug: "",
+    slug: 0,
     title: "",
     author: [],
     artist: [],
@@ -60,7 +60,7 @@ export default function EditComicPage() {
   const [coverDialogOpen, setCoverDialogOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const slug = searchParams.get("slug");
+  const slug = Number(searchParams.get("slug"));
   const [form, setForm] = useState<any>({});
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,7 +75,7 @@ export default function EditComicPage() {
     if (!found) return;
 
     setComicData({
-      slug: String(found.slug),
+      slug: found.slug,
       title: found.title || "",
       author: Array.isArray(found.author) ? found.author : [],
       artist: Array.isArray(found.artists) ? found.artists : [],
@@ -149,14 +149,6 @@ export default function EditComicPage() {
     }));
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setCoverFile(e.target.files[0]);
-    } else {
-      setCoverFile(null);
-    }
-  };
-
   const handleSubmit = async () => {
     if (!slug) return;
 
@@ -164,7 +156,7 @@ export default function EditComicPage() {
 
     try {
       const fd = new FormData();
-      fd.append("slug", slug);
+      fd.append("slug", String(slug));
 
       Object.entries(form).forEach(([key, value]) => {
         fd.append(key, value as string);

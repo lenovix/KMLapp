@@ -29,12 +29,11 @@ export default function ChaptersList({
           {/* Edit + Delete Buttons */}
           <div className="absolute top-4 right-4 flex gap-3">
             <Link
-              href={`/komify/${slug}/edit-chapter/${ch.number}`}
+              href={`/komify/edit-chapter?slug=${slug}&chapter=${ch.number}`}
               className="
                 flex items-center gap-1 px-3 py-1 text-xs font-semibold 
                 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
-                transition shadow
-              "
+                transition shadow"
             >
               <Pencil size={14} />
               Edit

@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const slug = formData.get("slug") as string | null;
+    const slug = formData.get("slug") as Number | null;
     if (!slug) {
       return NextResponse.json(
         { message: "Slug is required" },
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // update data
     comics[idx] = {
       ...comics[idx],
-      slug,
+      slug : Number(slug),
       title: (formData.get("title") as string) || "",
       parodies: toArray(formData.get("parodies")),
       characters: toArray(formData.get("characters")),
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       const bytes = await coverFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const coverDir = path.join(process.cwd(), "public", "komify", slug);
+      const coverDir = path.join(process.cwd(), "public", "komify", String(slug));
 
       if (!fs.existsSync(coverDir)) {
         fs.mkdirSync(coverDir, { recursive: true });
