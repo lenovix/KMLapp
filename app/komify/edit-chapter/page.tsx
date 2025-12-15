@@ -3,10 +3,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { Upload, Trash2 } from "lucide-react";
+import FileUploadInput from "@/components/UI/FileUploadInput";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
+import PrimaryButton from "@/components/UI/PrimaryButton";
 
 export default function EditChapterPage() {
+  const [languages, setLanguages] = useState<string[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,27 +58,60 @@ export default function EditChapterPage() {
           }))
         );
       });
+      fetch("/data/config/language.json")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setLanguages(data);
+          }
+        })
+        .catch(console.error);
+
   }, [slug, chapter]);
 
+  useEffect(() => {
+    return () => {
+      pages.forEach((p) => {
+        if (p.url?.startsWith("blob:")) {
+          URL.revokeObjectURL(p.url);
+        }
+      });
+    };
+  }, [pages]);
   /* ================= HANDLERS ================= */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    if (!files.length) return;
+  const handleFileUpload = (files: FileList | null) => {
+    if (!files) return;
 
-    setNewFiles((prev) => [...prev, ...files]);
-    setPages((prev) => [
-      ...prev,
-      ...files.map((file, i) => ({
-        id: `new-${Date.now()}-${i}`,
-        file,
-        url: URL.createObjectURL(file),
-      })),
-    ]);
+    const fileArray = Array.from(files);
+
+    setNewFiles((prev) => {
+      const existingNames = new Set(prev.map((f) => f.name));
+      const filtered = fileArray.filter((f) => !existingNames.has(f.name));
+      return [...prev, ...filtered];
+    });
+
+    setPages((prev) => {
+      const existingNames = new Set(prev.map((p) => p.filename));
+      const timestamp = Date.now();
+
+      const newPages = fileArray
+        .filter((f) => !existingNames.has(f.name))
+        .map((file, index) => ({
+          id: `new-${timestamp}-${index}-${file.name}`,
+          file,
+          url: URL.createObjectURL(file),
+          filename: file.name,
+        }));
+
+      return [...prev, ...newPages];
+    });
   };
+
+
 
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -139,9 +176,39 @@ export default function EditChapterPage() {
         {/* MAIN LAYOUT */}
         <section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* ================= LEFT — DRAG AREA (3/4) ================= */}
-          <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4">
-            <h2 className="font-semibold mb-4">Urutkan Halaman</h2>
+          <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
+            {/* === HEADER === */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">
+                Chapter Pages
+              </h3>
+              <span className="text-xs text-gray-400">
+                {pages.length} pages
+              </span>
+            </div>
 
+            {/* === UPLOAD BAR === */}
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+              <FileUploadInput
+                multiple
+                accept="image/*"
+                icon={<Upload size={16} />}
+                text="Upload Pages"
+                countFile={pages.length}
+                onChange={handleFileUpload}
+              />
+
+              <PrimaryButton
+                variant="outline"
+                size="sm"
+                icon={<Trash2 size={14} />}
+                onClick={() => setPages([])}
+              >
+                Clear
+              </PrimaryButton>
+            </div>
+
+            {/* === GRID PREVIEW === */}
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="pages" direction="vertical">
                 {(p) => (
@@ -149,13 +216,12 @@ export default function EditChapterPage() {
                     ref={p.innerRef}
                     {...p.droppableProps}
                     className="
-                  grid
-                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
-                  gap-4
-                  max-h-[75vh]
-                  overflow-y-auto
-                  pr-2
-                "
+                      grid
+                      grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
+                      gap-4
+                      max-h-[70vh]
+                      overflow-y-auto
+                      pr-2"
                   >
                     {pages.map((page, i) => (
                       <Draggable key={page.id} draggableId={page.id} index={i}>
@@ -163,25 +229,40 @@ export default function EditChapterPage() {
                           <div
                             ref={d.innerRef}
                             {...d.draggableProps}
-                            {...d.dragHandleProps}
-                            className={`
-                          bg-white/5 border border-white/10 rounded-lg p-2
-                          text-center select-none
-                          ${s.isDragging ? "ring-2 ring-blue-500" : ""}
-                        `}
                             style={d.draggableProps.style}
+                            className={`
+                              relative group
+                              bg-white/5 border border-white/10
+                              rounded-xl p-2
+                              transition
+                              ${s.isDragging ? "ring-2 ring-blue-500" : ""}`}
                           >
-                            <div className="text-gray-400 mb-1 cursor-grab">
+                            {/* DRAG HANDLE */}
+                            <div
+                              {...d.dragHandleProps}
+                              className="
+                                absolute top-2 left-2
+                                text-gray-400 text-xs
+                                opacity-0 group-hover:opacity-100
+                                cursor-grab
+                                bg-black/40 px-2 py-1 rounded"
+                            >
                               ☰
                             </div>
 
+                            {/* PAGE IMAGE */}
                             <img
                               src={page.url}
-                              className="w-full h-40 object-contain"
                               draggable={false}
+                              className="
+                                w-full h-40
+                                object-contain
+                                rounded-md
+                                bg-black/20"
                             />
 
-                            <p className="text-xs text-gray-400 truncate mt-1">
+                            {/* FILENAME */}
+                            <p className="text-xs text-gray-400 truncate mt-2 text-center">
                               {page.filename || page.file?.name}
                             </p>
                           </div>
@@ -211,25 +292,29 @@ export default function EditChapterPage() {
 
               <div>
                 <label className="text-sm text-gray-300">Bahasa</label>
-                <input
+                <select
                   name="language"
                   value={form.language}
-                  onChange={handleChange}
-                  className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-300">
-                  Upload Gambar Baru
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="w-full mt-1 text-sm"
-                />
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, language: e.target.value }))
+                  }
+                  className="
+                    w-full mt-1
+                    bg-white/10 border border-white/10
+                    rounded px-3 py-2
+                    text-white
+                    focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {languages.map((lang) => (
+                    <option
+                      key={lang}
+                      value={lang}
+                      className="bg-slate-800 text-white"
+                    >
+                      {lang}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <button
