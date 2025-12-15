@@ -72,7 +72,29 @@ export default function ComicForm({
   return (
     <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ComicDetails comicData={comicData} onChange={handleComicChange} />
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
+          <div className="grid gap-4">
+            {[
+              { name: "title", placeholder: "Title" },
+              { name: "parodies", placeholder: "Parodies" },
+              { name: "characters", placeholder: "Characters" },
+              { name: "tags", placeholder: "Tags" },
+              { name: "artist", placeholder: "Artist" },
+              { name: "groups", placeholder: "Groups" },
+              { name: "author", placeholder: "Author" },
+              { name: "categories", placeholder: "Categories" },
+            ].map((field) => (
+              <input
+                key={field.name}
+                name={field.name}
+                placeholder={field.placeholder}
+                value={(comicData as any)[field.name]}
+                onChange={handleComicChange}
+                className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-300"
+              />
+            ))}
+          </div>
+        </div>
         {/* <ComicDetails comicData={comicData} /> */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
           <PrimaryButton
