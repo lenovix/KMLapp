@@ -2,13 +2,15 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import comicsData from "@/data/komify/comics.json";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import comicsData from "@/data/komify/comics.json";
+import DialogBox from "@/components/UI/DialogBox";
 
 export default function EditChapterPage() {
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const slug = searchParams.get("slug");
+  const slug = Number(searchParams.get("slug"));
   const chapter = searchParams.get("chapter");
 
   const [chapterData, setChapterData] = useState<any>(null);
@@ -84,14 +86,13 @@ export default function EditChapterPage() {
     setPages(reordered);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitChapter = async () => {
     if (!slug || !chapter) return;
 
     setLoading(true);
 
     const fd = new FormData();
-    fd.append("slug", slug);
+    fd.append("slug", slug.toString());
     fd.append("chapter", chapter);
     fd.append("title", form.title);
     fd.append("language", form.language);
@@ -115,115 +116,149 @@ export default function EditChapterPage() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setConfirmOpen(true);
+  };
+
   if (!chapterData) {
     return <p className="p-6 text-gray-400">Loading...</p>;
   }
   return (
-    <main className="w-full px-6 space-y-8 text-white">
-      <header>
-        <h1 className="text-3xl font-bold">
-          Edit Chapter {chapterData.number}
-        </h1>
-        <p className="text-sm text-gray-400">
-          Atur metadata & urutan halaman chapter
-        </p>
-      </header>
+    <>
+      <main className="w-full px-6 space-y-6 text-white">
+        <header>
+          <h1 className="text-3xl font-bold">
+            Edit Chapter {chapterData.number}
+          </h1>
+          <p className="text-sm text-gray-400">
+            Atur metadata & urutan halaman chapter
+          </p>
+        </header>
 
-      {/* FORM */}
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
-          <div>
-            <label className="text-sm text-gray-300">Judul Chapter</label>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
-              required
-            />
+        {/* MAIN LAYOUT */}
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* ================= LEFT — DRAG AREA (3/4) ================= */}
+          <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4">
+            <h2 className="font-semibold mb-4">Urutkan Halaman</h2>
+
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="pages" direction="vertical">
+                {(p) => (
+                  <div
+                    ref={p.innerRef}
+                    {...p.droppableProps}
+                    className="
+                  grid
+                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
+                  gap-4
+                  max-h-[75vh]
+                  overflow-y-auto
+                  pr-2
+                "
+                  >
+                    {pages.map((page, i) => (
+                      <Draggable key={page.id} draggableId={page.id} index={i}>
+                        {(d, s) => (
+                          <div
+                            ref={d.innerRef}
+                            {...d.draggableProps}
+                            {...d.dragHandleProps}
+                            className={`
+                          bg-white/5 border border-white/10 rounded-lg p-2
+                          text-center select-none
+                          ${s.isDragging ? "ring-2 ring-blue-500" : ""}
+                        `}
+                            style={d.draggableProps.style}
+                          >
+                            <div className="text-gray-400 mb-1 cursor-grab">
+                              ☰
+                            </div>
+
+                            <img
+                              src={page.url}
+                              className="w-full h-40 object-contain"
+                              draggable={false}
+                            />
+
+                            <p className="text-xs text-gray-400 truncate mt-1">
+                              {page.filename || page.file?.name}
+                            </p>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {p.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-300">Bahasa</label>
-            <input
-              name="language"
-              value={form.language}
-              onChange={handleChange}
-              className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-300">Upload Gambar Baru</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="w-full mt-1 text-sm"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded disabled:opacity-50"
-          >
-            {loading ? "Menyimpan..." : "Simpan Perubahan"}
-          </button>
-        </div>
-      </form>
-
-      {/* DRAG DROP */}
-      <section className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <h2 className="font-semibold mb-4">Urutkan Halaman</h2>
-
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="pages" direction="vertical">
-            {(p) => (
-              <div
-                ref={p.innerRef}
-                {...p.droppableProps}
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-              >
-                {pages.map((page, i) => (
-                  <Draggable key={page.id} draggableId={page.id} index={i}>
-                    {(d, s) => (
-                      <div
-                        ref={d.innerRef}
-                        {...d.draggableProps}
-                        {...d.dragHandleProps}
-                        className={`
-                    bg-white/5 border border-white/10 rounded-lg p-2
-                    text-center select-none
-                    ${s.isDragging ? "ring-2 ring-blue-500" : ""}
-                  `}
-                        style={d.draggableProps.style}
-                      >
-                        <div className="text-gray-400 mb-1 cursor-grab">☰</div>
-
-                        <img
-                          src={page.url}
-                          className="w-full h-36 object-contain mx-auto"
-                          draggable={false}
-                        />
-
-                        <p className="text-xs text-gray-400 truncate mt-1">
-                          {page.filename || page.file?.name}
-                        </p>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {p.placeholder}
+          {/* ================= RIGHT — DETAIL (1/4) ================= */}
+          <aside className="lg:col-span-1 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4 h-fit sticky top-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm text-gray-300">Judul Chapter</label>
+                <input
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
+                  required
+                />
               </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </section>
-    </main>
+
+              <div>
+                <label className="text-sm text-gray-300">Bahasa</label>
+                <input
+                  name="language"
+                  value={form.language}
+                  onChange={handleChange}
+                  className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-300">
+                  Upload Gambar Baru
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="w-full mt-1 text-sm"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded disabled:opacity-50"
+              >
+                {loading ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+            </form>
+          </aside>
+        </section>
+      </main>
+      {
+        <DialogBox
+          open={confirmOpen}
+          title="Simpan Perubahan Chapter?"
+          desc="Perubahan judul, bahasa, dan urutan halaman akan disimpan dan tidak bisa dibatalkan."
+          type="warning"
+          confirmText="Ya, Simpan"
+          cancelText="Batal"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={() => {
+            setConfirmOpen(false);
+            submitChapter();
+          }}
+        />
+      }
+    </>
   );
+
 }
