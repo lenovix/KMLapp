@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload, Trash2, Trash } from "lucide-react";
 import FileUploadInput from "@/components/UI/FileUploadInput";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
@@ -158,6 +158,11 @@ export default function EditChapterPage() {
     setConfirmOpen(true);
   };
 
+  const handleDeletePage = (id: string) => {
+    setPages((prev) => prev.filter((p) => p.id !== id));
+    setNewFiles((prev) => prev.filter((f) => !id.includes(f.name)));
+  };
+
   if (!chapterData) {
     return <p className="p-6 text-gray-400">Loading...</p>;
   }
@@ -221,7 +226,8 @@ export default function EditChapterPage() {
                       gap-4
                       max-h-[70vh]
                       overflow-y-auto
-                      pr-2"
+                      pr-2
+                    "
                   >
                     {pages.map((page, i) => (
                       <Draggable key={page.id} draggableId={page.id} index={i}>
@@ -235,22 +241,51 @@ export default function EditChapterPage() {
                               bg-white/5 border border-white/10
                               rounded-xl p-2
                               transition
-                              ${s.isDragging ? "ring-2 ring-blue-500" : ""}`}
+                              hover:border-blue-500/40
+                              ${s.isDragging ? "ring-2 ring-blue-500" : ""}
+                            `}
                           >
                             {/* DRAG HANDLE */}
                             <div
                               {...d.dragHandleProps}
                               className="
                                 absolute top-2 left-2
-                                text-gray-400 text-xs
-                                opacity-0 group-hover:opacity-100
+                                z-10
+                                flex items-center justify-center
+                                w-7 h-7
+                                text-gray-300
+                                bg-black/50
+                                rounded-md
                                 cursor-grab
-                                bg-black/40 px-2 py-1 rounded"
+                                opacity-0 group-hover:opacity-100
+                                transition
+                              "
+                              title="Drag to reorder"
                             >
                               ☰
                             </div>
 
-                            {/* PAGE IMAGE */}
+                            {/* DELETE BUTTON */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePage(page.id)}
+                              className="
+                                absolute top-2 right-2
+                                z-10
+                                flex items-center justify-center
+                                w-7 h-7
+                                bg-red-600/90 hover:bg-red-600
+                                text-white
+                                rounded-md
+                                opacity-0 group-hover:opacity-100
+                                transition
+                              "
+                              title="Hapus halaman"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+
+                            {/* IMAGE */}
                             <img
                               src={page.url}
                               draggable={false}
@@ -258,7 +293,8 @@ export default function EditChapterPage() {
                                 w-full h-40
                                 object-contain
                                 rounded-md
-                                bg-black/20"
+                                bg-black/20
+                              "
                             />
 
                             {/* FILENAME */}
