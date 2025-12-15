@@ -133,7 +133,12 @@ export default function EditChapterPage() {
     fd.append("chapter", chapter);
     fd.append("title", form.title);
     fd.append("language", form.language);
-    fd.append("order", JSON.stringify(pages.map((p) => p.id)));
+    fd.append(
+      "order",
+      JSON.stringify(
+        pages.map((p) => p.filename || p.file?.name).filter(Boolean)
+      )
+    );
 
     newFiles.forEach((f) => fd.append("files", f));
 

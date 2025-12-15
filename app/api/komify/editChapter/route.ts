@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
+
+interface Page {
+  id: string;
+  filename: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +18,7 @@ export async function POST(req: NextRequest) {
     const chapter = formData.get("chapter")?.toString();
     const title = formData.get("title")?.toString();
     const language = formData.get("language")?.toString();
-    const order = formData.get("order")?.toString();
+    const orderRaw = formData.get("order")?.toString();
 
     if (!slug || !chapter) {
       return NextResponse.json(
@@ -21,36 +27,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* === LOAD comics.json === */
-    const comicsPath = path.join(process.cwd(), "data/komify", "comics.json");
+    /* ===== LOAD JSON ===== */
+    const comicsPath = path.join(process.cwd(), "data/komify/comics.json");
     const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
 
-    const comicIdx = comics.findIndex(
-      (c: any) => String(c.slug) === String(slug)
-    );
-    if (comicIdx === -1)
+    const comic = comics.find((c: any) => String(c.slug) === String(slug));
+    if (!comic) {
       return NextResponse.json({ message: "Comic not found" }, { status: 404 });
+    }
 
-    const chapterIdx = comics[comicIdx].chapters.findIndex(
+    const chapterData = comic.chapters.find(
       (c: any) => String(c.number) === String(chapter)
     );
-    if (chapterIdx === -1)
+    if (!chapterData) {
       return NextResponse.json(
         { message: "Chapter not found" },
         { status: 404 }
       );
+    }
 
-    /* === UPDATE METADATA === */
-    comics[comicIdx].chapters[chapterIdx] = {
-      ...comics[comicIdx].chapters[chapterIdx],
-      title,
-      language,
-      uploadChapter: new Date()
-        .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
-        .replace("T", " "),
-    };
+    /* ===== UPDATE METADATA ===== */
+    chapterData.title = title;
+    chapterData.language = language;
+    chapterData.uploadChapter = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace("T", " ");
 
-    /* === UPLOAD FILES === */
+    /* ===== FILE SYSTEM ===== */
     const uploadDir = path.join(
       process.cwd(),
       "public",
@@ -61,48 +64,55 @@ export async function POST(req: NextRequest) {
     );
     fs.mkdirSync(uploadDir, { recursive: true });
 
-    const files = formData.getAll("files") as File[];
-    const existingPages = comics[comicIdx].chapters[chapterIdx].pages || [];
+    /* ===== EXISTING PAGES ===== */
+    let pages: Page[] = Array.isArray(chapterData.pages)
+      ? [...chapterData.pages]
+      : [];
 
-    let pageIndex = existingPages.length;
+    const oldPages = [...pages];
+
+    /* ===== HANDLE NEW FILES ===== */
+    const files = formData.getAll("files") as File[];
+    let counter = pages.length;
 
     for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = path.extname(file.name || ".jpg");
-      const filename = `page${++pageIndex}${ext}`;
+      const filename = `page${++counter}${ext}`;
 
       fs.writeFileSync(path.join(uploadDir, filename), buffer);
 
-      existingPages.push({
-        id: `${Date.now()}_${Math.random()}`,
+      pages.push({
+        id: crypto.randomUUID(),
         filename,
       });
     }
 
-    /* === ORDER HANDLING === */
-    if (order) {
-      try {
-        const orderArr: string[] = JSON.parse(order);
-        comics[comicIdx].chapters[chapterIdx].pages = orderArr
-          .map((name) => existingPages.find((p: any) => p.filename === name))
-          .filter(Boolean);
-      } catch {
-        return NextResponse.json(
-          { message: "Invalid order format" },
-          { status: 400 }
-        );
-      }
-    } else {
-      comics[comicIdx].chapters[chapterIdx].pages = existingPages;
+    /* ===== HANDLE ORDER + DELETE ===== */
+    if (orderRaw) {
+      const orderIds: string[] = JSON.parse(orderRaw);
+      const orderSet = new Set(orderIds);
+
+      /* REORDER OLD PAGES ONLY */
+      const orderedPages = orderIds
+        .map((id) => pages.find((p) => p.id === id))
+        .filter(Boolean) as Page[];
+
+      /* APPEND NEW PAGES */
+      const newPages = pages.filter((p) => !orderSet.has(p.id));
+
+      pages = [...orderedPages, ...newPages];
     }
+
+    chapterData.pages = pages;
 
     fs.writeFileSync(comicsPath, JSON.stringify(comics, null, 2));
 
-    return NextResponse.json({ message: "Chapter updated" });
+    return NextResponse.json({ message: "Chapter updated successfully" });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
-      { message: "Upload failed", error: err.message },
+      { message: "Edit chapter failed", error: err.message },
       { status: 500 }
     );
   }
