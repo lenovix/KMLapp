@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 interface UploadComicHeaderProps {
-  defaulftSlug: string;
+  defaulftSlug: number;
 }
 
 export default function UploadComicHeader({

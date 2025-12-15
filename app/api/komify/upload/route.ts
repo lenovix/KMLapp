@@ -21,22 +21,33 @@ async function fileToBuffer(file: any): Promise<Buffer | null> {
   return null;
 }
 
-// Utility helpers
-const uniqueArray = (arr: string[]) => [
-  ...new Set(arr.map((v) => v.trim()).filter(Boolean)),
-];
+type NormalizedField = string | string[] | null;
 
-const toArray = (value: any): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.flatMap(toArray);
-  if (typeof value === "string") {
-    return value
+const normalizeField = (value: any): NormalizedField => {
+  if (!value) return null;
+
+  let arr: string[] = [];
+
+  if (Array.isArray(value)) {
+    arr = value
+      .flatMap((v) => String(v).split(","))
+      .map((v) => v.trim())
+      .filter(Boolean);
+  } else if (typeof value === "string") {
+    arr = value
       .split(",")
       .map((v) => v.trim())
       .filter(Boolean);
   }
-  return [];
+
+  // unique
+  arr = [...new Set(arr)];
+
+  if (arr.length === 0) return null;
+  if (arr.length === 1) return arr[0];
+  return arr;
 };
+
 
 const getString = (v: any) => (Array.isArray(v) ? v[0] : v ?? "");
 
@@ -116,23 +127,27 @@ export async function POST(req: NextRequest) {
     const newComic = {
       slug: Number(slug),
       title: getString(formData.get("title")),
-      parodies: uniqueArray(toArray(formData.get("parodies"))),
-      characters: uniqueArray(toArray(formData.get("characters"))),
-      artists: uniqueArray(toArray(formData.get("artist"))),
-      groups: uniqueArray(toArray(formData.get("groups"))),
-      categories: uniqueArray(toArray(formData.get("categories"))),
-      author: uniqueArray(toArray(formData.get("author"))),
-      tags: uniqueArray(toArray(formData.get("tags"))),
+
+      parodies: normalizeField(formData.get("parodies")),
+      characters: normalizeField(formData.get("characters")),
+      artists: normalizeField(formData.get("artist")),
+      groups: normalizeField(formData.get("groups")),
+      categories: normalizeField(formData.get("categories")),
+      author: normalizeField(formData.get("author")),
+      tags: normalizeField(formData.get("tags")),
+
       status: getString(formData.get("status")),
+
       uploaded: new Date()
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),
+
       cover: `/komify/${slug}/cover.jpg`,
 
-      // ======== FIELD BARU ========
-      rating: Number(formData.get("rating") ?? 0), // default 0
-      bookmark: formData.get("bookmarked") === "true", // default false
-      // =============================
+      // ===== FIELD TAMBAHAN =====
+      rating: Number(formData.get("rating") ?? 0),
+      bookmark: formData.get("bookmarked") === "true",
+      // ==========================
 
       chapters: chaptersWithPages.map((ch) => ({
         number: ch.number,
@@ -144,6 +159,7 @@ export async function POST(req: NextRequest) {
         pages: ch.pages,
       })),
     };
+
 
 
     const index = comics.findIndex((c) => c.slug === Number(slug));

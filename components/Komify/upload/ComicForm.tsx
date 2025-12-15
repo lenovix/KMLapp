@@ -7,15 +7,15 @@ import PrimaryButton from "@/components/UI/PrimaryButton";
 import { Upload } from "lucide-react";
 
 export interface ComicData {
-  slug: string;
+  slug: number;
   title: string;
-  author: string[];
-  artist: string[];
-  groups: string[];
-  parodies: string[];
-  characters: string[];
-  categories: string[];
-  tags: string[];
+  author: string;
+  artist: string;
+  groups: string;
+  parodies: string;
+  characters: string;
+  categories: string;
+  tags: string;
   uploaded: string;
   status: "Ongoing" | "Completed" | "Hiatus";
   cover: string;

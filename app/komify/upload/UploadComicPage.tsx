@@ -29,29 +29,29 @@ export default function UploadComicPage({
   const router = useRouter();
 
   interface ComicData {
-    slug: string;
+    slug: number;
     title: string;
-    author: string[];
-    artist: string[];
-    groups: string[];
-    parodies: string[];
-    characters: string[];
-    categories: string[];
-    tags: string[];
+    author: string;
+    artist: string;
+    groups: string;
+    parodies: string;
+    characters: string;
+    categories: string;
+    tags: string;
     uploaded: string;
     status: "Ongoing" | "Completed" | "Hiatus";
     cover: string;
   }
   const [comicData, setComicData] = useState<ComicData>({
-    slug: defaultSlug.toString(),
+    slug: defaultSlug,
     title: "",
-    author: [],
-    artist: [],
-    groups: [],
-    parodies: [],
-    characters: [],
-    categories: [],
-    tags: [] ,
+    author: "",
+    artist: "",
+    groups: "",
+    parodies: "",
+    characters: "",
+    categories: "",
+    tags: "",
     uploaded: new Date().toISOString().split("T")[0],
     status: "Ongoing",
     cover: "",
@@ -74,7 +74,10 @@ export default function UploadComicPage({
   );
 
   const handleComicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setComicData({ ...comicData, [e.target.name]: e.target.value });
+    setComicData({
+      ...comicData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleChapterChange = (
@@ -186,10 +189,8 @@ export default function UploadComicPage({
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
       if (key === "cover") return;
-      formData.append(
-        key,
-        Array.isArray(value) ? JSON.stringify(value) : value
-      );
+      if (!value) return; // ⬅️ JANGAN kirim kalau kosong
+      formData.append(key, value);
     });
 
     if (coverFile) formData.append("cover", coverFile);

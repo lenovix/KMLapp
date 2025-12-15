@@ -2,36 +2,29 @@
 
 import Link from "next/link";
 
-export default function ComicTags({ tags = [] }: { tags: string[] }) {
-  // Convert stringified arrays --> real array
-  const normalizeTag = (t: string): string[] => {
-    if (!t) return [];
+type TagValue = string | string[] | null | undefined;
 
-    // Jika string seperti ["Manga"] atau ["Action","Drama"]
-    if (t.trim().startsWith("[") && t.trim().endsWith("]")) {
-      try {
-        const parsed = JSON.parse(t);
+interface ComicTagsProps {
+  tags?: TagValue;
+}
 
-        // Pastikan hasilnya array of strings
-        if (Array.isArray(parsed)) {
-          return parsed.filter((x) => typeof x === "string" && x.trim() !== "");
-        }
-      } catch {
-        return [];
-      }
+export default function ComicTags({ tags }: ComicTagsProps) {
+  const normalizeTags = (value: TagValue): string[] => {
+    if (!value) return [];
+
+    // Jika sudah array
+    if (Array.isArray(value)) {
+      return value.map((v) => v.trim()).filter(Boolean);
     }
 
-    // Selain itu: anggap sebagai string biasa
-    return [t];
+    // Jika string tunggal
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+
+    return [trimmed];
   };
 
-  // Flatten + clean
-  const cleanedTags = tags
-    .flatMap((t) => normalizeTag(t))
-    .filter(
-      (t) =>
-        t && t.trim() !== "" && t !== "[]" && t !== "null" && t !== "undefined"
-    );
+  const cleanedTags = normalizeTags(tags);
 
   if (cleanedTags.length === 0) return null;
 
@@ -39,7 +32,7 @@ export default function ComicTags({ tags = [] }: { tags: string[] }) {
     <div className="flex flex-wrap gap-2 mb-5">
       {cleanedTags.map((tag, i) => (
         <Link
-          key={i}
+          key={`${tag}-${i}`}
           href={`/tags/${encodeURIComponent(tag)}`}
           className="
             inline-flex items-center
@@ -53,7 +46,6 @@ export default function ComicTags({ tags = [] }: { tags: string[] }) {
             hover:text-white
             transition
             duration-200
-            cursor-pointer
           "
         >
           {tag}
