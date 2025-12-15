@@ -145,7 +145,9 @@ export default function ComicDetail() {
           {/* ACTION BUTTONS (Edit & Delete) */}
           <div className="absolute top-4 right-4 flex gap-3">
             <PrimaryButton
-              onClick={() => router.push(`/edit-comic?slug=${comic.slug}`)}
+              onClick={() =>
+                router.push(`/komify/edit-comic?slug=${comic.slug}`)
+              }
               icon={<Edit />}
               iconPosition="left"
               variant="primary"
