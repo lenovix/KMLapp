@@ -16,10 +16,12 @@ import ChaptersList from "@/components/Komify/Detail/ChaptersList";
 import ComicActions from "@/components/Komify/Detail/ComicActions";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import Alert from "@/components/UI/Alert";
+import CoverViewer from "@/components/UI/CoverViewer";
 
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
+  const [coverViewerOpen, setCoverViewerOpen] = useState(false);
   const [openDeleteChapterDialog, setOpenDeleteChapterDialog] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -178,7 +180,11 @@ export default function ComicDetail() {
                 : "/placeholder-cover.jpg"
             }
             alt={comic.title}
-            className="w-56 h-auto rounded-xl object-cover border border-slate-700 shadow-lg"
+            onClick={() => setCoverViewerOpen(true)}
+            className="
+              w-56 h-auto rounded-xl object-cover
+              border border-slate-700 shadow-lg
+              cursor-zoom-in hover:opacity-90 transition"
           />
 
           {/* RIGHT CONTENT */}
@@ -195,9 +201,9 @@ export default function ComicDetail() {
           </div>
         </div>
 
-        <ChaptersHeader slug={comic.slug} />
+        <ChaptersHeader slug={Number(comic.slug)} />
         <ChaptersList
-          slug={comic.slug}
+          slug={Number(comic.slug)}
           chapters={comic.chapters}
           onDeleteChapter={handleDeleteChapter}
         />
@@ -237,6 +243,18 @@ export default function ComicDetail() {
           cancelText="Batal"
           onConfirm={confirmDeleteChapter}
           onCancel={() => setOpenDeleteChapterDialog(false)}
+        />
+      }
+      {
+        <CoverViewer
+          open={coverViewerOpen}
+          src={
+            comic.cover
+              ? `/komify/${slug}/cover.jpg${version}`
+              : "/placeholder-cover.jpg"
+          }
+          alt={comic.title}
+          onClose={() => setCoverViewerOpen(false)}
         />
       }
     </>
