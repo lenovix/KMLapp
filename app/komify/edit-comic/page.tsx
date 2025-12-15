@@ -232,7 +232,7 @@ export default function EditComicPage() {
       <main className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <header className="space-y-1">
-          <h1 className="text-3xl font-bold text-white">Edit Komik</h1>
+          <h1 className="text-3xl font-bold text-white">Edit Komik :: {comicData.title}</h1>
           <p className="text-sm text-gray-400">
             Perbarui metadata dan cover komik
           </p>
