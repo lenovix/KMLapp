@@ -22,7 +22,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
     if (list.length === 0) return null;
 
     const pathMap: Record<string, string> = {
-      Parodies: "parody",
+      Parodies: "parodies",
       Characters: "character",
       Author: "author",
       Artist: "artist",
@@ -39,7 +39,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
         {list.map((item) => (
           <Link
             key={item}
-            href={`/komify/${path}/${encodeURIComponent(item)}`}
+            href={`/komify/metadata/${path}/${encodeURIComponent(item)}`}
             className="
               inline-flex items-center
               text-xs font-medium
