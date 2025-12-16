@@ -7,7 +7,6 @@ import ComicCover from "@/components/Komify/upload/ComicCover";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import DialogBox from "@/components/UI/DialogBox";
-import { Upload } from "lucide-react";
 import Alert from "@/components/UI/Alert";
 
 interface ComicData {
@@ -74,16 +73,28 @@ export default function EditComicPage() {
 
     if (!found) return;
 
+    const toArray = (val: string | string[] | null | undefined): string[] => {
+      if (!val) return [];
+      return Array.isArray(val) ? val : [val];
+    };
+
+    const toString = (val: string | string[] | null | undefined): string => {
+      if (!val) return "";
+      return Array.isArray(val) ? val.join(", ") : val;
+    };
+
     setComicData({
       slug: found.slug,
       title: found.title || "",
-      author: Array.isArray(found.author) ? found.author : [],
-      artist: Array.isArray(found.artists) ? found.artists : [],
-      groups: Array.isArray(found.groups) ? found.groups : [],
-      parodies: Array.isArray(found.parodies) ? found.parodies : [],
-      characters: Array.isArray(found.characters) ? found.characters : [],
-      categories: Array.isArray(found.categories) ? found.categories : [],
-      tags: Array.isArray(found.tags) ? found.tags : [],
+
+      author: toArray(found.author),
+      artist: toArray(found.artists),
+      groups: toArray(found.groups),
+      parodies: toArray(found.parodies),
+      characters: toArray(found.characters),
+      categories: toArray(found.categories),
+      tags: toArray(found.tags),
+
       uploaded: found.uploaded || "",
       status: found.status || "Ongoing",
       cover: found.cover || "",
@@ -91,16 +102,20 @@ export default function EditComicPage() {
 
     setForm({
       title: found.title || "",
-      parodies: (found.parodies || []).join(", "),
-      characters: (found.characters || []).join(", "),
-      artists: (found.artists || []).join(", "),
-      groups: (found.groups || []).join(", "),
-      categories: (found.categories || []).join(", "),
+
+      parodies: toString(found.parodies),
+      characters: toString(found.characters),
+      artists: toString(found.artists),
+      groups: toString(found.groups),
+      categories: toString(found.categories),
+
       uploaded: found.uploaded || "",
-      author: (found.author || []).join(", "),
-      tags: (found.tags || []).join(", "),
+      author: toString(found.author),
+      tags: toString(found.tags),
+
       status: found.status || "",
     });
+
 
     const fetchStatus = async () => {
       try {

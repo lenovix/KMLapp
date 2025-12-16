@@ -6,42 +6,20 @@ interface ComicMetaProps {
   comic: any;
 }
 
-// Fungsi normalisasi (dipakai ulang untuk semua metadata)
-const normalizeList = (list: string[] | undefined): string[] => {
-  if (!Array.isArray(list)) return [];
-
-  return list
-    .flatMap((item) => {
-      if (!item) return [];
-
-      // Jika item isinya seperti: ["Manga"] (string JSON)
-      if (item.trim().startsWith("[") && item.trim().endsWith("]")) {
-        try {
-          const parsed = JSON.parse(item);
-
-          if (Array.isArray(parsed)) {
-            return parsed.filter(
-              (x) => typeof x === "string" && x.trim() !== ""
-            );
-          }
-        } catch {
-          return [];
-        }
-      }
-
-      // Case normal: string biasa
-      if (item.trim() !== "" && item !== "[]" && item !== "null") return [item];
-
-      return [];
-    })
-    .filter(Boolean);
+/* ===== Helper sesuai normalizeField backend ===== */
+const toArray = (val: string | string[] | null | undefined): string[] => {
+  if (!val) return [];
+  return Array.isArray(val) ? val : [val];
 };
+/* =============================================== */
 
 export default function ComicMetadata({ comic }: ComicMetaProps) {
-  const renderList = (label: string, list: string[] | undefined) => {
-    const cleaned = normalizeList(list);
-
-    if (cleaned.length === 0) return null;
+  const renderList = (
+    label: string,
+    value: string | string[] | null | undefined
+  ) => {
+    const list = toArray(value);
+    if (list.length === 0) return null;
 
     const pathMap: Record<string, string> = {
       Parodies: "parody",
@@ -58,24 +36,24 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold text-slate-100">{label}:</span>
 
-        {cleaned.map((item) => (
+        {list.map((item) => (
           <Link
             key={item}
             href={`/komify/${path}/${encodeURIComponent(item)}`}
             className="
-          inline-flex items-center
-          text-xs font-medium
-          bg-blue-800/20 
-          text-blue-300
-          border border-blue-700/60
-          px-3 py-1.5
-          rounded-md
-          shadow-sm
-          hover:bg-blue-800/40
-          hover:text-white
-          transition
-          duration-200
-        "
+              inline-flex items-center
+              text-xs font-medium
+              bg-blue-800/20 
+              text-blue-300
+              border border-blue-700/60
+              px-3 py-1.5
+              rounded-md
+              shadow-sm
+              hover:bg-blue-800/40
+              hover:text-white
+              transition
+              duration-200
+            "
           >
             {item}
           </Link>
