@@ -16,6 +16,7 @@ interface PrimaryButtonProps {
   fullWidth?: boolean;
   rounded?: "none" | "sm" | "md" | "lg" | "xl" | "full";
   gap?: string; // contoh "gap-1", "gap-2"
+  disabled?: boolean;
 }
 
 export default function PrimaryButton({
@@ -32,6 +33,7 @@ export default function PrimaryButton({
   fullWidth = false,
   rounded = "md",
   gap = "gap-1",
+  disabled = false,
 }: PrimaryButtonProps) {
   const base = `
     inline-flex items-center
@@ -66,6 +68,7 @@ export default function PrimaryButton({
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {icon && iconPosition === "left" && icon}

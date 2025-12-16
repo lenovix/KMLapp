@@ -123,6 +123,37 @@ export default function EditChapterPage() {
     setPages(reordered);
   };
 
+  const updatePageOrder = async () => {
+    if (!slug || !chapter) return;
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/komify/updatePageOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          chapter,
+          order: pages.map((p) => p.filename || p.file?.name).filter(Boolean),
+        }),
+      });
+
+      if (!res.ok) {
+        alert("Gagal update posisi halaman");
+        return;
+      }
+
+      alert("Posisi halaman berhasil diperbarui");
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const submitChapter = async () => {
     if (!slug || !chapter) return;
 
@@ -188,13 +219,25 @@ export default function EditChapterPage() {
           {/* ================= LEFT — DRAG AREA (3/4) ================= */}
           <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
             {/* === HEADER === */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold text-white">
                 Chapter Pages
               </h3>
-              <span className="text-xs text-gray-400">
-                {pages.length} pages
-              </span>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400">
+                  {pages.length} pages
+                </span>
+
+                <PrimaryButton
+                  size="sm"
+                  variant="outline"
+                  disabled={loading}
+                  onClick={updatePageOrder}
+                >
+                  {loading ? "Updating..." : "Update Posisi"}
+                </PrimaryButton>
+              </div>
             </div>
 
             {/* === UPLOAD BAR === */}

@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ pages: [] });
   }
 
-  const dir = path.join(
+  const chapterDir = path.join(
     process.cwd(),
     "public",
     "komify",
@@ -20,22 +20,47 @@ export async function GET(req: Request) {
     String(chapter)
   );
 
+  const comicsPath = path.join(process.cwd(), "data", "komify", "comics.json");
+
   try {
-    if (!fs.existsSync(dir)) {
+    if (!fs.existsSync(chapterDir) || !fs.existsSync(comicsPath)) {
       return NextResponse.json({ pages: [] });
     }
 
-    const files = fs
-      .readdirSync(dir)
-      .filter((f) => /^page\d+\.(jpg|jpeg|png|webp)$/i.test(f))
-      .sort((a, b) => {
-        // Sort by page number
-        const na = parseInt(a.replace(/\D/g, ""));
-        const nb = parseInt(b.replace(/\D/g, ""));
-        return na - nb;
-      });
+    /** 1️⃣ ambil daftar file fisik */
+    const physicalFiles = fs
+      .readdirSync(chapterDir)
+      .filter((f) => /^page\d+\.(jpg|jpeg|png|webp)$/i.test(f));
 
-    return NextResponse.json({ pages: files });
+    /** 2️⃣ ambil data order dari JSON */
+    const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
+    const comic = comics.find((c: any) => String(c.slug) === String(slug));
+    const chapterData = comic?.chapters?.find(
+      (c: any) => String(c.number) === String(chapter)
+    );
+
+    const pagesFromJson = Array.isArray(chapterData?.pages)
+      ? chapterData.pages
+      : [];
+
+    /** 3️⃣ map filename -> order */
+    const orderMap = new Map(
+      pagesFromJson.map((p: any) => [p.filename, p.order ?? 0])
+    );
+
+    /** 4️⃣ sort berdasarkan order */
+    const sortedFiles = physicalFiles.sort((a, b) => {
+      const oa = Number(orderMap.get(a) ?? 9999);
+      const ob = Number(orderMap.get(b) ?? 9999);
+
+      if (oa !== ob) return oa - ob;
+
+      const na = Number(a.replace(/\D/g, ""));
+      const nb = Number(b.replace(/\D/g, ""));
+      return na - nb;
+    });
+
+    return NextResponse.json({ pages: sortedFiles });
   } catch (err) {
     console.error("Failed to read chapter directory", err);
     return NextResponse.json({ pages: [] });
