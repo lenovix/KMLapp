@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Parodie :: Komify",
+  title: "Parodies :: Komify",
   description: "Komify is Comics Collection",
 };
 
