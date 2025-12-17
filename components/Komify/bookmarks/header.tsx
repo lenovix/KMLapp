@@ -25,31 +25,29 @@ export default function AllComicHeader({
             <span className="sr-only">Back</span>
           </Link>
 
-          <h1 className="text-3xl font-bold">
-            My Bookmarks
-          </h1>
+          <h1 className="text-3xl font-bold">My Bookmarks</h1>
         </div>
 
-        {/* Right section (Bookmark + Upload) */}
+        {/* Right */}
         <div className="flex items-center gap-3">
-          {/* Bookmark */}
           <Link
             href="/komify/bookmarks"
-            className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
-            title="Bookmark"
+            className="flex items-center gap-2 px-3 py-2
+                           bg-yellow-500 text-black rounded-xl
+                           hover:bg-yellow-400 transition text-sm font-medium"
           >
-            <Bookmark className="w-5 h-5" />
-            <span>My Bookmarks</span>
+            <Bookmark className="w-4 h-4" />
+            <span className="hidden sm:inline">Bookmarks</span>
           </Link>
 
-          {/* Upload */}
           <Link
             href="/komify/upload"
-            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            title="Upload"
+            className="flex items-center gap-2 px-3 py-2
+                           bg-blue-600 text-white rounded-xl
+                           hover:bg-blue-500 transition text-sm font-medium"
           >
-            <Upload size={20} />
-            <span>Upload</span>
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">Upload</span>
           </Link>
         </div>
       </div>
