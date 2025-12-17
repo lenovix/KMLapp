@@ -18,6 +18,8 @@ export default function Home() {
             name="Komify"
             status="release"
             version="1.0"
+            startDate="5 December 2025"
+            endDate="17 December 2025"
             link="/komify"
           />
           <CardWebHome

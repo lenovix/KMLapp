@@ -7,6 +7,8 @@ interface CardWebHomeProps {
   status?: "release" | "development" | "not-started";
   version?: string;
   link: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export default function CardWebHome({
@@ -15,6 +17,8 @@ export default function CardWebHome({
   status,
   version,
   link,
+  startDate,
+  endDate,
 }: CardWebHomeProps) {
   const badgeText =
     status === "release" && version
@@ -38,9 +42,9 @@ export default function CardWebHome({
     <Link
       href={link}
       className="group w-full max-w-xs bg-white dark:bg-gray-800
-        border border-gray-200 dark:border-gray-700
-        rounded-xl p-6 flex flex-col items-center text-center
-        shadow-sm hover:shadow-lg hover:border-blue-500 transition"
+      border border-gray-200 dark:border-gray-700
+      rounded-xl p-6 flex flex-col items-center text-center
+      shadow-sm hover:shadow-lg hover:border-blue-500 transition"
     >
       {/* Logo */}
       {logo ? (
@@ -48,14 +52,14 @@ export default function CardWebHome({
           src={logo}
           alt={name}
           className="w-24 h-24 object-cover mb-4 rounded-full
-            bg-gray-100 dark:bg-gray-700"
+          bg-gray-100 dark:bg-gray-700"
         />
       ) : (
         <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 mb-4" />
       )}
 
       {/* Name */}
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
         {name}
       </h2>
 
@@ -63,11 +67,21 @@ export default function CardWebHome({
       {badgeText && (
         <span
           className={cn(
-            "px-3 py-1 text-xs font-semibold rounded-full border",
+            "mt-2 px-3 py-1 text-xs font-semibold rounded-full border",
             badgeStyle
           )}
-        >{badgeText}
+        >
+          {badgeText}
         </span>
+      )}
+
+      {/* Date Range */}
+      {startDate && endDate && (
+        <div className="mt-3 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+          <span>
+            {startDate} — {endDate}
+          </span>
+        </div>
       )}
     </Link>
   );
