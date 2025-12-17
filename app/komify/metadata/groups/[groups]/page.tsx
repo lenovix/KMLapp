@@ -1,11 +1,11 @@
 import MetadataDetailPage from "@/components/Komify/metadata/MetadataDetailPage";
 
-export default function artistsDetailPage() {
+export default function groupsDetailPage() {
   return (
     <MetadataDetailPage
-      field="artists"
-      label="Artist"
-      basePath="/komify/metadata/artists"
+      field="groups"
+      label="Group"
+      basePath="/komify/metadata/groups"
     />
   );
 }
