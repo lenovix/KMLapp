@@ -153,41 +153,122 @@ export default function EditChapterPage() {
     }
   };
 
-
-  const submitChapter = async () => {
-    if (!slug || !chapter) return;
+  const saveChapterChanges = async (options?: { onlyOrder?: boolean }) => {
+    if (!slug || !chapter || loading) return;
 
     setLoading(true);
 
-    const fd = new FormData();
-    fd.append("slug", slug.toString());
-    fd.append("chapter", chapter);
-    fd.append("title", form.title);
-    fd.append("language", form.language);
-    fd.append(
-      "order",
-      JSON.stringify(
-        pages.map((p) => p.filename || p.file?.name).filter(Boolean)
-      )
-    );
+    try {
+      const order = pages
+        .map((p) => p.filename ?? p.file?.name)
+        .filter((v): v is string => typeof v === "string" && v.length > 0);
 
-    newFiles.forEach((f) => fd.append("files", f));
+      /* ===============================
+       1️⃣ Update page order (SELALU)
+    =============================== */
+      const orderRes = await fetch("/api/komify/updatePageOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: String(slug),
+          chapter: String(chapter),
+          order,
+        }),
+      });
+
+      if (!orderRes.ok) {
+        const err = await orderRes.json();
+        throw new Error(err?.message || "Gagal update posisi halaman");
+      }
+
+      /* ===============================
+       2️⃣ Jika hanya order → STOP
+    =============================== */
+      if (options?.onlyOrder) {
+        alert("Posisi halaman berhasil diperbarui");
+        return;
+      }
+
+      /* ===============================
+       3️⃣ Update chapter (meta + file)
+    =============================== */
+      const fd = new FormData();
+      fd.append("slug", String(slug));
+      fd.append("chapter", String(chapter));
+      fd.append("title", form.title.trim());
+      fd.append("language", form.language);
+      fd.append("order", JSON.stringify(order));
+
+      newFiles.forEach((file) => {
+        fd.append("files", file);
+      });
+
+      const chapterRes = await fetch("/api/komify/editChapter", {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await chapterRes.json();
+
+      if (!chapterRes.ok) {
+        throw new Error(data?.message || "Gagal update chapter");
+      }
+
+      router.push(`/komify/${slug}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const submitChapter = async () => {
+    if (!slug || !chapter || loading) return;
+
+    setLoading(true);
 
     try {
+      const fd = new FormData();
+
+      fd.append("slug", String(slug));
+      fd.append("chapter", String(chapter));
+      fd.append("title", form.title.trim());
+      fd.append("language", form.language);
+
+      // Urutan halaman (existing + new)
+      const order = pages
+        .map((p) => p.filename ?? p.file?.name)
+        .filter((v): v is string => typeof v === "string" && v.length > 0);
+
+      fd.append("order", JSON.stringify(order));
+
+      // File baru
+      newFiles.forEach((file) => {
+        fd.append("files", file);
+      });
+
       const res = await fetch("/api/komify/editChapter", {
         method: "POST",
         body: fd,
       });
 
-      if (res.ok) {
-        router.push(`/komify/${slug}`);
-      } else {
-        alert("Gagal update chapter");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Gagal update chapter");
       }
+
+      router.push(`/komify/${slug}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Terjadi kesalahan saat update chapter");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,7 +314,7 @@ export default function EditChapterPage() {
                   size="sm"
                   variant="outline"
                   disabled={loading}
-                  onClick={updatePageOrder}
+                  onClick={() => saveChapterChanges({ onlyOrder: true })}
                 >
                   {loading ? "Updating..." : "Update Posisi"}
                 </PrimaryButton>
@@ -423,7 +504,7 @@ export default function EditChapterPage() {
           onCancel={() => setConfirmOpen(false)}
           onConfirm={() => {
             setConfirmOpen(false);
-            submitChapter();
+            saveChapterChanges(); // 🔥 full save
           }}
         />
       }
