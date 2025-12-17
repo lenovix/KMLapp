@@ -38,9 +38,6 @@ export default function MetadataHeader({
             <Link href="/komify" className="hover:opacity-80">
               Komify
             </Link>
-
-            <span className="text-slate-400">/</span>
-
             <span className="text-blue-400">{title}</span>
           </div>
 
