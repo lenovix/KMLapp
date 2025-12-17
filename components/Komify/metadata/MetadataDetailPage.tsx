@@ -122,7 +122,7 @@ export default function MetadataDetailPage({
                              rounded-2xl overflow-hidden shadow-md
                              hover:shadow-xl transition"
                 >
-                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                  <div className="relative w-full aspect-3/4 overflow-hidden">
                     <img
                       src={comic.cover || "/placeholder-cover.jpg"}
                       alt={comic.title}
