@@ -110,7 +110,6 @@ export default function AddChapterModal({
     }
   };
 
-  /* 🔥 MODAL UI */
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
@@ -123,155 +122,144 @@ export default function AddChapterModal({
       <div className="relative z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 text-slate-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-white">Tambah Chapter Baru</h2>
+          <h2 className="text-xl font-bold text-white">
+            Chapter {form.number}
+          </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white">
             <X />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Grid form */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Nomor Chapter */}
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">
-                  Nomor Chapter
-                </label>
-                <input
-                  name="number"
-                  value={form.number}
-                  readOnly
-                  className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-300"
-                />
-              </div>
-
-              {/* Judul */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-400 mb-1">
-                  Judul Chapter
-                </label>
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Contoh: Zero to Hero"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Bahasa */}
-            <div>
+          {/* Grid form */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Judul */}
+            <div className="md:col-span-3">
               <label className="block text-sm font-medium text-slate-400 mb-1">
-                Bahasa
+                Judul Chapter
               </label>
               <input
-                name="language"
-                value={form.language}
+                name="title"
+                value={form.title}
                 onChange={handleChange}
-                placeholder="English / Japanese / Indonesia"
+                placeholder="Contoh: Zero to Hero"
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white
-                       focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                required
               />
             </div>
+          </div>
 
-            {/* Upload */}
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">
-                File Gambar
-              </label>
+          {/* Bahasa */}
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-1">
+              Bahasa
+            </label>
+            <input
+              name="language"
+              value={form.language}
+              onChange={handleChange}
+              placeholder="English / Japanese / Indonesia"
+              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white
+                       focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
 
-              <label
-                className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700
+          {/* Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-2">
+              File Gambar
+            </label>
+
+            <label
+              className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700
                              rounded-xl p-6 cursor-pointer
                              hover:border-blue-500 hover:bg-slate-800 transition"
-              >
-                <span className="text-sm text-slate-300">
-                  Klik atau drag gambar ke sini
-                </span>
-                <span className="text-xs text-slate-500 mt-1">
-                  Bisa diurutkan setelah upload
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFilesChange}
-                  className="hidden"
-                  required
-                />
-              </label>
-            </div>
+            >
+              <span className="text-sm text-slate-300">
+                Klik atau drag gambar ke sini
+              </span>
+              <span className="text-xs text-slate-500 mt-1">
+                Bisa diurutkan setelah upload
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFilesChange}
+                className="hidden"
+                required
+              />
+            </label>
+          </div>
 
-            {/* Preview */}
-            {previewPages.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-slate-400 mb-2">
-                  Urutkan Halaman
-                </p>
+          {/* Preview */}
+          {previewPages.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-slate-400 mb-2">
+                Urutkan Halaman
+              </p>
 
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId="pages" direction="horizontal">
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className="flex gap-4 overflow-x-auto pb-2"
-                      >
-                        {previewPages.map((item, idx) => (
-                          <Draggable
-                            key={item.id}
-                            draggableId={item.id}
-                            index={idx}
-                          >
-                            {(prov, snapshot) => (
-                              <div
-                                ref={prov.innerRef}
-                                {...prov.draggableProps}
-                                {...prov.dragHandleProps}
-                                className={`relative shrink-0 rounded-xl border border-slate-700
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="pages" direction="horizontal">
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="flex gap-4 overflow-x-auto pb-2"
+                    >
+                      {previewPages.map((item, idx) => (
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={idx}
+                        >
+                          {(prov, snapshot) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                              className={`relative shrink-0 rounded-xl border border-slate-700
                               bg-slate-800 p-2 w-[120px] transition
                               ${
                                 snapshot.isDragging
                                   ? "ring-2 ring-blue-500 shadow-xl"
                                   : "hover:shadow"
                               }`}
-                              >
-                                <img
-                                  src={item.url}
-                                  className="w-full h-36 object-contain rounded-md bg-slate-900"
-                                />
-                                <span
-                                  className="absolute -top-2 -right-2
+                            >
+                              <img
+                                src={item.url}
+                                className="w-full h-36 object-contain rounded-md bg-slate-900"
+                              />
+                              <span
+                                className="absolute -top-2 -right-2
                               bg-blue-600 text-white text-xs
                               w-6 h-6 flex items-center justify-center rounded-full"
-                                >
-                                  {idx + 1}
-                                </span>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-            )}
+                              >
+                                {idx + 1}
+                              </span>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          )}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-blue-600 text-white py-3 font-semibold
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-blue-600 text-white py-3 font-semibold
                      hover:bg-blue-700 transition disabled:opacity-60"
-            >
-              {loading ? "Mengupload Chapter..." : "Tambah Chapter"}
-            </button>
-          </form>
+          >
+            {loading ? "Mengupload Chapter..." : "Tambah Chapter"}
+          </button>
+        </form>
       </div>
     </div>
   );
