@@ -23,7 +23,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
 
     const pathMap: Record<string, string> = {
       Parodies: "parodies",
-      Characters: "character",
+      Characters: "characters",
       Author: "author",
       Artist: "artist",
       Groups: "group",
