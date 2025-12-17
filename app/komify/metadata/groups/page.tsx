@@ -5,7 +5,7 @@ export default function groupsPage() {
     <MetadataListPage
       field="groups"
       title="Groups"
-      basePath="/komify/metadata/artists"
+      basePath="/komify/metadata/groups"
     />
   );
 }

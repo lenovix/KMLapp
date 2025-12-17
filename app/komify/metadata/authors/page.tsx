@@ -5,7 +5,7 @@ export default function authorsPage() {
     <MetadataListPage
       field="authors"
       title="Author"
-      basePath="/komify/metadata/author"
+      basePath="/komify/metadata/authors"
     />
   );
 }
