@@ -119,7 +119,7 @@ export default function EditComicPage() {
 
     const fetchStatus = async () => {
       try {
-        const res = await fetch("/data/komify/status.json");
+        const res = await fetch("/data/config/status.json");
         const data = await res.json();
         setStatusOptions(data);
       } catch (err) {
