@@ -25,6 +25,11 @@ export default function AllComic() {
   const allStatuses: string[] = statusList;
   const allCategories: string[] = categoriesList;
 
+  // 1. Reset halaman ke 1 saat filter berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedStatus, selectedCategories, selectedTags]);
+
   const filteredComics = useMemo(() => {
     const filtered = comics.filter((comic: any) => {
       const title =
@@ -75,7 +80,6 @@ export default function AllComic() {
     });
   }, [searchTerm, selectedTags, selectedStatus, selectedCategories]);
 
-
   const COMICS_PER_PAGE = 8;
   const totalPages = Math.ceil(filteredComics.length / COMICS_PER_PAGE);
   const paginatedComics = filteredComics.slice(
@@ -88,42 +92,16 @@ export default function AllComic() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // 3. Memoize Tags (Lebih efisien)
   const allTags = useMemo(() => {
-    if (!Array.isArray(comics)) return [];
-
-    const tags = comics.flatMap((c) => {
-      if (!c || !c.tags) return [];
-
-      // Normal array → gunakan langsung
-      if (Array.isArray(c.tags) && typeof c.tags[0] === "string") {
-        return c.tags.flatMap((t) => {
-          try {
-            // Jika "t" ternyata JSON array, parse
-            const parsed = JSON.parse(t);
-            if (Array.isArray(parsed)) return parsed;
-          } catch {}
-          return t;
-        });
+    const tagsSet = new Set<string>();
+    comics.forEach((c: any) => {
+      if (Array.isArray(c.tags)) {
+        c.tags.forEach((t: string) => tagsSet.add(t.trim()));
       }
-
-      // Single string → mungkin JSON array
-      if (typeof c.tags === "string") {
-        try {
-          const parsed = JSON.parse(c.tags);
-          if (Array.isArray(parsed)) return parsed;
-        } catch {}
-        return [c.tags];
-      }
-
-      return [];
     });
-
-    const cleaned = tags
-      .map((t) => (typeof t === "string" ? t.trim() : ""))
-      .filter((t) => t !== "" && t !== "[]" && t !== "undefined");
-
-    return Array.from(new Set(cleaned));
-  }, [comics]);
+    return Array.from(tagsSet).filter((t) => t && t !== "undefined");
+  }, []);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -140,26 +118,6 @@ export default function AllComic() {
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
-
-
-  // --- Fetch ratings ---
-  useEffect(() => {
-    async function fetchRatings() {
-      const newRatings: Ratings = {};
-      for (const comic of filteredComics) {
-        try {
-          const res = await fetch(`/api/komify/ratings?slug=${comic.slug}`);
-          const data = await res.json();
-          newRatings[comic.slug] = data.rating || 0;
-        } catch {
-          newRatings[comic.slug] = 0;
-        }
-      }
-      setRatings(newRatings);
-    }
-
-    if (filteredComics.length > 0) fetchRatings();
-  }, [filteredComics]);
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -209,11 +167,6 @@ export default function AllComic() {
                           ? comic.title
                           : comic.title?.[0]}
                       </h2>
-
-                      {/* Rating */}
-                      <div className="text-sm mt-1 text-gray-700 dark:text-gray-300">
-                        {renderStars(ratings[comic.slug] || 0)}
-                      </div>
                     </div>
                   </Link>
                 ))}
