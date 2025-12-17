@@ -28,6 +28,7 @@ export default function ComicDetail() {
   const [alertMessage, setAlertMessage] = useState("");
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [version, setVersion] = useState("");
+  const [imgSrc, setImgSrc] = useState<string | null>(null); 
   const params = useParams();
   const router = useRouter();
   const slug = params.slug;
@@ -36,6 +37,28 @@ export default function ComicDetail() {
   const [userRating, setUserRatingState] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (comic) {
+      const initialSrc = comic.cover
+        ? `/komify/${slug}/cover.jpg?v=${Date.now()}`
+        : "/placeholder-cover.jpg";
+      setImgSrc(initialSrc);
+    }
+  }, [comic, slug]);
+
+  const handleImageError = () => {
+    // Urutan: .jpg -> .png -> .webp -> .jpeg -> placeholder
+    if (imgSrc?.includes(".jpg")) {
+      setImgSrc(`/komify/${slug}/cover.png${version}`);
+    } else if (imgSrc?.includes(".png")) {
+      setImgSrc(`/komify/${slug}/cover.webp${version}`);
+    } else if (imgSrc?.includes(".webp")) {
+      setImgSrc(`/komify/${slug}/cover.jpeg${version}`);
+    } else {
+      setImgSrc("/placeholder-cover.jpg");
+    }
+  };
 
   useEffect(() => {
     setVersion(`?v=${Date.now()}`);
@@ -174,12 +197,9 @@ export default function ComicDetail() {
 
           {/* COVER */}
           <img
-            src={
-              comic.cover
-                ? `/komify/${slug}/cover.jpg${version}`
-                : "/placeholder-cover.jpg"
-            }
+            src={imgSrc? imgSrc : "/placeholder-cover.jpg"}
             alt={comic.title}
+            onError={handleImageError} // Memicu pergantian ekstensi jika error
             onClick={() => setCoverViewerOpen(true)}
             className="
               w-56 h-auto rounded-xl object-cover
@@ -248,11 +268,7 @@ export default function ComicDetail() {
       {
         <CoverViewer
           open={coverViewerOpen}
-          src={
-            comic.cover
-              ? `/komify/${slug}/cover.jpg${version}`
-              : "/placeholder-cover.jpg"
-          }
+          src={imgSrc ? imgSrc : "/placeholder-cover.jpg"} // Pastikan viewer menggunakan sumber yang sama
           alt={comic.title}
           onClose={() => setCoverViewerOpen(false)}
         />
