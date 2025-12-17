@@ -81,7 +81,7 @@ export default function ComicForm({
               { name: "tags", placeholder: "Tags" },
               { name: "artist", placeholder: "Artist" },
               { name: "groups", placeholder: "Groups" },
-              { name: "author", placeholder: "Author" },
+              { name: "authors", placeholder: "Authors" },
               { name: "categories", placeholder: "Categories" },
             ].map((field) => (
               <input

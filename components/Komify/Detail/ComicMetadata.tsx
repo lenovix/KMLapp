@@ -66,7 +66,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
     <div className="grid grid-cols-1 gap-x-10 gap-y-2 text-sm text-slate-300 mb-6">
       {renderList("Parodies", comic.parodies)}
       {renderList("Characters", comic.characters)}
-      {renderList("Author", comic.author)}
+      {renderList("Author", comic.authors)}
       {renderList("Artist", comic.artists)}
       {renderList("Groups", comic.groups)}
       {renderList("Categories", comic.categories)}
