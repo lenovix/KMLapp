@@ -33,7 +33,7 @@ export default function ComicTags({ tags }: ComicTagsProps) {
       {cleanedTags.map((tag, i) => (
         <Link
           key={`${tag}-${i}`}
-          href={`/tags/${encodeURIComponent(tag)}`}
+          href={`/komify/metadata/tags/${encodeURIComponent(tag)}`}
           className="
             inline-flex items-center
             text-xs font-medium
