@@ -22,7 +22,7 @@ export default function Alert({
   type = "error",
   title,
   message,
-  duration = 5000,
+  duration = 0,
   progress = 0,
   onClose,
 }: AlertProps) {
