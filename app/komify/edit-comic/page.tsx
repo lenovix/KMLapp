@@ -12,7 +12,7 @@ import Alert from "@/components/UI/Alert";
 interface ComicData {
   slug: number;
   title: string;
-  author: string[];
+  authors: string[];
   artist: string[];
   groups: string[];
   parodies: string[];
@@ -45,7 +45,7 @@ export default function EditComicPage() {
   const [comicData, setComicData] = useState<ComicData>({
     slug: 0,
     title: "",
-    author: [],
+    authors: [],
     artist: [],
     groups: [],
     parodies: [],
@@ -87,7 +87,7 @@ export default function EditComicPage() {
       slug: found.slug,
       title: found.title || "",
 
-      author: toArray(found.author),
+      authors: toArray(found.authors),
       artist: toArray(found.artists),
       groups: toArray(found.groups),
       parodies: toArray(found.parodies),
@@ -110,7 +110,7 @@ export default function EditComicPage() {
       categories: toString(found.categories),
 
       uploaded: found.uploaded || "",
-      author: toString(found.author),
+      authors: toString(found.authors),
       tags: toString(found.tags),
 
       status: found.status || "",
@@ -259,7 +259,7 @@ export default function EditComicPage() {
                   ["characters", "Characters"],
                   ["artists", "Artists"],
                   ["groups", "Groups"],
-                  ["author", "Author"],
+                  ["authors", "Author"],
                   ["tags", "Tags"],
                 ].map(([name, label]) => (
                   <div key={name} className="space-y-1">
