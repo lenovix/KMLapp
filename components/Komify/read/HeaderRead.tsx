@@ -40,7 +40,7 @@ export default function HeaderRead({ comic, chapter }: HeaderReadProps) {
           <span className="text-lg">
             <ArrowLeft className="w-6 h-6" />
           </span>
-          {comic.title}
+          Back to Detail
         </Link>
 
         <div className="text-right">
