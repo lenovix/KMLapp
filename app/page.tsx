@@ -25,8 +25,10 @@ export default function Home() {
           <CardWebHome
             logo="/Filmfy.png"
             name="Filmfy"
-            status="not-started"
-            link="/Filmfy"
+            status="development"
+            startDate="17 December 2025"
+            endDate="Present"
+            link="/filmfy"
           />
           <CardWebHome
             logo="/Animefy.png"

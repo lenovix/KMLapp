@@ -1,0 +1,91 @@
+{
+    "films": [
+        {
+            "id": 1,
+            "code": "INT-2014",
+            "title": "Interstellar",
+            "originalTitle": "Interstellar",
+            "year": 2014,
+            "duration": 169,
+            "genres": [
+                "Science Fiction",
+                "Adventure",
+                "Drama"
+            ],
+            "rating": 8.6,
+            "language": "English",
+            "subtitles": [
+                "English",
+                "Indonesian"
+            ],
+            "director": "Christopher Nolan",
+            "cast": [
+                "Matthew McConaughey",
+                "Anne Hathaway",
+                "Jessica Chastain"
+            ],
+            "poster": "/filmfy/posters/interstellar.jpg",
+            "backdrop": "/filmfy/backdrops/interstellar.jpg",
+            "synopsis": "Sekelompok astronot melakukan perjalanan melalui wormhole untuk menyelamatkan umat manusia.",
+            "releaseDate": "2014-11-07",
+            "addedAt": "2025-12-17 14:30:00",
+            "files": [
+                {
+                    "quality": "1080p",
+                    "resolution": "1920x1080",
+                    "codec": "H.264",
+                    "audio": "AAC 5.1",
+                    "sizeMB": 8200,
+                    "path": "/media/films/interstellar/interstellar-1080p.mkv"
+                },
+                {
+                    "quality": "4K",
+                    "resolution": "3840x2160",
+                    "codec": "HEVC",
+                    "audio": "Dolby Atmos",
+                    "sizeMB": 24500,
+                    "path": "/media/films/interstellar/interstellar-4k.mkv"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "code": "INT-2015",
+            "title": "Parasite",
+            "originalTitle": "Gisaengchung",
+            "year": 2019,
+            "duration": 132,
+            "genres": [
+                "Thriller",
+                "Drama"
+            ],
+            "rating": 8.5,
+            "language": "Korean",
+            "subtitles": [
+                "English",
+                "Indonesian"
+            ],
+            "director": "Bong Joon-ho",
+            "cast": [
+                "Song Kang-ho",
+                "Lee Sun-kyun",
+                "Cho Yeo-jeong"
+            ],
+            "poster": "/filmfy/posters/parasite.jpg",
+            "backdrop": "/filmfy/backdrops/parasite.jpg",
+            "synopsis": "Kisah dua keluarga dari kelas sosial berbeda yang hidupnya saling terkait dengan cara tak terduga.",
+            "releaseDate": "2019-05-30",
+            "addedAt": "2025-12-17 14:45:00",
+            "files": [
+                {
+                    "quality": "1080p",
+                    "resolution": "1920x1080",
+                    "codec": "H.264",
+                    "audio": "DTS",
+                    "sizeMB": 7600,
+                    "path": "/media/films/parasite/parasite-1080p.mkv"
+                }
+            ]
+        }
+    ]
+}
