@@ -1,0 +1,26 @@
+[
+  {
+    "id": "932bc71c-a156-406a-9345-8e5da9e5fed1",
+    "title": "das",
+    "releaseDate": "2025-12-18",
+    "director": "dsa",
+    "maker": "dsa",
+    "label": "dsa",
+    "genre": [
+      "dsa"
+    ],
+    "cast": [
+      "dsa"
+    ],
+    "series": "sda",
+    "cover": null,
+    "parts": [
+      {
+        "order": 1,
+        "title": "dsa",
+        "note": "dsa"
+      }
+    ],
+    "createdAt": "2025-12-18T09:08:09.092Z"
+  }
+]

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Film, Plus, Bookmark, Search } from "lucide-react";
-import filmsData from "@/data/filmfy/film.json";
+import filmsData from "@/data/filmfy/films.json";
 import { useState } from "react";
 
 interface FilmItem {
