@@ -90,7 +90,7 @@ export default function ComicForm({
                 placeholder={field.placeholder}
                 value={(comicData as any)[field.name]}
                 onChange={handleComicChange}
-                className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-300"
+                className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ))}
           </div>

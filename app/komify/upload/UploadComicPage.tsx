@@ -248,7 +248,7 @@ export default function UploadComicPage({
           });
 
           setTimeout(() => {
-            router.push("/komify");
+            window.location.reload();
           }, 2000);
         } else {
           let errMessage = "Terjadi kesalahan saat memproses upload.";

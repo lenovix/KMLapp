@@ -80,6 +80,7 @@ export default function ChapterSection({
                   placeholder="Title"
                   value={ch.title}
                   onChange={(e) => handleChapterChange(index, e)}
+                  className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="md:col-span-2">
