@@ -136,9 +136,9 @@ export default function AllComic() {
 
   return (
     <>
-      <main className="flex flex-col gap-6 h-full justify-between">
+      <main className="flex flex-col gap-6 h-fit justify-between">
         <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <div className="h-[550]">
+        <div className="h-fit w-full">
           {filteredComics.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-300">
               Tidak ditemukan komik dengan judul tersebut.
@@ -159,7 +159,7 @@ export default function AllComic() {
                           ? comic.title
                           : comic.title?.[0]
                       }
-                      className="w-full h-56 object-cover transition-transform duration-300"
+                      className="w-full h-full object-center transition-transform duration-300"
                     />
                     <div className="p-3 flex-1 flex flex-col justify-between">
                       <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">

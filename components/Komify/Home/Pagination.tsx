@@ -41,7 +41,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   const btnDisabled = "opacity-30 cursor-not-allowed border-slate-200 dark:border-slate-700";
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 mt-20 mb-6">
+    <div className="flex flex-wrap items-center justify-center gap-2 mt-4 mb-6">
       {/* First Page */}
       <button
         onClick={() => goToPage(1)}

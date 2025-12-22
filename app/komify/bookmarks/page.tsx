@@ -87,21 +87,22 @@ export default function BookmarksPage() {
         ) : bookmarkedComics.length === 0 ? (
           <p className="text-gray-500">Belum ada komik yang di-bookmark.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {bookmarkedComics.map((comic) => (
               <Link
                 key={comic.slug}
                 href={`/komify/${comic.slug}`}
-                className="block bg-slate-900 border border-slate-700 hover:border-amber-50 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
+                className="group bg-white dark:bg-slate-900 border hover:border-amber-50 border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-lg transition flex flex-col"
               >
-                <div className="relative w-full h-56 md:h-48 lg:h-52">
-                  <img
-                    src={comic.cover || "/placeholder-cover.jpg"}
-                    alt={comic.title}
-                    className="w-full h-full object-cover rounded-t-2xl"
-                  />
-                </div>
-
+                <img
+                  src={comic.cover || "/placeholder-cover.jpg"}
+                  alt={
+                    typeof comic.title === "string"
+                      ? comic.title
+                      : comic.title?.[0]
+                  }
+                  className="w-full h-full object-center  transition-transform duration-300"
+                />
                 <div className="p-4 flex flex-col gap-1">
                   <div className="font-semibold text-lg line-clamp-2">
                     {comic.title}
