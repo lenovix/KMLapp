@@ -5,7 +5,6 @@ export default function groupsDetailPage() {
     <MetadataDetailPage
       field="groups"
       label="Group"
-      basePath="/komify/metadata/groups"
     />
   );
 }

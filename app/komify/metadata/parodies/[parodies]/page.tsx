@@ -5,7 +5,6 @@ export default function ParodieDetailPage() {
     <MetadataDetailPage
       field="parodies"
       label="Parody"
-      basePath="/komify/metadata/parodies"
     />
   );
 }

@@ -4,19 +4,16 @@ import path from "path";
 
 const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-// Load comics.json
 function loadComics() {
   if (!fs.existsSync(COMICS_PATH)) return [];
   const raw = fs.readFileSync(COMICS_PATH, "utf-8");
   return JSON.parse(raw);
 }
 
-// Save comics.json
 function saveComics(data: any) {
   fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2));
 }
 
-// GET — ambil komentar untuk slug
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
@@ -34,7 +31,6 @@ export async function GET(req: Request) {
   return NextResponse.json(comic?.comments || []);
 }
 
-// POST — tambah komentar
 export async function POST(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
@@ -61,7 +57,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Buat komentar baru
   const newComment = {
     id: `cmt_${Date.now()}`,
     username,
@@ -81,7 +76,6 @@ export async function POST(req: Request) {
   });
 }
 
-// PUT — edit komentar
 export async function PUT(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
@@ -127,7 +121,6 @@ export async function PUT(req: Request) {
   });
 }
 
-// DELETE — hapus komentar
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");

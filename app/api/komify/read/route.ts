@@ -27,12 +27,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ pages: [] });
     }
 
-    /** 1️⃣ ambil daftar file fisik */
     const physicalFiles = fs
       .readdirSync(chapterDir)
       .filter((f) => /^page\d+\.(jpg|jpeg|png|webp)$/i.test(f));
 
-    /** 2️⃣ ambil data order dari JSON */
     const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
     const comic = comics.find((c: any) => String(c.slug) === String(slug));
     const chapterData = comic?.chapters?.find(
@@ -43,12 +41,10 @@ export async function GET(req: Request) {
       ? chapterData.pages
       : [];
 
-    /** 3️⃣ map filename -> order */
     const orderMap = new Map(
       pagesFromJson.map((p: any) => [p.filename, p.order ?? 0])
     );
 
-    /** 4️⃣ sort berdasarkan order */
     const sortedFiles = physicalFiles.sort((a, b) => {
       const oa = Number(orderMap.get(a) ?? 9999);
       const ob = Number(orderMap.get(b) ?? 9999);

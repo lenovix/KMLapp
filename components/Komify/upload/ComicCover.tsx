@@ -4,7 +4,11 @@ interface ComicCoverProps {
   onDelete: () => void;
 }
 
-export default function ComicCover({ cover, onClick, onDelete }: ComicCoverProps) {
+export default function ComicCover({
+  cover,
+  onClick,
+  onDelete,
+}: ComicCoverProps) {
   return (
     <div
       className="w-full h-[390] border-2 border-gray-300 rounded-xl bg-gray-50 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition relative"

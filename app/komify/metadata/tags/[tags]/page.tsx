@@ -5,7 +5,6 @@ export default function tagsDetailPage() {
     <MetadataDetailPage
       field="tags"
       label="Tags"
-      basePath="/komify/metadata/tags"
     />
   );
 }

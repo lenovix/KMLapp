@@ -5,7 +5,6 @@ export default function CharacterDetailPage() {
     <MetadataDetailPage
       field="characters"
       label="Character"
-      basePath="/komify/metadata/characters"
     />
   );
 }

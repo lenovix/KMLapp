@@ -19,15 +19,12 @@ export default function CommentSection({ slug }: { slug: string }) {
   const [editingText, setEditingText] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch komentar
   useEffect(() => {
     const loadComments = async () => {
       try {
         const res = await fetch(`/api/komify/comments?slug=${slug}`);
         if (!res.ok) throw new Error("Gagal mengambil komentar");
         const data = await res.json();
-
-        // pastikan data array sebelum set
         setComments(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error loading comments:", err);
@@ -37,7 +34,6 @@ export default function CommentSection({ slug }: { slug: string }) {
     loadComments();
   }, [slug]);
 
-  // Submit komentar baru
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
@@ -48,13 +44,12 @@ export default function CommentSection({ slug }: { slug: string }) {
       const res = await fetch(`/api/komify/comments?slug=${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }), // username optional
+        body: JSON.stringify({ text }),
       });
 
       const result = await res.json();
 
       if (result?.comment) {
-        // masukkan komentar baru paling atas
         setComments((prev) => [result.comment, ...prev]);
         setText("");
       }
@@ -65,11 +60,8 @@ export default function CommentSection({ slug }: { slug: string }) {
     }
   };
 
-  // Hapus komentar
   const handleDelete = async (id: string) => {
     const previousComments = [...comments];
-
-    // Optimistic delete
     setComments((prev) => prev.filter((c) => c.id !== id));
 
     try {
@@ -80,7 +72,6 @@ export default function CommentSection({ slug }: { slug: string }) {
       });
 
       if (!res.ok) {
-        // rollback kalau gagal
         setComments(previousComments);
       }
     } catch (error) {
@@ -89,7 +80,6 @@ export default function CommentSection({ slug }: { slug: string }) {
     }
   };
 
-  // Simpan hasil edit komentar
   const handleEdit = async (id: string) => {
     if (!editingText.trim()) return;
 
@@ -132,7 +122,6 @@ export default function CommentSection({ slug }: { slug: string }) {
           <span className="text-sm text-gray-400">({comments.length})</span>
         </h3>
 
-        {/* Form komentar */}
         <form onSubmit={handleSubmit} className="mb-8">
           <textarea
             className="w-full p-4 rounded-xl bg-gray-900 text-gray-200 border border-white/10
@@ -159,7 +148,6 @@ export default function CommentSection({ slug }: { slug: string }) {
           </div>
         </form>
 
-        {/* List Komentar */}
         {comments.length === 0 ? (
           <p className="text-gray-500 text-sm italic text-center">
             Belum ada komentar untuk komik ini.
@@ -210,12 +198,9 @@ export default function CommentSection({ slug }: { slug: string }) {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {/* Text */}
                       <p className="text-gray-200 whitespace-pre-line leading-relaxed">
                         {cmt.text}
                       </p>
-
-                      {/* Meta info */}
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-1 font-medium text-gray-300">
                           <User size={14} className="text-gray-400" />
@@ -232,7 +217,6 @@ export default function CommentSection({ slug }: { slug: string }) {
                         </span>
                       </div>
 
-                      {/* Action buttons */}
                       <div className="flex justify-end gap-3 pt-1">
                         <button
                           onClick={() => {

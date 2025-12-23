@@ -6,13 +6,8 @@ import comics from "@/data/komify/comics.json";
 import Header from "@/components/Komify/metadata/MetadataHeader";
 
 type MetadataListPageProps = {
-  /** key di comics.json, contoh: "parodies", "characters" */
   field: string;
-
-  /** judul halaman */
   title: string;
-
-  /** base path untuk link */
   basePath: string;
 };
 
@@ -22,8 +17,6 @@ export default function MetadataListPage({
   basePath,
 }: MetadataListPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Ambil metadata tanpa duplikat
   const valuesSet = new Set<string>();
 
   comics.forEach((comic: any) => {
@@ -37,18 +30,18 @@ export default function MetadataListPage({
     }
   });
 
-  // Filter + sort
   const values = Array.from(valuesSet)
     .filter((v) => v.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.localeCompare(b));
 
   return (
     <main className="min-h-screen text-slate-200">
-      {/* Header */}
-      <Header title={title} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
+      <Header
+        title={title}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-        {/* Grid */}
         {values.length === 0 ? (
           <div className="py-20 text-center text-slate-400">
             Tidak ada data yang cocok.

@@ -17,7 +17,6 @@ export default function ComicActions({
 }: ComicActionsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 mt-auto">
-      {/* Bookmark */}
       <button
         onClick={onBookmark}
         className={`px-4 py-2 rounded-xl shadow text-white transition active:scale-95 ${
@@ -29,7 +28,6 @@ export default function ComicActions({
         {bookmarked ? "★ Bookmark" : "☆ Bookmark"}
       </button>
 
-      {/* Rating */}
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button

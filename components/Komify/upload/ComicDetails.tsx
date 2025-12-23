@@ -38,18 +38,15 @@ export default function ComicDetails({
     const originalValue = comicData[name as keyof ComicData];
 
     if (Array.isArray(originalValue)) {
-      // Jika user baru mengetik koma → jangan split dulu
-      // biarkan koma muncul di input
       if (value.endsWith(",")) {
         const fakeEvent = {
-          target: { name, value }, // biarkan string apa adanya dulu
+          target: { name, value },
         } as any;
 
         onChange(fakeEvent);
         return;
       }
 
-      // Jika tidak diakhiri koma → boleh split
       const arr = value
         .split(",")
         .map((v) => v.trim())
@@ -65,24 +62,20 @@ export default function ComicDetails({
       return;
     }
 
-    // Jika STRING biasa
     onChange(e);
   };
-
 
   const handleClear = (name: string) => {
     const original = comicData[name as keyof ComicData];
 
-    // jika array → kosongkan array
     if (Array.isArray(original)) {
       const fakeEvent = {
-        target: { name, value: [] }, // bukan null
+        target: { name, value: [] },
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       onChange(fakeEvent);
       return;
     }
 
-    // jika string → ""
     const fakeEvent = {
       target: { name, value: "" },
     } as React.ChangeEvent<HTMLInputElement>;
@@ -95,10 +88,6 @@ export default function ComicDetails({
       <div className="grid gap-4">
         {fields.map((field) => {
           const rawValue = comicData[field.name as keyof ComicData];
-          const value = Array.isArray(rawValue)
-            ? rawValue.join(", ")
-            : rawValue;
-
           return (
             <InputText
               key={field.name}
@@ -113,5 +102,4 @@ export default function ComicDetails({
       </div>
     </div>
   );
-
 }

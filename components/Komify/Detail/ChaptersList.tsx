@@ -44,7 +44,6 @@ export default function ChaptersList({
             "
           >
             <Link href={`/komify/${slug}/read/${ch.number}`}>
-              {/* Header */}
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="text-xl font-bold text-blue-400">
                   Chapter {ch.number}
@@ -56,13 +55,11 @@ export default function ChaptersList({
                 </div>
               </div>
 
-              {/* Title */}
               <div className="text-slate-200 text-base font-medium mb-3 line-clamp-2">
                 {ch.title}
               </div>
             </Link>
 
-            {/* Footer */}
             <div className="flex items-center justify-between text-xs text-slate-500">
               <span>{dayjs(ch.uploadChapter).fromNow()}</span>
 

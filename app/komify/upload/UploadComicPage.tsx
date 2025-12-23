@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Alert from "@/components/UI/Alert";
 import DialogBox from "@/components/Komify/upload/DialogBox";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
@@ -24,9 +23,6 @@ export default function UploadComicPage({
     duration?: number;
     onClose?: () => void;
   } | null>(null);
-
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const router = useRouter();
 
   interface ComicData {
     slug: number;
@@ -189,7 +185,7 @@ export default function UploadComicPage({
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
       if (key === "cover") return;
-      if (!value) return; // ⬅️ JANGAN kirim kalau kosong
+      if (!value) return;
       formData.append(key, value);
     });
 
@@ -231,7 +227,6 @@ export default function UploadComicPage({
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(percent);
           setAlertData((prev) =>
             prev ? { ...prev, progress: percent } : null
           );
@@ -349,13 +344,6 @@ export default function UploadComicPage({
       )
     );
   };
-
-  const [shouldRedirect, setShouldRedirect] = useState(false);
-  useEffect(() => {
-    if (shouldRedirect) {
-      router.push("/komify");
-    }
-  }, [shouldRedirect, router]);
   return (
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />

@@ -1,23 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Upload, Bookmark, ArrowLeft } from "lucide-react";
+import { Upload, Bookmark } from "lucide-react";
 
 interface MetadataHeaderProps {
-  /** Judul halaman, contoh: "Parodies", "Characters" */
   title: string;
-
-  /** Search state */
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-
-  /** Placeholder input search */
   searchPlaceholder?: string;
-
-  /** Tampilkan tombol bookmark */
   showBookmark?: boolean;
-
-  /** Tampilkan tombol upload */
   showUpload?: boolean;
 }
 
@@ -33,18 +24,14 @@ export default function MetadataHeader({
     <header className="">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Left */}
           <div className="flex items-center gap-3 text-xl sm:text-2xl font-bold text-white">
             <Link href="/komify" className="hover:opacity-80">
               Komify
             </Link>
-
             <span className="text-slate-400">/</span>
-
             <span className="text-blue-400">{title}</span>
           </div>
 
-          {/* Search */}
           <input
             type="text"
             placeholder={searchPlaceholder}
@@ -57,7 +44,6 @@ export default function MetadataHeader({
                        focus:ring-blue-500 transition"
           />
 
-          {/* Right */}
           <div className="flex items-center gap-3">
             {showBookmark && (
               <Link

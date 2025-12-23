@@ -1,6 +1,5 @@
 "use client";
 
-import ComicDetails from "@/components/Komify/upload/ComicDetails";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -31,20 +30,16 @@ export interface ChapterData {
 interface ComicFormProps {
   comicData: ComicData;
   setComicData: React.Dispatch<React.SetStateAction<ComicData>>;
-
   chapters: ChapterData[];
   addChapter: () => void;
   removeChapter: (index: number) => void;
-
   handleChapterChange: (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
-
   openPreview: (index: number) => void;
-
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
@@ -52,7 +47,6 @@ interface ComicFormProps {
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-
   handleComicChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -95,7 +89,6 @@ export default function ComicForm({
             ))}
           </div>
         </div>
-        {/* <ComicDetails comicData={comicData} /> */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
           <PrimaryButton
             type="submit"

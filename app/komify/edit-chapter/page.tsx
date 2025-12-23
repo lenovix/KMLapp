@@ -25,7 +25,6 @@ export default function EditChapterPage() {
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH DATA ================= */
   useEffect(() => {
     if (!slug || !chapter) return;
 
@@ -58,15 +57,14 @@ export default function EditChapterPage() {
           }))
         );
       });
-      fetch("/data/config/language.json")
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setLanguages(data);
-          }
-        })
-        .catch(console.error);
-
+    fetch("/data/config/language.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setLanguages(data);
+        }
+      })
+      .catch(console.error);
   }, [slug, chapter]);
 
   useEffect(() => {
@@ -78,7 +76,6 @@ export default function EditChapterPage() {
       });
     };
   }, [pages]);
-  /* ================= HANDLERS ================= */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
@@ -111,8 +108,6 @@ export default function EditChapterPage() {
     });
   };
 
-
-
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
 
@@ -121,36 +116,6 @@ export default function EditChapterPage() {
     reordered.splice(result.destination.index, 0, moved);
 
     setPages(reordered);
-  };
-
-  const updatePageOrder = async () => {
-    if (!slug || !chapter) return;
-
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/komify/updatePageOrder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          chapter,
-          order: pages.map((p) => p.filename || p.file?.name).filter(Boolean),
-        }),
-      });
-
-      if (!res.ok) {
-        alert("Gagal update posisi halaman");
-        return;
-      }
-
-      alert("Posisi halaman berhasil diperbarui");
-    } catch (err) {
-      console.error(err);
-      alert("Terjadi kesalahan");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const saveChapterChanges = async (options?: { onlyOrder?: boolean }) => {
@@ -163,9 +128,6 @@ export default function EditChapterPage() {
         .map((p) => p.filename ?? p.file?.name)
         .filter((v): v is string => typeof v === "string" && v.length > 0);
 
-      /* ===============================
-       1️⃣ Update page order (SELALU)
-    =============================== */
       const orderRes = await fetch("/api/komify/updatePageOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -181,17 +143,11 @@ export default function EditChapterPage() {
         throw new Error(err?.message || "Gagal update posisi halaman");
       }
 
-      /* ===============================
-       2️⃣ Jika hanya order → STOP
-    =============================== */
       if (options?.onlyOrder) {
         alert("Posisi halaman berhasil diperbarui");
         return;
       }
 
-      /* ===============================
-       3️⃣ Update chapter (meta + file)
-    =============================== */
       const fd = new FormData();
       fd.append("slug", String(slug));
       fd.append("chapter", String(chapter));
@@ -223,53 +179,6 @@ export default function EditChapterPage() {
     }
   };
 
-
-  const submitChapter = async () => {
-    if (!slug || !chapter || loading) return;
-
-    setLoading(true);
-
-    try {
-      const fd = new FormData();
-
-      fd.append("slug", String(slug));
-      fd.append("chapter", String(chapter));
-      fd.append("title", form.title.trim());
-      fd.append("language", form.language);
-
-      // Urutan halaman (existing + new)
-      const order = pages
-        .map((p) => p.filename ?? p.file?.name)
-        .filter((v): v is string => typeof v === "string" && v.length > 0);
-
-      fd.append("order", JSON.stringify(order));
-
-      // File baru
-      newFiles.forEach((file) => {
-        fd.append("files", file);
-      });
-
-      const res = await fetch("/api/komify/editChapter", {
-        method: "POST",
-        body: fd,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Gagal update chapter");
-      }
-
-      router.push(`/komify/${slug}`);
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Terjadi kesalahan saat update chapter");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setConfirmOpen(true);
@@ -294,12 +203,8 @@ export default function EditChapterPage() {
             Atur metadata & urutan halaman chapter
           </p>
         </header>
-
-        {/* MAIN LAYOUT */}
         <section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* ================= LEFT — DRAG AREA (3/4) ================= */}
           <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
-            {/* === HEADER === */}
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold text-white">
                 Chapter Pages
@@ -321,7 +226,6 @@ export default function EditChapterPage() {
               </div>
             </div>
 
-            {/* === UPLOAD BAR === */}
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <FileUploadInput
                 multiple
@@ -342,7 +246,6 @@ export default function EditChapterPage() {
               </PrimaryButton>
             </div>
 
-            {/* === GRID PREVIEW === */}
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="pages" direction="vertical">
                 {(p) => (
@@ -374,7 +277,6 @@ export default function EditChapterPage() {
                               ${s.isDragging ? "ring-2 ring-blue-500" : ""}
                             `}
                           >
-                            {/* DRAG HANDLE */}
                             <div
                               {...d.dragHandleProps}
                               className="
@@ -394,7 +296,6 @@ export default function EditChapterPage() {
                               ☰
                             </div>
 
-                            {/* DELETE BUTTON */}
                             <button
                               type="button"
                               onClick={() => handleDeletePage(page.id)}
@@ -414,7 +315,6 @@ export default function EditChapterPage() {
                               <Trash2 size={14} />
                             </button>
 
-                            {/* IMAGE */}
                             <img
                               src={page.url}
                               draggable={false}
@@ -426,7 +326,6 @@ export default function EditChapterPage() {
                               "
                             />
 
-                            {/* FILENAME */}
                             <p className="text-xs text-gray-400 truncate mt-2 text-center">
                               {page.filename || page.file?.name}
                             </p>
@@ -441,7 +340,6 @@ export default function EditChapterPage() {
             </DragDropContext>
           </div>
 
-          {/* ================= RIGHT — DETAIL (1/4) ================= */}
           <aside className="lg:col-span-1 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4 h-fit sticky top-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -504,11 +402,10 @@ export default function EditChapterPage() {
           onCancel={() => setConfirmOpen(false)}
           onConfirm={() => {
             setConfirmOpen(false);
-            saveChapterChanges(); // 🔥 full save
+            saveChapterChanges();
           }}
         />
       }
     </>
   );
-
 }

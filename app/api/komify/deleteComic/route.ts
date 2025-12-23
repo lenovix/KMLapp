@@ -14,23 +14,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Path untuk comics.json
     const comicsPath = path.join(process.cwd(), "data/komify", "comics.json");
 
-    // Baca file comics.json
     let comics: any[] = [];
     if (fs.existsSync(comicsPath)) {
       const data = fs.readFileSync(comicsPath, "utf-8");
       comics = JSON.parse(data);
     }
 
-    // Filter komik
     const newComics = comics.filter((c) => c.slug !== Number(slug));
 
-    // Tulis ulang file JSON
     fs.writeFileSync(comicsPath, JSON.stringify(newComics, null, 2));
 
-    // Hapus folder fisik komik
     const comicDir = path.join(process.cwd(), "public", "komify", String(slug));
 
     if (fs.existsSync(comicDir)) {

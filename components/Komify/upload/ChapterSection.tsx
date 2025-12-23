@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import DropdownInput from "@/components/UI/DropdownInput";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import { Plus, UploadIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import FileUploadInput from "@/components/UI/FileUploadInput";
 import InputText from "@/components/UI/InputText";
 
@@ -22,6 +22,7 @@ interface ChapterSectionProps {
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
   ) => void;
+
   handleChapterFile: (index: number, files: FileList | null) => void;
   openPreview: (index: number) => void;
 }

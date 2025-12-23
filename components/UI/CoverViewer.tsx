@@ -50,7 +50,6 @@ export default function CoverViewer({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center">
-      {/* Close */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 text-white/80 hover:text-white"
@@ -58,7 +57,6 @@ export default function CoverViewer({
         <X size={28} />
       </button>
 
-      {/* Toolbar */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 bg-zinc-900/80 border border-white/10 rounded-lg p-2">
         <button
           onClick={() => setScale((s) => Math.min(3, s + 0.2))}
@@ -77,7 +75,6 @@ export default function CoverViewer({
         </button>
       </div>
 
-      {/* Image */}
       <div
         className="
             w-screen h-screen

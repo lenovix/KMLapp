@@ -15,7 +15,6 @@ export default function AllComicHeader({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        {/* Left section */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
           <Link
             href="/komify"
@@ -28,7 +27,6 @@ export default function AllComicHeader({
           <h1 className="text-3xl font-bold">My Bookmarks</h1>
         </div>
 
-        {/* Right */}
         <div className="flex items-center gap-3">
           <Link
             href="/komify/bookmarks"
@@ -53,5 +51,4 @@ export default function AllComicHeader({
       </div>
     </div>
   );
-
 }

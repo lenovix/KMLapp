@@ -49,14 +49,12 @@ export async function POST(req: NextRequest) {
 
     const pages = Array.isArray(chapterData.pages) ? chapterData.pages : [];
 
-    /** 🔢 cari order terbesar saat ini */
     let maxOrder = pages.reduce(
       (max: number, p: any) =>
         typeof p.order === "number" && p.order > max ? p.order : max,
       0
     );
 
-    /** 🧮 counter filename tetap pakai jumlah halaman */
     let counter = pages.length;
 
     for (const file of files) {
@@ -69,7 +67,7 @@ export async function POST(req: NextRequest) {
       pages.push({
         id: crypto.randomUUID(),
         filename,
-        order: ++maxOrder, // ✅ order ditambahkan
+        order: ++maxOrder,
       });
     }
 

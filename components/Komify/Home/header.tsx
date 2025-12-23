@@ -15,9 +15,7 @@ export default function AllComicHeader({
 }: AllComicHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
-      {/* TOP BAR */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Left */}
         <div className="flex items-center gap-4 text-2xl font-bold text-gray-900 dark:text-white">
           <Link href="/" className="hover:opacity-80">
             <ArrowLeft className="w-6 h-6" />
@@ -28,7 +26,6 @@ export default function AllComicHeader({
           </Link>
         </div>
 
-        {/* Search */}
         <input
           type="text"
           placeholder="Cari komik..."
@@ -39,7 +36,6 @@ export default function AllComicHeader({
                      dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         />
 
-        {/* Right */}
         <div className="flex items-center gap-3">
           <Link
             href="/komify/bookmarks"
@@ -63,7 +59,6 @@ export default function AllComicHeader({
         </div>
       </div>
 
-      {/* METADATA NAV */}
       <nav className="flex flex-wrap gap-2">
         {metadataLinks.map((item) => (
           <Link

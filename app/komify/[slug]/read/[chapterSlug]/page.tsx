@@ -72,7 +72,6 @@ export default function ReaderPage() {
         chapter={chapter}
       />
 
-      {/* Sticky Navigation */}
       <div className="sticky top-0 z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md py-3 mb-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
         {prevChapter ? (
           <Link
@@ -97,7 +96,6 @@ export default function ReaderPage() {
         )}
       </div>
 
-      {/* Reading Pages */}
       <div className="flex flex-col items-center gap-5">
         {pages.length > 0 ? (
           pages.map((filename, i) => (
@@ -119,7 +117,6 @@ export default function ReaderPage() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
       <div className="flex justify-between items-center mt-10 py-5 border-t border-gray-200 dark:border-slate-700">
         {prevChapter ? (
           <Link
@@ -145,5 +142,4 @@ export default function ReaderPage() {
       </div>
     </main>
   );
-
 }

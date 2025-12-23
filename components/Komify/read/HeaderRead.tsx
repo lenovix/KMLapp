@@ -22,7 +22,6 @@ interface HeaderReadProps {
 export default function HeaderRead({ comic, chapter }: HeaderReadProps) {
   return (
     <header className="mb-8 space-y-4">
-      {/* Back + Title */}
       <div className="flex items-center justify-between">
         <Link
           href={`/komify/${comic.slug}`}
@@ -52,14 +51,11 @@ export default function HeaderRead({ comic, chapter }: HeaderReadProps) {
         </div>
       </div>
 
-      {/* Info Chapter */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-        {/* Language */}
         <span className="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full">
           {chapter.language || "Unknown Language"}
         </span>
 
-        {/* Uploaded */}
         {chapter.uploadChapter && (
           <span className="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full">
             Uploaded {dayjs(chapter.uploadChapter).fromNow()}

@@ -89,7 +89,6 @@ export default function PlatformActions({
 
   return (
     <div className="w-full">
-      {/* Header / Dropdown */}
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex justify-between items-center px-4 py-3
@@ -107,7 +106,6 @@ export default function PlatformActions({
         </span>
       </button>
 
-      {/* Actions */}
       {open && (
         <div
           className="mt-2 flex flex-col gap-3 bg-white dark:bg-gray-800
@@ -137,8 +135,6 @@ export default function PlatformActions({
           ))}
         </div>
       )}
-
-      {/* Confirm Dialog */}
       <DialogBox
         open={!!confirmAction}
         type="danger"
@@ -149,8 +145,6 @@ export default function PlatformActions({
         onConfirm={executeAction}
         onCancel={() => setConfirmAction(null)}
       />
-
-      {/* Alert */}
       {alert && (
         <Alert
           type={alert.type}

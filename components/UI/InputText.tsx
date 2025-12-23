@@ -25,7 +25,6 @@ export default function InputText({
       return;
     }
 
-    // buat synthetic event yang valid sesuai type
     const event = {
       target: { name, value: "" },
     } as React.ChangeEvent<HTMLInputElement>;
@@ -41,12 +40,11 @@ export default function InputText({
         placeholder={placeholder}
         value={value ?? ""}
         onChange={onChange}
-        spellCheck={false} // memastikan input tidak diubah autocorrect
+        spellCheck={false}
         autoComplete="off"
         className={`border p-2 pr-8 rounded bg-white/20 text-white placeholder-gray-300 w-full ${className}`}
       />
 
-      {/* Tombol X untuk clear */}
       {value && (
         <button
           type="button"

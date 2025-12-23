@@ -12,12 +12,10 @@ export default function ComicTags({ tags }: ComicTagsProps) {
   const normalizeTags = (value: TagValue): string[] => {
     if (!value) return [];
 
-    // Jika sudah array
     if (Array.isArray(value)) {
       return value.map((v) => v.trim()).filter(Boolean);
     }
 
-    // Jika string tunggal
     const trimmed = value.trim();
     if (!trimmed) return [];
 

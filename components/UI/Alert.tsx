@@ -30,10 +30,8 @@ export default function Alert({
     duration && duration > 0 ? Math.ceil(duration / 1000) : 0
   );
 
-  const calledCloseRef = useRef(false); // ensure onClose called once
-  const intervalRef = useRef<number | null>(null);
+  const calledCloseRef = useRef(false);
 
-  // start countdown interval if duration > 0 and not onprogress
   useEffect(() => {
     if (duration <= 0 || type === "onprogress") return;
 
@@ -47,11 +45,10 @@ export default function Alert({
     const timeout = setTimeout(() => {
       if (!calledCloseRef.current) {
         calledCloseRef.current = true;
-        onClose(); // langsung panggil di sini, tidak delay
+        onClose();
       }
     }, duration);
 
-    // cleanup
     return () => {
       clearInterval(timer);
       clearTimeout(timeout);
@@ -100,7 +97,6 @@ export default function Alert({
         transition-all duration-300
         ${style.bg} ${style.border}
       `}
-      // Clicking should only close for non-onprogress types.
       onClick={type !== "onprogress" ? onClose : undefined}
     >
       <div className="flex items-start gap-3">
@@ -110,7 +106,6 @@ export default function Alert({
           <h4 className={`font-bold text-lg ${style.title}`}>{title}</h4>
           {message && <p className="text-sm text-gray-700">{message}</p>}
 
-          {/* Show countdown when relevant */}
           {type == "success" && duration > 0 && (
             <p className="text-xs text-gray-500 mt-1">
               Redirecting in {countdown}s...

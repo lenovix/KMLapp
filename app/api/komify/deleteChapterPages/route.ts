@@ -19,13 +19,17 @@ export async function POST(req: NextRequest) {
     const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
 
     const comic = comics.find((c: any) => String(c.slug) === String(slug));
-    if (!comic) return NextResponse.json({ message: "Comic not found" }, { status: 404 });
+    if (!comic)
+      return NextResponse.json({ message: "Comic not found" }, { status: 404 });
 
     const chapterData = comic.chapters.find(
       (c: any) => String(c.number) === String(chapter)
     );
     if (!chapterData) {
-      return NextResponse.json({ message: "Chapter not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Chapter not found" },
+        { status: 404 }
+      );
     }
 
     const uploadDir = path.join(

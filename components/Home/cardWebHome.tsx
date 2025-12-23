@@ -46,7 +46,6 @@ export default function CardWebHome({
       rounded-xl p-6 flex flex-col items-center text-center
       shadow-sm hover:shadow-lg hover:border-blue-500 transition"
     >
-      {/* Logo */}
       {logo ? (
         <img
           src={logo}
@@ -58,12 +57,10 @@ export default function CardWebHome({
         <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 mb-4" />
       )}
 
-      {/* Name */}
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
         {name}
       </h2>
 
-      {/* Status Badge */}
       {badgeText && (
         <span
           className={cn(
@@ -75,7 +72,6 @@ export default function CardWebHome({
         </span>
       )}
 
-      {/* Date Range */}
       {startDate && endDate && (
         <div className="mt-3 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
           <span>

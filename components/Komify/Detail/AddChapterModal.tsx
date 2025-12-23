@@ -31,7 +31,6 @@ export default function AddChapterModal({
     Array<{ id: string; file: File; url: string }>
   >([]);
 
-  /* 🔥 Init data */
   useEffect(() => {
     if (!open) return;
 
@@ -56,7 +55,6 @@ export default function AddChapterModal({
 
   if (!open) return null;
 
-  /* handlers */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -112,15 +110,12 @@ export default function AddChapterModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
       <div
         onClick={onClose}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
       />
 
-      {/* Modal */}
       <div className="relative z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 text-slate-200">
-        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-bold text-white">
             Chapter {form.number}
@@ -131,9 +126,7 @@ export default function AddChapterModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Grid form */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Judul */}
             <div className="md:col-span-3">
               <label className="block text-sm font-medium text-slate-400 mb-1">
                 Judul Chapter
@@ -150,7 +143,6 @@ export default function AddChapterModal({
             </div>
           </div>
 
-          {/* Bahasa */}
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1">
               Bahasa
@@ -165,7 +157,6 @@ export default function AddChapterModal({
             />
           </div>
 
-          {/* Upload */}
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-2">
               File Gambar
@@ -193,7 +184,6 @@ export default function AddChapterModal({
             </label>
           </div>
 
-          {/* Preview */}
           {previewPages.length > 0 && (
             <div>
               <p className="text-sm font-medium text-slate-400 mb-2">
@@ -250,7 +240,6 @@ export default function AddChapterModal({
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

@@ -17,10 +17,6 @@ export default function HeaderHome({
   const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
-    // Lakukan logic logout di sini
-    // ...
-
-    // Tampilkan alert
     setShowAlert(true);
   };
   return (
@@ -29,7 +25,6 @@ export default function HeaderHome({
         <div className="text-2xl font-bold text-gray-900 dark:text-white">
           <Link href="/">K-Platforms</Link>
         </div>
-        {/* Logged Out */}
         {!isLoggedIn && (
           <div className="flex gap-4">
             <Link
@@ -47,7 +42,6 @@ export default function HeaderHome({
           </div>
         )}
 
-        {/* Logged In */}
         {isLoggedIn && (
           <div className="relative">
             <button

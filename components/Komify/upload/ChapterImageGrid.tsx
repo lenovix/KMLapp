@@ -11,7 +11,6 @@ export default function ChapterImageGrid({
   files,
   onDragEnd,
 }: ChapterImageGridProps) {
-  // Filter cuma sekali → indeks konsisten
   const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
   return (

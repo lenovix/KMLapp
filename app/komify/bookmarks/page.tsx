@@ -14,17 +14,14 @@ export default function BookmarksPage() {
   const [ratings, setRatings] = useState<Ratings>({});
   const [loading, setLoading] = useState(true);
 
-  /** Ambil semua bookmark dari API */
   useEffect(() => {
     async function fetchBookmarks() {
       try {
         const res = await fetch("/api/komify/bookmarks");
         const data = await res.json();
 
-        // Pastikan array
         const list = Array.isArray(data.bookmarks) ? data.bookmarks : [];
 
-        // urutkan supaya terbaru di atas
         setBookmarked(list.slice().reverse());
       } catch {
         setBookmarked([]);
@@ -34,7 +31,6 @@ export default function BookmarksPage() {
     fetchBookmarks();
   }, []);
 
-  /** Ambil rating untuk setiap komik yg di-bookmark */
   useEffect(() => {
     async function fetchRatings() {
       const newRatings: Ratings = {};
@@ -57,12 +53,10 @@ export default function BookmarksPage() {
     else setLoading(false);
   }, [bookmarked]);
 
-  /** Filter komik berdasarkan bookmark */
   const bookmarkedComics = comics.filter((c) =>
     bookmarked.includes(String(c.slug))
   );
 
-  /** Sort sesuai urutan bookmark */
   bookmarkedComics.sort(
     (a, b) =>
       bookmarked.indexOf(String(a.slug)) - bookmarked.indexOf(String(b.slug))

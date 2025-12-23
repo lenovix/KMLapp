@@ -48,7 +48,6 @@ export default function ComicDetail() {
   }, [comic, slug]);
 
   const handleImageError = () => {
-    // Urutan: .jpg -> .png -> .webp -> .jpeg -> placeholder
     if (imgSrc?.includes(".jpg")) {
       setImgSrc(`/komify/${slug}/cover.png${version}`);
     } else if (imgSrc?.includes(".png")) {
@@ -199,7 +198,7 @@ export default function ComicDetail() {
           <img
             src={imgSrc? imgSrc : "/placeholder-cover.jpg"}
             alt={comic.title}
-            onError={handleImageError} // Memicu pergantian ekstensi jika error
+            onError={handleImageError}
             onClick={() => setCoverViewerOpen(true)}
             className="
               w-56 h-auto rounded-xl object-cover
@@ -268,7 +267,7 @@ export default function ComicDetail() {
       {
         <CoverViewer
           open={coverViewerOpen}
-          src={imgSrc ? imgSrc : "/placeholder-cover.jpg"} // Pastikan viewer menggunakan sumber yang sama
+          src={imgSrc ? imgSrc : "/placeholder-cover.jpg"}
           alt={comic.title}
           onClose={() => setCoverViewerOpen(false)}
         />

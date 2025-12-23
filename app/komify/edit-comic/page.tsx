@@ -62,7 +62,6 @@ export default function EditComicPage() {
   const slug = Number(searchParams.get("slug"));
   const [form, setForm] = useState<any>({});
   const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -86,7 +85,6 @@ export default function EditComicPage() {
     setComicData({
       slug: found.slug,
       title: found.title || "",
-
       authors: toArray(found.authors),
       artist: toArray(found.artists),
       groups: toArray(found.groups),
@@ -94,7 +92,6 @@ export default function EditComicPage() {
       characters: toArray(found.characters),
       categories: toArray(found.categories),
       tags: toArray(found.tags),
-
       uploaded: found.uploaded || "",
       status: found.status || "Ongoing",
       cover: found.cover || "",
@@ -102,20 +99,16 @@ export default function EditComicPage() {
 
     setForm({
       title: found.title || "",
-
       parodies: toString(found.parodies),
       characters: toString(found.characters),
       artists: toString(found.artists),
       groups: toString(found.groups),
       categories: toString(found.categories),
-
       uploaded: found.uploaded || "",
       authors: toString(found.authors),
       tags: toString(found.tags),
-
       status: found.status || "",
     });
-
 
     const fetchStatus = async () => {
       try {
@@ -167,8 +160,6 @@ export default function EditComicPage() {
   const handleSubmit = async () => {
     if (!slug) return;
 
-    setLoading(true);
-
     try {
       const fd = new FormData();
       fd.append("slug", String(slug));
@@ -202,14 +193,11 @@ export default function EditComicPage() {
         message: "Terjadi kesalahan saat menyimpan",
       });
     } finally {
-      setLoading(false);
       setDialogOpen(false);
     }
   };
 
-
   const handleOpenDialog = () => {
-    // OPTIONAL: validasi sederhana
     if (!form.title?.trim()) {
       setAlertData({
         type: "warning",
@@ -229,7 +217,6 @@ export default function EditComicPage() {
     setDialogOpen(true);
   };
 
-
   if (!comicData.slug) {
     return <p className="p-6">Loading...</p>;
   }
@@ -237,15 +224,11 @@ export default function EditComicPage() {
   return (
     <>
       <main className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* Header */}
         <header className="space-y-1">
-          <h1 className="text-3xl font-bold text-white">Edit Komik :: {comicData.title}</h1>
-          <p className="text-sm text-gray-400">
-            Perbarui metadata dan cover komik
-          </p>
+          <h1 className="text-3xl font-bold text-white">
+            Edit Komik :: {comicData.title}
+          </h1>
         </header>
-
-        {/* FORM */}
         <form
           encType="multipart/form-data"
           className="space-y-6 overflow-hidden"
@@ -296,7 +279,6 @@ export default function EditComicPage() {
               </div>
             </div>
 
-            {/* RIGHT: COVER */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
               <PrimaryButton
                 type="button"
@@ -343,7 +325,6 @@ export default function EditComicPage() {
         </form>
       </main>
 
-      {/* COVER DIALOG */}
       <DialogBoxCover
         open={coverDialogOpen}
         onClose={() => setCoverDialogOpen(false)}
@@ -356,8 +337,6 @@ export default function EditComicPage() {
           }));
         }}
       />
-
-      {/* CONFIRM DIALOG */}
       <DialogBox
         open={dialogOpen}
         title={dialogData.title}
@@ -365,8 +344,6 @@ export default function EditComicPage() {
         onConfirm={dialogData.onConfirm}
         onCancel={dialogData.onCancel}
       />
-
-      {/* ALERT */}
       {alertData && (
         <Alert
           type={alertData.type}

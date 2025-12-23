@@ -1,4 +1,3 @@
-import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, CheckCircle, TriangleAlert } from "lucide-react";
 
@@ -18,7 +17,7 @@ export default function DialogBox({
   open,
   title,
   desc,
-  type = "info", // info | warning | danger
+  type = "info",
   confirmText = "Confirm",
   cancelText = "Cancel",
   hideCancel = false,
@@ -54,7 +53,6 @@ export default function DialogBox({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.92, opacity: 0 }}
           >
-            {/* Header */}
             <div className="flex items-center gap-3 mb-4">
               <div className="shrink-0">{icons[type]}</div>
               <h2 className={`text-xl font-semibold ${colors[type]}`}>
@@ -62,10 +60,8 @@ export default function DialogBox({
               </h2>
             </div>
 
-            {/* Description */}
             <p className="text-gray-600 mb-8 leading-relaxed">{desc}</p>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-3">
               {!hideCancel && (
                 <button

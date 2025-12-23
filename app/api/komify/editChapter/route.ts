@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ===== LOAD JSON ===== */
     const comicsPath = path.join(process.cwd(), "data/komify/comics.json");
     const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
 
@@ -46,14 +45,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ===== UPDATE METADATA ===== */
     chapterData.title = title;
     chapterData.language = language;
     chapterData.uploadChapter = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace("T", " ");
 
-    /* ===== FILE SYSTEM ===== */
     const uploadDir = path.join(
       process.cwd(),
       "public",
@@ -64,14 +61,10 @@ export async function POST(req: NextRequest) {
     );
     fs.mkdirSync(uploadDir, { recursive: true });
 
-    /* ===== EXISTING PAGES ===== */
     let pages: Page[] = Array.isArray(chapterData.pages)
       ? [...chapterData.pages]
       : [];
 
-    const oldPages = [...pages];
-
-    /* ===== HANDLE NEW FILES ===== */
     const files = formData.getAll("files") as File[];
     let counter = pages.length;
 
@@ -88,17 +81,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    /* ===== HANDLE ORDER + DELETE ===== */
     if (orderRaw) {
       const orderIds: string[] = JSON.parse(orderRaw);
       const orderSet = new Set(orderIds);
 
-      /* REORDER OLD PAGES ONLY */
       const orderedPages = orderIds
         .map((id) => pages.find((p) => p.id === id))
         .filter(Boolean) as Page[];
 
-      /* APPEND NEW PAGES */
       const newPages = pages.filter((p) => !orderSet.has(p.id));
 
       pages = [...orderedPages, ...newPages];

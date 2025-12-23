@@ -5,7 +5,6 @@ export default function artistsDetailPage() {
     <MetadataDetailPage
       field="artists"
       label="Artist"
-      basePath="/komify/metadata/artists"
     />
   );
 }

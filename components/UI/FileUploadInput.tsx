@@ -7,12 +7,10 @@ interface FileUploadInputProps {
   multiple?: boolean;
   accept?: string;
   onChange: (files: FileList | null) => void;
-
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "filled";
   disabled?: boolean;
   required?: boolean;
-
   icon?: React.ReactNode;
   text?: string;
   countFile: string | number | React.ReactNode;

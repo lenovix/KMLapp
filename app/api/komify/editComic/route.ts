@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-/* ================== SHARED UTIL ================== */
 type NormalizedField = string | string[] | null;
 
 const normalizeField = (value: any): NormalizedField => {
@@ -30,8 +29,6 @@ const normalizeField = (value: any): NormalizedField => {
 };
 
 const getString = (v: any) => (Array.isArray(v) ? v[0] : v ?? "");
-
-/* ================================================= */
 
 export async function POST(req: Request) {
   try {
@@ -68,7 +65,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Comic not found" }, { status: 404 });
     }
 
-    /* ================= UPDATE METADATA ================= */
     comics[idx] = {
       ...comics[idx],
 
@@ -88,7 +84,6 @@ export async function POST(req: Request) {
         .replace("T", " "),
     };
 
-    /* ================= HANDLE COVER ================= */
     const coverFile = formData.get("cover") as File | null;
 
     if (coverFile && coverFile.size > 0) {
@@ -109,7 +104,6 @@ export async function POST(req: Request) {
       comics[idx].cover = `/komify/${slug}/cover.jpg`;
     }
 
-    /* ================= SAVE ================= */
     fs.writeFileSync(comicsPath, JSON.stringify(comics, null, 2));
 
     return NextResponse.json({ message: "Comic updated successfully" });

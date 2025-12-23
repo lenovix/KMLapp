@@ -6,12 +6,10 @@ interface ComicMetaProps {
   comic: any;
 }
 
-/* ===== Helper sesuai normalizeField backend ===== */
 const toArray = (val: string | string[] | null | undefined): string[] => {
   if (!val) return [];
   return Array.isArray(val) ? val : [val];
 };
-/* =============================================== */
 
 export default function ComicMetadata({ comic }: ComicMetaProps) {
   const renderList = (

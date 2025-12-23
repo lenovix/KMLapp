@@ -11,11 +11,10 @@ interface PrimaryButtonProps {
   variant?: "primary" | "link" | "outline";
   size?: "sm" | "md" | "lg";
 
-  // tambahan baru
   align?: "left" | "center" | "right";
   fullWidth?: boolean;
   rounded?: "none" | "sm" | "md" | "lg" | "xl" | "full";
-  gap?: string; // contoh "gap-1", "gap-2"
+  gap?: string;
   disabled?: boolean;
 }
 
@@ -28,7 +27,6 @@ export default function PrimaryButton({
   iconPosition = "left",
   variant = "primary",
   size = "md",
-
   align = "center",
   fullWidth = false,
   rounded = "md",

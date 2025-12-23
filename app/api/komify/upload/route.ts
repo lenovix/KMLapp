@@ -2,17 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-// Utility: convert File → Buffer
 async function fileToBuffer(file: any): Promise<Buffer | null> {
   if (!file) return null;
 
-  // CASE 1 — Web File (browser)
   if (typeof file.arrayBuffer === "function") {
     const arrayBuffer = await file.arrayBuffer();
     return Buffer.from(arrayBuffer);
   }
 
-  // CASE 2 — formidable or custom upload
   if (file.filepath && fs.existsSync(file.filepath)) {
     return fs.readFileSync(file.filepath);
   }
@@ -40,7 +37,6 @@ const normalizeField = (value: any): NormalizedField => {
       .filter(Boolean);
   }
 
-  // unique
   arr = [...new Set(arr)];
 
   if (arr.length === 0) return null;
@@ -55,16 +51,12 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    // Base path: /public/komify/[slug]
     const uploadDir = path.join(process.cwd(), "public", "komify");
     const slug = formData.get("slug")?.toString() || "unknown";
     const slugPath = path.join(uploadDir, slug);
 
     fs.mkdirSync(slugPath, { recursive: true });
 
-    // =========================================================
-    // ===================== UPLOAD COVER =======================
-    // =========================================================
     const coverFile = formData.get("cover") as File | null;
     const coverBuffer = await fileToBuffer(coverFile);
 
@@ -75,9 +67,6 @@ export async function POST(req: NextRequest) {
       console.warn("⚠ Tidak ada cover file yang diterima.");
     }
 
-    // =========================================================
-    // =================== CHAPTERS UPLOAD ======================
-    // =========================================================
     const chaptersStr = formData.get("chapters")?.toString() || "[]";
     const chapters = JSON.parse(chaptersStr);
 
@@ -87,7 +76,7 @@ export async function POST(req: NextRequest) {
       const chapterDir = path.join(slugPath, "chapters", ch.number);
       fs.mkdirSync(chapterDir, { recursive: true });
 
-      const fieldKey = `chapter-${ch.number}`; // sesuai FormData
+      const fieldKey = `chapter-${ch.number}`;
       const uploadedFiles = formData.getAll(fieldKey) as File[];
 
       const pages = [];
@@ -113,9 +102,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // =========================================================
-    // ================= SAVE METADATA JSON =====================
-    // =========================================================
     const comicsPath = path.join(process.cwd(), "data/komify", "comics.json");
     fs.mkdirSync(path.dirname(comicsPath), { recursive: true });
 
@@ -144,10 +130,8 @@ export async function POST(req: NextRequest) {
 
       cover: `/komify/${slug}/cover.jpg`,
 
-      // ===== FIELD TAMBAHAN =====
       rating: Number(formData.get("rating") ?? 0),
       bookmark: formData.get("bookmarked") === "true",
-      // ==========================
 
       chapters: chaptersWithPages.map((ch) => ({
         number: ch.number,

@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-/** Baca comics.json */
 function readComics() {
   if (!fs.existsSync(COMICS_PATH)) return [];
   try {
@@ -14,19 +13,16 @@ function readComics() {
   }
 }
 
-/** Tulis comics.json */
 function writeComics(data: any[]) {
   fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
-/** GET - bisa ambil semua bookmark atau 1 bookmark */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug");
 
   const comics = readComics();
 
-  // Jika slug diberikan → cek satu komik
   if (slug) {
     const comic = comics.find((c: any) => String(c.slug) === String(slug));
     return NextResponse.json({
@@ -34,7 +30,6 @@ export async function GET(req: Request) {
     });
   }
 
-  // Jika tidak ada slug → kirim semua bookmark
   const bookmarkedSlugs = comics
     .filter((c: any) => c.bookmark === true)
     .map((c: any) => String(c.slug));
@@ -44,7 +39,6 @@ export async function GET(req: Request) {
   });
 }
 
-/** POST — toggle bookmark langsung pada comics.json */
 export async function POST(req: Request) {
   const { slug } = await req.json();
 

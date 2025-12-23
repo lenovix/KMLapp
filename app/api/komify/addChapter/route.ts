@@ -28,9 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Invalid slug" }, { status: 400 });
     }
 
-    // =========================
-    // Load comics.json
-    // =========================
     const comicsPath = path.join(
       process.cwd(),
       "data",
@@ -49,9 +46,6 @@ export async function POST(req: NextRequest) {
       comics[idx].chapters = [];
     }
 
-    // =========================
-    // Simpan gambar
-    // =========================
     const chapterDir = path.join(
       process.cwd(),
       "public",
@@ -79,9 +73,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // =========================
-    // Tambah chapter
-    // =========================
     comics[idx].chapters.push({
       number: String(chapterNumber),
       title: String(title ?? ""),

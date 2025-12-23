@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 const COMICS_PATH = path.join(process.cwd(), "data/komify", "comics.json");
 
-/** Baca comics.json */
 function readComics() {
   if (!fs.existsSync(COMICS_PATH)) return [];
   try {
@@ -14,12 +13,10 @@ function readComics() {
   }
 }
 
-/** Tulis comics.json */
 function writeComics(data: any[]) {
   fs.writeFileSync(COMICS_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
-/** GET → dapatkan rating komik */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
@@ -32,11 +29,10 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     slug,
-    rating: comic?.rating ?? 0, // default 0
+    rating: comic?.rating ?? 0,
   });
 }
 
-/** POST → set rating */
 export async function POST(req: Request) {
   const { slug, rating } = await req.json();
 
@@ -52,7 +48,6 @@ export async function POST(req: Request) {
   if (index === -1)
     return NextResponse.json({ error: "comic not found" }, { status: 404 });
 
-  // Update rating
   comics[index].rating = rating;
 
   writeComics(comics);

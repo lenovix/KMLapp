@@ -20,7 +20,6 @@ export default function ChaptersHeader({ slug }: { slug: number }) {
         </button>
       </div>
 
-      {/* 🔥 POPUP */}
       <AddChapterModal
         slug={slug}
         open={open}

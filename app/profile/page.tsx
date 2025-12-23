@@ -23,8 +23,7 @@ export default function ProfilePage() {
           </div>
 
           <p className="text-gray-700 dark:text-gray-300">
-            This is your profile section. You can update your personal info
-            here.
+            Software Engineer
           </p>
         </div>
 

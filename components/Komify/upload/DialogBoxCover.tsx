@@ -38,14 +38,12 @@ export default function DialogBoxCover({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Dialog */}
           <motion.div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            {/* Close Button */}
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
               onClick={onClose}
@@ -53,13 +51,11 @@ export default function DialogBoxCover({
               <X size={22} />
             </button>
 
-            {/* Title */}
             <h2 className="text-xl font-semibold mb-5 flex items-center gap-2 text-gray-800">
               <ImageIcon size={22} className="text-blue-600" />
               Upload Cover
             </h2>
 
-            {/* Drop Zone */}
             <div
               className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition"
               onDragOver={(e) => e.preventDefault()}
@@ -85,7 +81,6 @@ export default function DialogBoxCover({
               )}
             </div>
 
-            {/* Hidden Input */}
             <input
               id="coverInput"
               type="file"
@@ -96,7 +91,6 @@ export default function DialogBoxCover({
               }
             />
 
-            {/* Action Buttons */}
             <div className="flex justify-end gap-3 mt-7">
               <button
                 className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"

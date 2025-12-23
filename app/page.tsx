@@ -6,12 +6,10 @@ export default function Home() {
     <>
       <HeaderHome />
       <div className="w-full px-6 py-12 flex flex-col items-center">
-        {/* Judul */}
         <h1 className="text-4xl sm:text-5xl font-bold text-center mb-6">
           Welcome to K-Platforms
         </h1>
 
-        {/* Grid untuk Card */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl justify-center w-full">
           <CardWebHome
             logo="/img/logo/Komify2.png"

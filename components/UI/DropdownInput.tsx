@@ -8,7 +8,6 @@ interface DropdownInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: string[];
   listId: string;
-
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "filled";
   disabled?: boolean;
@@ -16,7 +15,6 @@ interface DropdownInputProps {
   className?: string;
   textAlign?: "left" | "center" | "right";
   autoComplete?: "on" | "off";
-
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
 }
@@ -28,7 +26,6 @@ export default function DropdownInput({
   onChange,
   options,
   listId,
-
   size = "md",
   variant = "default",
   disabled = false,
@@ -53,7 +50,6 @@ export default function DropdownInput({
 
   return (
     <div className="relative w-full">
-      {/* Icon */}
       {icon && (
         <span
           className={`absolute top-1/2 -translate-y-1/2 text-gray-300 ${
@@ -84,7 +80,6 @@ export default function DropdownInput({
         `}
       />
 
-      {/* Tombol X */}
       {value && (
         <button
           type="button"
@@ -95,7 +90,6 @@ export default function DropdownInput({
               target: { name, value: "" },
             } as React.ChangeEvent<HTMLInputElement>);
 
-            // agar datalist muncul lagi setelah clear
             const inputEl =
               e.currentTarget.parentElement!.querySelector("input");
             setTimeout(() => inputEl?.focus(), 10);

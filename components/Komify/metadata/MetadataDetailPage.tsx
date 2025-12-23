@@ -12,13 +12,11 @@ type Order = "newest" | "oldest";
 interface MetadataDetailPageProps {
   field: string;
   label: string;
-  basePath: string;
 }
 
 export default function MetadataDetailPage({
   field,
   label,
-  basePath,
 }: MetadataDetailPageProps) {
   const params = useParams();
   const value = decodeURIComponent(params[field] as string);
@@ -26,22 +24,23 @@ export default function MetadataDetailPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [order, setOrder] = useState<Order>("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12; // Jumlah komik per halaman
+  const itemsPerPage = 12;
 
-  // 1. Logika Filter & Sort (useMemo agar tidak berat saat render)
   const filteredComics = useMemo(() => {
-    // Filter berdasarkan metadata (field)
     const filtered = comics.filter((comic: any) => {
       const data = comic[field];
       if (!data || !value) return false;
 
       if (Array.isArray(data)) {
-        return data.some((v: string) => v.toLowerCase() === value.toLowerCase());
+        return data.some(
+          (v: string) => v.toLowerCase() === value.toLowerCase()
+        );
       }
-      return typeof data === "string" && data.toLowerCase() === value.toLowerCase();
+      return (
+        typeof data === "string" && data.toLowerCase() === value.toLowerCase()
+      );
     });
 
-    // Filter berdasarkan search term & Sort
     return filtered
       .filter((comic: any) => {
         const title =
@@ -59,15 +58,16 @@ export default function MetadataDetailPage({
       });
   }, [field, value, searchTerm, order]);
 
-  // 2. Reset ke halaman 1 jika filter berubah
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, order]);
 
-  // 3. Logika Slice Data untuk Pagination
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredComics.slice(startIndex, startIndex + itemsPerPage);
+  const currentItems = filteredComics.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -84,7 +84,6 @@ export default function MetadataDetailPage({
       />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-6">
-        {/* Title + Sort */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold">
             {label}:<span className="text-blue-500 capitalize"> {value}</span>
@@ -105,7 +104,6 @@ export default function MetadataDetailPage({
           </div>
         </div>
 
-        {/* Grid Komik */}
         {filteredComics.length === 0 ? (
           <p className="text-slate-400 text-center py-20">
             Tidak ada komik dengan {label.toLowerCase()} ini.
@@ -139,7 +137,6 @@ export default function MetadataDetailPage({
               ))}
             </div>
 
-            {/* Komponen Pagination */}
             <div className="pt-10">
               <Pagination
                 currentPage={currentPage}

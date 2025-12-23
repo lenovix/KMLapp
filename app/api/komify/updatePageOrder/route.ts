@@ -35,10 +35,8 @@ export async function POST(req: NextRequest) {
 
     const pages = Array.isArray(chapterData.pages) ? chapterData.pages : [];
 
-    // Map filename -> page object
     const pageMap = new Map(pages.map((p: any) => [p.filename, p]));
 
-    // Rebuild pages with NEW order
     const reorderedPages = order
       .map((filename: string, index: number) => {
         const page = pageMap.get(filename);
@@ -46,7 +44,7 @@ export async function POST(req: NextRequest) {
 
         return {
           ...page,
-          order: index + 1, // ✅ order dimulai dari 1
+          order: index + 1,
         };
       })
       .filter(Boolean);

@@ -3,19 +3,11 @@
 interface FilterGroupProps {
   label: string;
   options: string[];
-
-  /** Untuk multi-select (tags, categories) */
   selectedValues?: string[];
   onToggleValue?: (value: string) => void;
-
-  /** Untuk single-select (status) */
   selectedValue?: string | null;
   onChangeValue?: (value: string | null) => void;
-
-  /** Tampilkan tombol All (khusus single-select) */
   withAll?: boolean;
-
-  /** Warna aktif */
   activeColor?: "blue" | "emerald";
 }
 
@@ -40,7 +32,6 @@ export default function FilterGroup({
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-sm text-gray-400 mr-2">{label}:</span>
 
-      {/* ALL (untuk single select) */}
       {withAll && onChangeValue && (
         <button
           onClick={() => onChangeValue(null)}
