@@ -17,7 +17,7 @@ export default function Home() {
             status="release"
             version="1.0"
             startDate="5 December 2025"
-            endDate="17 December 2025"
+            endDate="23 December 2025"
             link="/komify"
           />
           <CardWebHome
@@ -29,10 +29,10 @@ export default function Home() {
             link="/filmfy"
           />
           <CardWebHome
-            logo="/Animefy.png"
-            name="Animefy"
+            logo="/Peoplefy.png"
+            name="Peoplefy"
             status="not-started"
-            link="/Animefy"
+            link="/Peoplefy"
           />
         </div>
       </div>
