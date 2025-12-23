@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Upload,
   ArrowLeft,
@@ -18,6 +18,7 @@ interface Part {
 }
 
 export default function FilmfyUploadPage() {
+  const [nextId, setNextId] = useState<number | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -33,6 +34,13 @@ export default function FilmfyUploadPage() {
   const [parts, setParts] = useState<Part[]>([]);
   const [partTitle, setPartTitle] = useState("");
   const [partNote, setPartNote] = useState("");
+
+  useEffect(() => {
+    fetch("/api/filmfy/nextId")
+      .then((res) => res.json())
+      .then((data) => setNextId(data.nextId))
+      .catch(() => setNextId(null));
+  }, []);
 
   const addPart = () => {
     if (!partTitle.trim()) return;
@@ -108,7 +116,7 @@ export default function FilmfyUploadPage() {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto space-y-10">
         <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur ">
-          <div className="flex items-center gap-4  max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 max-w-4xl mx-auto py-4">
             <Link
               href="/filmfy"
               className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -118,7 +126,7 @@ export default function FilmfyUploadPage() {
             </Link>
 
             <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-              Buat Metadata Film
+              {nextId ? `Upload Film #${nextId}` : "Film Baru"}
             </h1>
           </div>
         </header>

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +12,7 @@ interface FilmPart {
   order: number;
   title: string;
   note?: string;
+  folder: string;
 }
 
 interface Film {
@@ -29,6 +29,17 @@ interface Film {
   cover?: string | null;
   parts: FilmPart[];
   createdAt: string;
+}
+
+/**
+ * Windows-safe folder name
+ */
+function sanitizeFolderName(name: string) {
+  return name
+    .trim()
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+    .replace(/\s+/g, " ")
+    .substring(0, 100);
 }
 
 export async function POST(req: NextRequest) {
@@ -67,7 +78,13 @@ export async function POST(req: NextRequest) {
     }
 
     // ===============================
-    // Buat folder film berdasarkan code
+    // Auto increment ID
+    // ===============================
+    const lastId = films.length > 0 ? Math.max(...films.map((f) => f.id)) : 0;
+    const nextId = lastId + 1;
+
+    // ===============================
+    // Folder film (by code)
     // ===============================
     const filmPublicDir = path.join(PUBLIC_FILM_DIR, code);
     if (!fs.existsSync(filmPublicDir)) {
@@ -75,14 +92,13 @@ export async function POST(req: NextRequest) {
     }
 
     // ===============================
-    // Simpan cover jika ada
+    // Simpan cover
     // ===============================
     let coverPath: string | null = null;
 
     if (coverFile) {
       const buffer = Buffer.from(await coverFile.arrayBuffer());
       const coverFilePath = path.join(filmPublicDir, "cover.jpg");
-
       fs.writeFileSync(coverFilePath, buffer);
       coverPath = `/filmfy/${code}/cover.jpg`;
     }
@@ -91,15 +107,34 @@ export async function POST(req: NextRequest) {
     // Parse parts
     // ===============================
     const rawParts = form.get("parts") as string;
-    const parts = rawParts ? JSON.parse(rawParts) : [];
+    const partsInput = rawParts ? JSON.parse(rawParts) : [];
 
-    const lastId = films.length > 0 ? Math.max(...films.map((f) => f.id)) : 0;
-    const nextId = lastId + 1;
+    // ===============================
+    // Buat folder part
+    // ===============================
+    const parts: FilmPart[] = partsInput.map((p: any, index: number) => {
+      const folder = sanitizeFolderName(p.title);
 
-    const filmId = nextId;
+      if (folder) {
+        const partDir = path.join(filmPublicDir, folder);
+        if (!fs.existsSync(partDir)) {
+          fs.mkdirSync(partDir, { recursive: true });
+        }
+      }
 
+      return {
+        order: index + 1,
+        title: p.title,
+        note: p.note || "",
+        folder,
+      };
+    });
+
+    // ===============================
+    // Buat film object
+    // ===============================
     const newFilm: Film = {
-      id: filmId,
+      id: nextId,
       title,
       code,
       releaseDate: form.get("releaseDate") as string,
@@ -118,16 +153,11 @@ export async function POST(req: NextRequest) {
           .filter(Boolean) || [],
       series: (form.get("series") as string) || null,
       cover: coverPath,
-      parts: parts.map((p: any, index: number) => ({
-        order: index + 1,
-        title: p.title,
-        note: p.note || "",
-      })),
+      parts,
       createdAt: new Date().toISOString(),
     };
 
     films.push(newFilm);
-
     fs.writeFileSync(DATA_FILE, JSON.stringify(films, null, 2));
 
     return NextResponse.json({
