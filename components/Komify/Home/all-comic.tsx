@@ -108,6 +108,21 @@ export default function AllComic() {
     <>
       <main className="flex flex-col gap-6 h-fit justify-between">
         <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <FilterGroup
+          label="Status"
+          options={allStatuses}
+          selectedValue={selectedStatus}
+          onChangeValue={setSelectedStatus}
+          withAll
+          activeColor="blue"
+        />
+        <FilterGroup
+          label="Categories"
+          options={allCategories}
+          selectedValues={selectedCategories}
+          onToggleValue={toggleCategory}
+          activeColor="emerald"
+        />
         <div className="h-fit w-full">
           {filteredComics.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-300">
@@ -148,21 +163,6 @@ export default function AllComic() {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={goToPage}
-        />
-        <FilterGroup
-          label="Status"
-          options={allStatuses}
-          selectedValue={selectedStatus}
-          onChangeValue={setSelectedStatus}
-          withAll
-          activeColor="blue"
-        />
-        <FilterGroup
-          label="Categories"
-          options={allCategories}
-          selectedValues={selectedCategories}
-          onToggleValue={toggleCategory}
-          activeColor="emerald"
         />
         <FilterGroup
           label="Tags"
