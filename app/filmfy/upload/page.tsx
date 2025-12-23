@@ -3,12 +3,13 @@
 import { useState } from "react";
 import {
   Upload,
-  Film,
+  ArrowLeft,
   Image as ImageIcon,
   Plus,
   X,
   Layers,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Part {
   id: number;
@@ -17,7 +18,10 @@ interface Part {
 }
 
 export default function FilmfyUploadPage() {
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+  const [code, setCode] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
   const [director, setDirector] = useState("");
   const [maker, setMaker] = useState("");
@@ -50,31 +54,39 @@ export default function FilmfyUploadPage() {
       return;
     }
 
-    const res = await fetch("/api/filmfy/addFilm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        releaseDate,
-        director,
-        maker,
-        label,
-        genre,
-        cast,
-        series,
-        parts: parts.map((p) => ({ title: p.title, note: p.note })),
-      }),
-    });
-
-    if (!res.ok) {
-      alert("Gagal menyimpan metadata film");
+    if (!coverFile) {
+      alert("Cover wajib diupload");
       return;
     }
 
-    alert("Metadata film berhasil disimpan");
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("code", code);
+    formData.append("releaseDate", releaseDate);
+    formData.append("director", director);
+    formData.append("maker", maker);
+    formData.append("label", label);
+    formData.append("genre", genre);
+    formData.append("cast", cast);
+    formData.append("series", series);
+    formData.append("cover", coverFile);
+    formData.append("parts", JSON.stringify(parts));
 
-    // reset form
+    const res = await fetch("/api/filmfy/addFilm", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      alert("Gagal menyimpan film");
+      return;
+    }
+
+    alert("Film berhasil disimpan");
+
+    // reset
     setTitle("");
+    setCode("");
     setReleaseDate("");
     setDirector("");
     setMaker("");
@@ -83,6 +95,8 @@ export default function FilmfyUploadPage() {
     setCast("");
     setSeries("");
     setParts([]);
+    setCoverFile(null);
+    setCoverPreview(null);
   };
 
   const inputClass =
@@ -93,13 +107,20 @@ export default function FilmfyUploadPage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto space-y-10">
-        <header className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-blue-600 text-white shadow">
-            <Film className="w-6 h-6" />
+        <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur ">
+          <div className="flex items-center gap-4  max-w-4xl mx-auto">
+            <Link
+              href="/filmfy"
+              className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition"
+              aria-label="Kembali ke Filmfy"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
+              Buat Metadata Film
+            </h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Buat Metadata Film
-          </h1>
         </header>
 
         <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
@@ -112,6 +133,12 @@ export default function FilmfyUploadPage() {
               placeholder="Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className={inputClass}
+            />
+            <input
+              placeholder="Code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
               className={inputClass}
             />
             <input
@@ -163,9 +190,34 @@ export default function FilmfyUploadPage() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Cover Film
           </h2>
+
           <label className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-            <ImageIcon className="w-8 h-8 text-gray-400" />
-            <p className="text-sm text-gray-500">Upload cover (nanti)</p>
+            {coverPreview ? (
+              <img
+                src={coverPreview}
+                alt="Cover Preview"
+                className="max-h-48 rounded-lg object-cover"
+              />
+            ) : (
+              <>
+                <ImageIcon className="w-8 h-8 text-gray-400" />
+                <p className="text-sm text-gray-500">
+                  Klik untuk upload cover (jpg/png)
+                </p>
+              </>
+            )}
+
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setCoverFile(file);
+                setCoverPreview(URL.createObjectURL(file));
+              }}
+            />
           </label>
         </section>
 

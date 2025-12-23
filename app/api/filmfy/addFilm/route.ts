@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const DATA_DIR = path.join(process.cwd(), "data", "filmfy");
 const DATA_FILE = path.join(DATA_DIR, "films.json");
+const PUBLIC_FILM_DIR = path.join(process.cwd(), "public", "filmfy");
 
 interface FilmPart {
   order: number;
@@ -15,8 +16,9 @@ interface FilmPart {
 }
 
 interface Film {
-  id: string;
+  id: number;
   title: string;
+  code: string;
   releaseDate?: string;
   director?: string;
   maker?: string;
@@ -31,51 +33,92 @@ interface Film {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const form = await req.formData();
 
-    if (!body.title) {
+    const title = form.get("title") as string;
+    const code = form.get("code") as string;
+    const coverFile = form.get("cover") as File | null;
+
+    if (!title || !code) {
       return NextResponse.json(
-        { message: "Title is required" },
+        { message: "Title dan code wajib diisi" },
         { status: 400 }
       );
     }
 
+    // ===============================
     // Pastikan folder data ada
+    // ===============================
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
 
+    if (!fs.existsSync(PUBLIC_FILM_DIR)) {
+      fs.mkdirSync(PUBLIC_FILM_DIR, { recursive: true });
+    }
+
+    // ===============================
     // Load data lama
+    // ===============================
     let films: Film[] = [];
     if (fs.existsSync(DATA_FILE)) {
       const raw = fs.readFileSync(DATA_FILE, "utf-8");
       films = JSON.parse(raw || "[]");
     }
 
-    const filmId = crypto.randomUUID();
+    // ===============================
+    // Buat folder film berdasarkan code
+    // ===============================
+    const filmPublicDir = path.join(PUBLIC_FILM_DIR, code);
+    if (!fs.existsSync(filmPublicDir)) {
+      fs.mkdirSync(filmPublicDir, { recursive: true });
+    }
+
+    // ===============================
+    // Simpan cover jika ada
+    // ===============================
+    let coverPath: string | null = null;
+
+    if (coverFile) {
+      const buffer = Buffer.from(await coverFile.arrayBuffer());
+      const coverFilePath = path.join(filmPublicDir, "cover.jpg");
+
+      fs.writeFileSync(coverFilePath, buffer);
+      coverPath = `/filmfy/${code}/cover.jpg`;
+    }
+
+    // ===============================
+    // Parse parts
+    // ===============================
+    const rawParts = form.get("parts") as string;
+    const parts = rawParts ? JSON.parse(rawParts) : [];
+
+    const lastId = films.length > 0 ? Math.max(...films.map((f) => f.id)) : 0;
+    const nextId = lastId + 1;
+
+    const filmId = nextId;
 
     const newFilm: Film = {
       id: filmId,
-      title: body.title,
-      releaseDate: body.releaseDate,
-      director: body.director,
-      maker: body.maker,
-      label: body.label,
-      genre: Array.isArray(body.genre)
-        ? body.genre
-        : (body.genre || "")
-            .split(",")
-            .map((g: string) => g.trim())
-            .filter(Boolean),
-      cast: Array.isArray(body.cast)
-        ? body.cast
-        : (body.cast || "")
-            .split(",")
-            .map((c: string) => c.trim())
-            .filter(Boolean),
-      series: body.series || null,
-      cover: null, // cover di-handle terpisah
-      parts: (body.parts || []).map((p: any, index: number) => ({
+      title,
+      code,
+      releaseDate: form.get("releaseDate") as string,
+      director: form.get("director") as string,
+      maker: form.get("maker") as string,
+      label: form.get("label") as string,
+      genre:
+        (form.get("genre") as string | null)
+          ?.split(",")
+          .map((g) => g.trim())
+          .filter(Boolean) || [],
+      cast:
+        (form.get("cast") as string | null)
+          ?.split(",")
+          .map((c) => c.trim())
+          .filter(Boolean) || [],
+      series: (form.get("series") as string) || null,
+      cover: coverPath,
+      parts: parts.map((p: any, index: number) => ({
         order: index + 1,
         title: p.title,
         note: p.note || "",
@@ -88,7 +131,7 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(films, null, 2));
 
     return NextResponse.json({
-      message: "Film metadata created",
+      message: "Film berhasil dibuat",
       film: newFilm,
     });
   } catch (error) {

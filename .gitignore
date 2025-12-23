@@ -43,4 +43,5 @@ next-env.d.ts
 /data/komify/comics.json
 /data/filmfy/films.json
 /public/komify/*
+/public/filmfy/*
 /public/tmp_upload
