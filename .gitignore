@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /data/komify/comics.json
-/data/filmfy/film.json
+/data/filmfy/films.json
 /public/komify/*
 /public/tmp_upload

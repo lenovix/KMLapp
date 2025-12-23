@@ -7,10 +7,10 @@ import filmsData from "@/data/filmfy/films.json";
 import { useState } from "react";
 
 interface FilmItem {
-  id: number;
+  id: string;
   code: string;
   title: string;
-  poster: string;
+  cover: string | null;
 }
 
 export default function FilmfyPage() {
@@ -32,7 +32,7 @@ export default function FilmfyPage() {
 
   ("");
 
-  const films: FilmItem[] = filmsData.films;
+  const films: FilmItem[] = Array.isArray(filmsData) ? filmsData : [];
 
   const filteredFilms = films.filter(
     (film) =>
@@ -110,7 +110,7 @@ export default function FilmfyPage() {
             >
               <div className="relative aspect-3/2 bg-gray-200 dark:bg-gray-700">
                 <Image
-                  src={film.poster}
+                  src={film.cover ?? "/img/placeholder.png"}
                   alt={film.title}
                   fill
                   className="object-cover group-hover:scale-105 transition"
