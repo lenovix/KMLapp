@@ -44,6 +44,15 @@ export default function ChaptersList({
 }) {
   if (!chapters || chapters.length === 0) return null;
 
+  const getPagesMeta = (pages?: any[]) => {
+    const count = Array.isArray(pages) ? pages.length : 0;
+
+    return {
+      label: `${count} ${count === 1 ? "page" : "pages"}`,
+      className: "bg-indigo-600/20 text-indigo-400 border border-indigo-600/40",
+    };
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-4">
       {chapters.map((ch) => {
@@ -92,6 +101,22 @@ export default function ChaptersList({
                         `}
                       >
                         {cMeta.label}
+                      </span>
+                    );
+                  })()}
+                  {(() => {
+                    const pMeta = getPagesMeta(ch.pages);
+                    return (
+                      <span
+                        className={`
+                          inline-flex items-center gap-1
+                          px-2 py-0.5
+                          rounded-full
+                          text-xs font-medium
+                          ${pMeta.className}
+                        `}
+                      >
+                        {pMeta.label}
                       </span>
                     );
                   })()}
