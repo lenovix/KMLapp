@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       artists: normalizeField(formData.get("artist")),
       groups: normalizeField(formData.get("groups")),
       categories: normalizeField(formData.get("categories")),
-      authors: normalizeField(formData.get("author")),
+      authors: normalizeField(formData.get("authors")),
       tags: normalizeField(formData.get("tags")),
 
       status: getString(formData.get("status")),
