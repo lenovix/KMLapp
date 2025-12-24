@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, Trash } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+
 import Header from "@/components/Komify/Detail/header";
 import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comics from "@/data/komify/comics.json";
@@ -21,117 +22,111 @@ import CoverViewer from "@/components/UI/CoverViewer";
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
-  const [coverViewerOpen, setCoverViewerOpen] = useState(false);
-  const [openDeleteChapterDialog, setOpenDeleteChapterDialog] = useState(false);
-  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [version, setVersion] = useState("");
-  const [imgSrc, setImgSrc] = useState<string | null>(null); 
-  const params = useParams();
+  const { slug } = useParams();
   const router = useRouter();
-  const slug = params.slug;
-  const comic = comics.find((c) => String(c.slug) === String(slug));
+
+  const comic = useMemo(
+    () => comics.find((c) => String(c.slug) === String(slug)),
+    [slug]
+  );
+
   const [bookmarked, setBookmarked] = useState(false);
-  const [userRating, setUserRatingState] = useState(0);
+  const [userRating, setUserRating] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
+
+  const [coverOpen, setCoverOpen] = useState(false);
+  const [deleteComicOpen, setDeleteComicOpen] = useState(false);
+  const [deleteChapterOpen, setDeleteChapterOpen] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
+
+  const [alert, setAlert] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (comic) {
-      const initialSrc = comic.cover
-        ? `/komify/${slug}/cover.jpg?v=${Date.now()}`
-        : "/placeholder-cover.jpg";
-      setImgSrc(initialSrc);
-    }
-  }, [comic, slug]);
+  const coverSrc = useMemo(() => {
+    if (!comic?.cover) return "/placeholder-cover.jpg";
+    return `/komify/${comic.slug}/cover.jpg`;
+  }, [comic]);
 
-  const handleImageError = () => {
-    if (imgSrc?.includes(".jpg")) {
-      setImgSrc(`/komify/${slug}/cover.png${version}`);
-    } else if (imgSrc?.includes(".png")) {
-      setImgSrc(`/komify/${slug}/cover.webp${version}`);
-    } else if (imgSrc?.includes(".webp")) {
-      setImgSrc(`/komify/${slug}/cover.jpeg${version}`);
-    } else {
-      setImgSrc("/placeholder-cover.jpg");
-    }
-  };
+  const [imgSrc, setImgSrc] = useState(coverSrc);
 
   useEffect(() => {
-    setVersion(`?v=${Date.now()}`);
-  }, []);
+    setImgSrc(coverSrc);
+  }, [coverSrc]);
+
+  const handleImageError = useCallback(() => {
+    if (imgSrc.endsWith(".jpg")) setImgSrc(`/komify/${comic?.slug}/cover.png`);
+    else if (imgSrc.endsWith(".png"))
+      setImgSrc(`/komify/${comic?.slug}/cover.webp`);
+    else setImgSrc("/placeholder-cover.jpg");
+  }, [imgSrc, comic?.slug]);
 
   useEffect(() => {
-    if (!comic?.slug) return;
-    fetch(`/api/komify/bookmarks?slug=${String(comic.slug)}`)
-      .then((res) => res.json())
-      .then((data) => setBookmarked(data.bookmarked))
-      .catch(() => setBookmarked(false));
-    fetch(`/api/komify/ratings?slug=${comic.slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUserRatingState(data.rating || 0);
-        setAvgRating(data.rating || 0);
-      })
-      .catch(() => {
-        setUserRatingState(0);
+    if (!comic) return;
+
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`/api/komify/user-data?slug=${comic.slug}`);
+        const data = await res.json();
+        setBookmarked(data.bookmarked ?? false);
+        setUserRating(data.rating ?? 0);
+        setAvgRating(data.rating ?? 0);
+      } catch {
+        setBookmarked(false);
+        setUserRating(0);
         setAvgRating(0);
-      });
-  }, [comic?.slug]);
+      }
+    };
 
-  const handleBookmark = async () => {
+    fetchUserData();
+  }, [comic]);
+
+  const handleBookmark = useCallback(async () => {
     if (!comic) return;
 
     const res = await fetch("/api/komify/bookmarks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: String(comic.slug) }),
+      body: JSON.stringify({ slug: comic.slug }),
     });
 
     const data = await res.json();
     setBookmarked(data.bookmarked);
-  };
+  }, [comic]);
 
-  const handleRating = async (rating: number) => {
-    if (!comic) return;
-    const res = await fetch("/api/komify/ratings", {
-      method: "POST",
-      body: JSON.stringify({
-        slug: comic.slug,
-        rating,
-      }),
-    });
-    if (res.ok) {
-      setUserRatingState(rating);
-      setAvgRating(rating);
-    }
-  };
+  const handleRating = useCallback(
+    async (rating: number) => {
+      if (!comic) return;
 
-  const handleDelete = async () => {
+      const res = await fetch("/api/komify/ratings", {
+        method: "POST",
+        body: JSON.stringify({ slug: comic.slug, rating }),
+      });
+
+      if (res.ok) {
+        setUserRating(rating);
+        setAvgRating(rating);
+      }
+    },
+    [comic]
+  );
+
+  const handleDeleteComic = useCallback(async () => {
     if (!comic) return;
+
     setDeleting(true);
     const res = await fetch("/api/komify/deleteComic", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: comic.slug }),
     });
-    if (res.ok) {
-      router.push("/komify");
-    } else {
-      setAlertMessage("Gagal menghapus komik!");
-      setShowAlert(true);
-    }
+
+    if (res.ok) router.push("/komify");
+    else setAlert("Gagal menghapus komik");
+
     setDeleting(false);
-  };
+  }, [comic, router]);
 
-  const handleDeleteChapter = (chapterNumber: number) => {
-    setChapterToDelete(chapterNumber);
-    setOpenDeleteChapterDialog(true);
-  };
-
-  const confirmDeleteChapter = async () => {
+  const confirmDeleteChapter = useCallback(async () => {
     if (!comic || chapterToDelete === null) return;
 
     const res = await fetch("/api/komify/deleteChapter", {
@@ -143,71 +138,51 @@ export default function ComicDetail() {
       }),
     });
 
-    if (res.ok) {
-      router.refresh();
-    } else {
-      setAlertMessage("Gagal menghapus chapter!");
-      setShowAlert(true);
-    }
+    if (res.ok) router.refresh();
+    else setAlert("Gagal menghapus chapter");
 
-    setOpenDeleteChapterDialog(false);
+    setDeleteChapterOpen(false);
     setChapterToDelete(null);
-  };
+  }, [comic, chapterToDelete, router]);
 
   if (!comic) return <p className="p-6">Loading...</p>;
 
   return (
     <>
       <Header defaulftSlug={comic.title} />
+
       <main className="p-6 max-w-6xl mx-auto">
-        {/* Cover + Info */}
-        <div
-          className="relative flex flex-col md:flex-row gap-8 mb-10 
-                    bg-slate-900/70 border border-slate-700 
-                    rounded-2xl shadow-xl p-6 backdrop-blur"
-        >
-          {/* ACTION BUTTONS (Edit & Delete) */}
-          <div className="absolute top-4 right-4 flex gap-3">
+        <div className="relative flex flex-col md:flex-row gap-8 mb-10 bg-slate-900/70 border border-slate-700 rounded-2xl p-6">
+          <div className="absolute top-4 right-4 flex gap-2">
             <PrimaryButton
+              size="sm"
+              icon={<Edit />}
               onClick={() =>
                 router.push(`/komify/edit-comic?slug=${comic.slug}`)
               }
-              icon={<Edit />}
-              iconPosition="left"
-              variant="primary"
-              rounded="xl"
-              size="sm"
-              className="shadow"
             >
               Edit
             </PrimaryButton>
 
             <PrimaryButton
-              onClick={() => setOpenDeleteDialog(true)}
-              icon={<Trash />}
-              iconPosition="left"
-              rounded="xl"
               size="sm"
-              className="bg-red-600 hover:bg-red-700 disabled:opacity-50 shadow"
+              className="bg-red-600"
+              icon={<Trash />}
+              onClick={() => setDeleteComicOpen(true)}
             >
               {deleting ? "Menghapus..." : "Delete"}
             </PrimaryButton>
           </div>
 
-          {/* COVER */}
           <img
-            src={imgSrc? imgSrc : "/placeholder-cover.jpg"}
+            src={imgSrc}
             alt={comic.title}
             onError={handleImageError}
-            onClick={() => setCoverViewerOpen(true)}
-            className="
-              w-56 h-auto rounded-xl object-cover
-              border border-slate-700 shadow-lg
-              cursor-zoom-in hover:opacity-90 transition"
+            onClick={() => setCoverOpen(true)}
+            className="w-56 rounded-xl cursor-zoom-in"
           />
 
-          {/* RIGHT CONTENT */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1">
             <ComicMetadata comic={comic} />
             <ComicTags tags={comic.tags} />
             <ComicActions
@@ -224,54 +199,52 @@ export default function ComicDetail() {
         <ChaptersList
           slug={Number(comic.slug)}
           chapters={comic.chapters}
-          onDeleteChapter={handleDeleteChapter}
+          onDeleteChapter={(n) => {
+            setChapterToDelete(n);
+            setDeleteChapterOpen(true);
+          }}
         />
+
         <CommentSection slug={String(comic.slug)} />
       </main>
-      {
-        <DialogBox
-          open={openDeleteDialog}
-          title="Hapus Komik?"
-          desc="Komik ini akan dihapus beserta semua chapter di dalamnya. Tindakan ini tidak bisa dibatalkan."
-          type="danger"
-          confirmText="Hapus"
-          cancelText="Batal"
-          onConfirm={() => {
-            setOpenDeleteDialog(false);
-            handleDelete();
-          }}
-          onCancel={() => setOpenDeleteDialog(false)}
-        />
-      }
-      {showAlert && (
+
+      <DialogBox
+        open={deleteComicOpen}
+        title="Hapus Komik?"
+        desc="Komik ini akan dihapus permanen."
+        type="danger"
+        confirmText="Hapus"
+        cancelText="Batal"
+        onConfirm={handleDeleteComic}
+        onCancel={() => setDeleteComicOpen(false)}
+      />
+
+      <DialogBox
+        open={deleteChapterOpen}
+        title="Hapus Chapter?"
+        desc={`Chapter ${chapterToDelete} akan dihapus.`}
+        type="danger"
+        confirmText="Hapus"
+        cancelText="Batal"
+        onConfirm={confirmDeleteChapter}
+        onCancel={() => setDeleteChapterOpen(false)}
+      />
+
+      {alert && (
         <Alert
           type="error"
           title="Error"
-          message={alertMessage}
-          onClose={() => setShowAlert(false)}
-          duration={5000}
+          message={alert}
+          onClose={() => setAlert(null)}
         />
       )}
-      {
-        <DialogBox
-          open={openDeleteChapterDialog}
-          title="Hapus Chapter?"
-          desc={`Chapter ${chapterToDelete} akan dihapus permanen. Lanjutkan?`}
-          type="danger"
-          confirmText="Hapus"
-          cancelText="Batal"
-          onConfirm={confirmDeleteChapter}
-          onCancel={() => setOpenDeleteChapterDialog(false)}
-        />
-      }
-      {
-        <CoverViewer
-          open={coverViewerOpen}
-          src={imgSrc ? imgSrc : "/placeholder-cover.jpg"}
-          alt={comic.title}
-          onClose={() => setCoverViewerOpen(false)}
-        />
-      }
+
+      <CoverViewer
+        open={coverOpen}
+        src={imgSrc}
+        alt={comic.title}
+        onClose={() => setCoverOpen(false)}
+      />
     </>
   );
 }
