@@ -18,13 +18,16 @@ export default function AddChapterModal({
   onClose,
   onSuccess,
 }: Props) {
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [cencoredList, setCencoredList] = useState<string[]>([]);
   const [comic, setComic] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     number: "001",
     title: "",
-    language: "",
+    language: languages[0] || "",
+    cencored: cencoredList[0] || "",
   });
 
   const [previewPages, setPreviewPages] = useState<
@@ -32,6 +35,23 @@ export default function AddChapterModal({
   >([]);
 
   useEffect(() => {
+    fetch("/data/config/cencored.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCencoredList(data);
+        }
+      })
+      .catch(console.error);
+    fetch("/data/config/language.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setLanguages(data);
+        }
+      })
+      .catch(console.error);
+
     if (!open) return;
 
     const found = comicsData.find((c) => c.slug === slug);
@@ -49,7 +69,12 @@ export default function AddChapterModal({
           ).padStart(3, "0")
         : "001";
 
-    setForm({ number: nextNum, title: "", language: "" });
+    setForm({
+      number: nextNum,
+      title: "",
+      language: languages[0],
+      cencored: cencoredList[0],
+    });
     setPreviewPages([]);
   }, [open, slug]);
 
@@ -89,6 +114,7 @@ export default function AddChapterModal({
       fd.append("number", form.number);
       fd.append("title", form.title);
       fd.append("language", form.language);
+      fd.append("cencored", form.cencored);
 
       previewPages.forEach((p) => fd.append("pages", p.file));
 
@@ -147,14 +173,51 @@ export default function AddChapterModal({
             <label className="block text-sm font-medium text-slate-400 mb-1">
               Bahasa
             </label>
-            <input
+            <select
               name="language"
               value={form.language}
-              onChange={handleChange}
-              placeholder="English / Japanese / Indonesia"
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white
-                       focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
+              onChange={(e) =>
+                setForm((p) => ({ ...p, language: e.target.value }))
+              }
+              className="
+                w-full rounded-lg
+                border border-slate-700 bg-slate-800
+                px-3 py-2 text-white
+                focus:ring-2 focus:ring-blue-500 focus:outline-none
+              "
+              required
+            >
+              {languages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-1">
+              Cencored Status
+            </label>
+            <select
+              name="cencored"
+              value={form.cencored}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, cencored: e.target.value }))
+              }
+              className="
+                w-full rounded-lg
+                border border-slate-700 bg-slate-800
+                px-3 py-2 text-white
+                focus:ring-2 focus:ring-blue-500 focus:outline-none
+              "
+              required
+            >
+              {cencoredList.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

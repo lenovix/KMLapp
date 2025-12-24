@@ -8,7 +8,7 @@ const LANGUAGE_FLAG_MAP: Record<string, { label: string; flag: string }> = {
   English: { label: "English", flag: "🇺🇸" },
   Japanese: { label: "Japanese", flag: "🇯🇵" },
   Chinese: { label: "Chinese", flag: "🇨🇳" },
-  Indonesian: { label: "Indonesian", flag: "🇮🇩" },
+  Indonesia: { label: "Indonesia", flag: "🇮🇩" },
   Korean: { label: "Korean", flag: "🇰🇷" },
 };
 
@@ -17,6 +17,21 @@ const getLanguageMeta = (lang?: string) =>
     label: lang ?? "Unknown",
     flag: "🏳️",
   };
+
+const getCencoredMeta = (value?: string) => {
+  if (value?.toLowerCase() === "uncensored") {
+    return {
+      label: "Uncensored",
+      className:
+        "bg-emerald-600/20 text-emerald-400 border border-emerald-600/40",
+    };
+  }
+
+  return {
+    label: "Cencored",
+    className: "bg-red-600/20 text-red-400 border border-red-600/40",
+  };
+};
 
 export default function ChaptersList({
   slug,
@@ -49,9 +64,37 @@ export default function ChaptersList({
                   Chapter {ch.number}
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-slate-300">
-                  <span className="text-base">{langMeta.flag}</span>
-                  <span>{langMeta.label}</span>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span
+                    className="
+                      inline-flex items-center gap-1
+                      px-2 py-0.5
+                      rounded-full
+                      bg-slate-700/70
+                      text-slate-200
+                      border border-slate-600
+                    "
+                  >
+                    <span className="text-sm">{langMeta.flag}</span>
+                    {langMeta.label}
+                  </span>
+
+                  {(() => {
+                    const cMeta = getCencoredMeta(ch.cencored);
+                    return (
+                      <span
+                        className={`
+                          inline-flex items-center
+                          px-2 py-0.5
+                          rounded-full
+                          text-xs font-medium
+                          ${cMeta.className}
+                        `}
+                      >
+                        {cMeta.label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
 

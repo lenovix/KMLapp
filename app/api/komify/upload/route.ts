@@ -44,7 +44,6 @@ const normalizeField = (value: any): NormalizedField => {
   return arr;
 };
 
-
 const getString = (v: any) => (Array.isArray(v) ? v[0] : v ?? "");
 
 export async function POST(req: NextRequest) {
@@ -137,14 +136,13 @@ export async function POST(req: NextRequest) {
         number: ch.number,
         title: ch.title,
         language: ch.language,
+        cencored: ch.cencored,
         uploadChapter: new Date()
           .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
           .replace("T", " "),
         pages: ch.pages,
       })),
     };
-
-
 
     const index = comics.findIndex((c) => c.slug === Number(slug));
     if (index !== -1) comics[index] = newComic;

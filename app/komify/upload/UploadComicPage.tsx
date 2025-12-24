@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Alert from "@/components/UI/Alert";
 import DialogBox from "@/components/Komify/upload/DialogBox";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
@@ -63,13 +63,21 @@ export default function UploadComicPage({
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [chapters, setChapters] = useState([
-    { number: "001", title: "", language: "English", files: [] as File[] },
+    {
+      number: "001",
+      title: "",
+      language: "English",
+      cencored: "Cencored",
+      files: [] as File[],
+    },
   ]);
   const [previewChapterIndex, setPreviewChapterIndex] = useState<number | null>(
     null
   );
 
-  const handleComicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleComicChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setComicData({
       ...comicData,
       [e.target.name]: e.target.value,
@@ -78,7 +86,7 @@ export default function UploadComicPage({
 
   const handleChapterChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const updated = [...chapters];
     const key = e.target.name as keyof (typeof updated)[number];
@@ -101,7 +109,13 @@ export default function UploadComicPage({
     const nextNumber = formatChapterNumber(chapters.length + 1);
     setChapters([
       ...chapters,
-      { number: nextNumber, title: "", language: "English", files: [] },
+      {
+        number: nextNumber,
+        title: "",
+        language: "English",
+        cencored: "Cencored",
+        files: [],
+      },
     ]);
   };
 
@@ -198,6 +212,7 @@ export default function UploadComicPage({
           number: ch.number,
           title: ch.title,
           language: ch.language,
+          cencored: ch.cencored,
           uploadChapter: comicData.uploaded,
         }))
       )

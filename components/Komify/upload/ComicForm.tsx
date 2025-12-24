@@ -24,6 +24,7 @@ export interface ChapterData {
   number: string;
   title: string;
   language: string;
+  cencored: string;
   files: File[];
 }
 
@@ -35,7 +36,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;

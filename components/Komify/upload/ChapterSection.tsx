@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DropdownInput from "@/components/UI/DropdownInput";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { Plus } from "lucide-react";
 import FileUploadInput from "@/components/UI/FileUploadInput";
@@ -11,6 +10,7 @@ interface Chapter {
   number: string;
   title: string;
   language: string;
+  cencored: string;
   files: File[];
 }
 
@@ -20,7 +20,9 @@ interface ChapterSectionProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -36,10 +38,16 @@ export default function ChapterSection({
   openPreview,
 }: ChapterSectionProps) {
   const [languages, setLanguages] = useState<string[]>([]);
+  const [cencoredList, setCencoredList] = useState<string[]>([]);
+
   useEffect(() => {
     fetch("/data/config/language.json")
       .then((res) => res.json())
       .then(setLanguages);
+
+    fetch("/data/config/cencored.json")
+      .then((res) => res.json())
+      .then(setCencoredList);
   }, []);
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
@@ -57,63 +65,154 @@ export default function ChapterSection({
       </div>
 
       {chapters.map((ch, index) => (
-        <div key={index} className="relative">
-          {index >= 0 && (
+        <div
+          key={index}
+          className="
+            relative
+            rounded-xl
+            border border-white/15
+            bg-white/10
+            p-4
+            space-y-4
+          "
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-blue-400">
+              Chapter {ch.number}
+            </h3>
+
             <button
               type="button"
               onClick={() => removeChapter(index)}
-              className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-red-700"
+              className="
+                flex items-center justify-center
+                w-8 h-8
+                rounded-full
+                bg-red-600/80
+                text-white
+                hover:bg-red-600
+                transition
+              "
+              title="Remove chapter"
             >
               ✕
             </button>
-          )}
-          <div
-            key={index}
-            className="border border-gray-400/40 rounded-xl p-4 bg-white/10"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
-              <div className="md:col-span-1 md:row-span-2 flex items-start">
-                <p className="text-white font-semibold">Chapter {ch.number}</p>
-              </div>
-              <div className="md:col-span-5">
-                <InputText
-                  name="title"
-                  placeholder="Title"
-                  value={ch.title}
-                  onChange={(e) => handleChapterChange(index, e)}
-                  className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <DropdownInput
-                  name="language"
-                  listId="chapter-language-list"
-                  placeholder="Language"
-                  value={ch.language}
-                  onChange={(e) => handleChapterChange(index, e)}
-                  options={languages}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <FileUploadInput
-                  multiple
-                  accept=".zip,.rar,image/*"
-                  onChange={(files) => handleChapterFile(index, files)}
-                  countFile={ch.files.length}
-                />
-              </div>
-              <div className="md:col-span-1 flex items-center">
-                {ch.files.length > 0 && (
-                  <PrimaryButton
-                    type="button"
-                    variant="link"
-                    onClick={() => openPreview(index)}
-                  >
-                    Preview
-                  </PrimaryButton>
-                )}
-              </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="md:col-span-6">
+              <label className="block text-xs text-gray-400 mb-1">
+                Chapter Title
+              </label>
+              <InputText
+                name="title"
+                placeholder="Chapter title"
+                value={ch.title}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="
+                  w-full
+                  border border-white/10
+                  bg-white/10
+                  text-white
+                  placeholder-gray-400
+                  rounded-lg
+                  px-3 py-2
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+              />
             </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs text-gray-400 mb-1">
+                Cencored Status
+              </label>
+              <select
+                name="cencored"
+                value={ch.cencored}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="
+                  w-full
+                  rounded-lg
+                  border border-white/10
+                  bg-white/10
+                  px-3 py-2
+                  text-white
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+                required
+              >
+                {cencoredList.map((item) => (
+                  <option
+                    key={item}
+                    value={item}
+                    className="bg-slate-800 text-white"
+                  >
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs text-gray-400 mb-1">
+                Language
+              </label>
+              <select
+                name="language"
+                value={ch.language}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="
+                  w-full
+                  rounded-lg
+                  border border-white/10
+                  bg-white/10
+                  px-3 py-2
+                  text-white
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+                required
+              >
+                {languages.map((lang) => (
+                  <option
+                    key={lang}
+                    value={lang}
+                    className="bg-slate-800 text-white"
+                  >
+                    {lang}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs text-gray-400 mb-1">
+                Chapter Files
+              </label>
+              <FileUploadInput
+                multiple
+                accept=".zip,.rar,image/*"
+                onChange={(files) => handleChapterFile(index, files)}
+                countFile={ch.files.length}
+              />
+            </div>
+
+            {ch.files.length > 0 && (
+              <div className="md:col-span-6 flex justify-end">
+                <PrimaryButton
+                  type="button"
+                  variant="link"
+                  onClick={() => openPreview(index)}
+                >
+                  Preview Files
+                </PrimaryButton>
+              </div>
+            )}
           </div>
         </div>
       ))}

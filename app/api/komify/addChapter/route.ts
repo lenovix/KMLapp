@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     const chapterNumber = formData.get("number");
     const title = formData.get("title");
     const language = formData.get("language");
+    const cencored = formData.get("cencored");
     const pageFiles = formData.getAll("pages") as File[];
 
     if (!slugRaw || !chapterNumber) {
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
       number: String(chapterNumber),
       title: String(title ?? ""),
       language: String(language ?? ""),
+      cencored: String(cencored ?? ""),
       uploadChapter: new Date()
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),

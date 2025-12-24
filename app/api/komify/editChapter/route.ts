@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     const chapter = formData.get("chapter")?.toString();
     const title = formData.get("title")?.toString();
     const language = formData.get("language")?.toString();
+    const cencored = formData.get("cencored")?.toString();
     const orderRaw = formData.get("order")?.toString();
 
     if (!slug || !chapter) {
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
 
     chapterData.title = title;
     chapterData.language = language;
+    chapterData.cencored = cencored;
     chapterData.uploadChapter = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace("T", " ");

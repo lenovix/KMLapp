@@ -11,6 +11,7 @@ import PrimaryButton from "@/components/UI/PrimaryButton";
 
 export default function EditChapterPage() {
   const [languages, setLanguages] = useState<string[]>([]);
+  const [cencoredList, setCencoredList] = useState<string[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,7 +19,7 @@ export default function EditChapterPage() {
   const chapter = searchParams.get("chapter");
 
   const [chapterData, setChapterData] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", language: "" });
+  const [form, setForm] = useState({ title: "", language: "", cencored: "" });
   const [pages, setPages] = useState<
     Array<{ id: string; file?: File; url?: string; filename?: string }>
   >([]);
@@ -42,6 +43,7 @@ export default function EditChapterPage() {
     setForm({
       title: ch.title || "",
       language: ch.language || "",
+      cencored: ch.cencored || "",
     });
 
     fetch(`/api/komify/read?slug=${slug}&chapter=${chapter}`)
@@ -62,6 +64,14 @@ export default function EditChapterPage() {
       .then((data) => {
         if (Array.isArray(data)) {
           setLanguages(data);
+        }
+      })
+      .catch(console.error);
+    fetch("/data/config/cencored.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCencoredList(data);
         }
       })
       .catch(console.error);
@@ -153,6 +163,7 @@ export default function EditChapterPage() {
       fd.append("chapter", String(chapter));
       fd.append("title", form.title.trim());
       fd.append("language", form.language);
+      fd.append("cencored", form.cencored);
       fd.append("order", JSON.stringify(order));
 
       newFiles.forEach((file) => {
@@ -353,6 +364,33 @@ export default function EditChapterPage() {
                 />
               </div>
 
+              <div>
+                <label className="text-sm text-gray-300">Cencored Status</label>
+                <select
+                  name="cencored"
+                  value={form.cencored}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, cencored: e.target.value }))
+                  }
+                  className="
+                    w-full mt-1
+                    bg-white/10 border border-white/10
+                    rounded px-3 py-2
+                    text-white
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+                  "
+                >
+                  {cencoredList.map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                      className="bg-slate-800 text-white"
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="text-sm text-gray-300">Bahasa</label>
                 <select
