@@ -7,6 +7,7 @@ import comics from "@/data/komify/comics.json";
 import HeaderRead from "@/components/Komify/read/HeaderRead";
 import ReaderNav from "@/components/Komify/read/ReaderNav";
 import SkeletonPages from "@/components/Komify/read/SkeletonPages";
+import ReaderImage from "@/components/Komify/read/ReaderImage";
 
 type Params = {
   slug: string;
@@ -81,21 +82,11 @@ export default function ReaderPage() {
 
         {!loading &&
           pages.map((filename, i) => (
-            <Image
+            <ReaderImage
               key={filename}
               src={`${imagePath}/${filename}`}
               alt={`Page ${i + 1}`}
-              width={900}
-              height={1300}
               priority={i === 0}
-              loading={i === 0 ? "eager" : "lazy"}
-              decoding="async"
-              className="
-                w-full max-w-3xl
-                rounded-lg
-                border border-slate-700
-                shadow-md
-              "
             />
           ))}
       </div>
