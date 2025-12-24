@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import comics from "@/data/komify/comics.json";
 import AllComicHeader from "@/components/Komify/Home/header";
@@ -8,6 +9,7 @@ import Pagination from "@/components/Komify/Home/Pagination";
 import statusList from "@/public/data/config/status.json";
 import categoriesList from "@/public/data/komify/categories.json";
 import FilterGroup from "@/components/Komify/Home/FilterGroup";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function AllComic() {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
@@ -16,12 +18,14 @@ export default function AllComic() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  const debouncedSearch = useDebounce(searchTerm, 300);
+
   const allStatuses: string[] = statusList;
   const allCategories: string[] = categoriesList;
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedStatus, selectedCategories, selectedTags]);
+  }, [debouncedSearch, selectedStatus, selectedCategories, selectedTags]);
 
   const filteredComics = useMemo(() => {
     const filtered = comics.filter((comic: any) => {
@@ -34,7 +38,7 @@ export default function AllComic() {
 
       const matchesSearch = title
         .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+        .includes(debouncedSearch.toLowerCase());
 
       const comicTags = Array.isArray(comic.tags)
         ? comic.tags
@@ -66,14 +70,20 @@ export default function AllComic() {
       const uploadedB = Array.isArray(b.uploaded) ? b.uploaded[0] : b.uploaded;
       return new Date(uploadedB).getTime() - new Date(uploadedA).getTime();
     });
-  }, [searchTerm, selectedTags, selectedStatus, selectedCategories]);
+  }, [debouncedSearch, selectedTags, selectedStatus, selectedCategories]);
 
   const COMICS_PER_PAGE = 8;
   const totalPages = Math.ceil(filteredComics.length / COMICS_PER_PAGE);
-  const paginatedComics = filteredComics.slice(
-    (currentPage - 1) * COMICS_PER_PAGE,
-    currentPage * COMICS_PER_PAGE
+
+  const paginatedComics = useMemo(
+    () =>
+      filteredComics.slice(
+        (currentPage - 1) * COMICS_PER_PAGE,
+        currentPage * COMICS_PER_PAGE
+      ),
+    [filteredComics, currentPage]
   );
+
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
@@ -105,73 +115,82 @@ export default function AllComic() {
   };
 
   return (
-    <>
-      <main className="flex flex-col gap-6 h-fit justify-between">
-        <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <FilterGroup
-          label="Status"
-          options={allStatuses}
-          selectedValue={selectedStatus}
-          onChangeValue={setSelectedStatus}
-          withAll
-          activeColor="blue"
-        />
-        <FilterGroup
-          label="Categories"
-          options={allCategories}
-          selectedValues={selectedCategories}
-          onToggleValue={toggleCategory}
-          activeColor="emerald"
-        />
-        <div className="h-fit w-full">
-          {filteredComics.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-300">
-              Tidak ditemukan komik dengan judul tersebut.
-            </p>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                {paginatedComics.map((comic) => (
-                  <Link
-                    key={comic.slug}
-                    href={`/komify/${comic.slug}`}
-                    className="group bg-white dark:bg-slate-900 border hover:border-amber-50 border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-lg transition flex flex-col"
-                  >
-                    <img
-                      src={comic.cover || "/placeholder-cover.jpg"}
-                      alt={
-                        typeof comic.title === "string"
-                          ? comic.title
-                          : comic.title?.[0]
-                      }
-                      className="w-full h-full object-center transition-transform duration-300"
-                    />
-                    <div className="p-3 flex-1 flex flex-col justify-between">
-                      <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
-                        {typeof comic.title === "string"
-                          ? comic.title
-                          : comic.title?.[0]}
-                      </h2>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={goToPage}
-        />
-        <FilterGroup
-          label="Tags"
-          options={allTags}
-          selectedValues={selectedTags}
-          onToggleValue={toggleTag}
-          activeColor="blue"
-        />
-      </main>
-    </>
+    <main className="flex flex-col gap-6">
+      <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+      <FilterGroup
+        label="Status"
+        options={allStatuses}
+        selectedValue={selectedStatus}
+        onChangeValue={setSelectedStatus}
+        withAll
+        activeColor="blue"
+      />
+
+      <FilterGroup
+        label="Categories"
+        options={allCategories}
+        selectedValues={selectedCategories}
+        onToggleValue={toggleCategory}
+        activeColor="emerald"
+      />
+
+      <div className="w-full">
+        {filteredComics.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-300">
+            Tidak ditemukan komik dengan judul tersebut.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {paginatedComics.map((comic) => {
+              const title =
+                typeof comic.title === "string"
+                  ? comic.title
+                  : comic.title?.[0] ?? "Comic";
+
+              return (
+                <Link
+                  key={comic.slug}
+                  href={`/komify/${comic.slug}`}
+                  className="group bg-white dark:bg-slate-900 border
+                             border-gray-200 dark:border-slate-700
+                             rounded-xl overflow-hidden shadow-sm
+                             hover:shadow-md transition flex flex-col"
+                >
+                  <Image
+                    src={comic.cover || "/img/placeholder.png"}
+                    alt={title}
+                    width={300}
+                    height={420}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+
+                  <div className="p-3">
+                    <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                      {title}
+                    </h2>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+      />
+
+      <FilterGroup
+        label="Tags"
+        options={allTags}
+        selectedValues={selectedTags}
+        onToggleValue={toggleTag}
+        activeColor="blue"
+      />
+    </main>
   );
 }
