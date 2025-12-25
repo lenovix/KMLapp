@@ -158,11 +158,13 @@ export default function AllComic() {
                              hover:shadow-md transition flex flex-col"
                 >
                   <Image
-                    src={comic.cover || "/img/placeholder.png"}
+                    key={`comic-cover-${comic.slug}`}
+                    src={comic.cover}
                     alt={title}
                     width={300}
                     height={420}
                     loading="lazy"
+                    unoptimized
                     className="w-full h-full object-cover"
                   />
 
