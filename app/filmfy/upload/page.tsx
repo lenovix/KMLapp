@@ -18,6 +18,8 @@ interface Part {
 }
 
 export default function FilmfyUploadPage() {
+  const [cencoredOptions, setCencoredOptions] = useState<string[]>([]);
+  const [cencored, setCencored] = useState(cencoredOptions[0] || "");
   const [nextId, setNextId] = useState<number | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -40,6 +42,11 @@ export default function FilmfyUploadPage() {
       .then((res) => res.json())
       .then((data) => setNextId(data.nextId))
       .catch(() => setNextId(null));
+
+    fetch("/data/config/cencored.json")
+      .then((res) => res.json())
+      .then((data) => setCencoredOptions(data))
+      .catch(() => setCencoredOptions([]));
   }, []);
 
   const addPart = () => {
@@ -79,6 +86,7 @@ export default function FilmfyUploadPage() {
     formData.append("series", series);
     formData.append("cover", coverFile);
     formData.append("parts", JSON.stringify(parts));
+    formData.append("cencored", cencored);
 
     const res = await fetch("/api/filmfy/addFilm", {
       method: "POST",
@@ -105,6 +113,7 @@ export default function FilmfyUploadPage() {
     setParts([]);
     setCoverFile(null);
     setCoverPreview(null);
+    setCencored(cencoredOptions[0] || "");
   };
 
   const inputClass =
@@ -138,15 +147,15 @@ export default function FilmfyUploadPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
-            />
-            <input
               placeholder="Code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              className={inputClass}
+            />
+            <input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className={inputClass}
             />
             <input
@@ -191,6 +200,17 @@ export default function FilmfyUploadPage() {
               onChange={(e) => setSeries(e.target.value)}
               className={inputClass}
             />
+            <select
+              value={cencored}
+              onChange={(e) => setCencored(e.target.value)}
+              className={inputClass}
+            >
+              {cencoredOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
           </div>
         </section>
 

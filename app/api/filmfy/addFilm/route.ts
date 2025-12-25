@@ -19,6 +19,7 @@ interface Film {
   id: number;
   title: string;
   code: string;
+  cencored: string;
   releaseDate?: string;
   director?: string;
   maker?: string;
@@ -49,10 +50,18 @@ export async function POST(req: NextRequest) {
     const title = form.get("title") as string;
     const code = form.get("code") as string;
     const coverFile = form.get("cover") as File | null;
+    const cencored = form.get("cencored") as string;
 
     if (!title || !code) {
       return NextResponse.json(
         { message: "Title dan code wajib diisi" },
+        { status: 400 }
+      );
+    }
+
+    if (!cencored) {
+      return NextResponse.json(
+        { message: "Status cencored wajib diisi" },
         { status: 400 }
       );
     }
@@ -137,6 +146,7 @@ export async function POST(req: NextRequest) {
       id: nextId,
       title,
       code,
+      cencored,
       releaseDate: form.get("releaseDate") as string,
       director: form.get("director") as string,
       maker: form.get("maker") as string,
