@@ -1,0 +1,20 @@
+[
+  {
+    "slug": "kamil",
+    "name": "Kamil",
+    "description": "",
+    "avatar": "/data/filmfy/directors/kamil.png"
+  },
+  {
+    "slug": "ichsanul",
+    "name": "ichsanul",
+    "description": "",
+    "avatar": "/data/filmfy/directors/ichsanul.png"
+  },
+  {
+    "slug": "lenovix",
+    "name": "lenovix",
+    "description": "",
+    "avatar": "/data/filmfy/directors/lenovix.jpg"
+  }
+]

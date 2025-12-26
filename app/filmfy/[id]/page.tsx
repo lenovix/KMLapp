@@ -38,7 +38,7 @@ interface PageProps {
 }
 
 export default async function FilmDetailPage({ params }: PageProps) {
-  const { id } = await params; // ✅ WAJIB
+  const { id } = await params;
 
   if (!id) {
     return notFound();
@@ -64,10 +64,8 @@ export default async function FilmDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Top Navbar */}
         <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur py-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between max-w-7xl mx-auto">
-            {/* Left */}
             <div className="flex items-center gap-4">
               <Link
                 href="/filmfy"
@@ -82,7 +80,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
               </h1>
             </div>
 
-            {/* Right */}
             <div className="flex items-center gap-3">
               <button
                 className="p-2 rounded-xl border border-gray-300 dark:border-gray-700
@@ -95,8 +92,8 @@ export default async function FilmDetailPage({ params }: PageProps) {
               <Link
                 href="/filmfy/upload"
                 className="inline-flex items-center gap-2 px-4 py-2
-            rounded-xl bg-blue-600 text-white text-sm font-medium
-            hover:bg-blue-700 transition"
+                  rounded-xl bg-blue-600 text-white text-sm font-medium
+                  hover:bg-blue-700 transition"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Tambah Film</span>
@@ -106,11 +103,8 @@ export default async function FilmDetailPage({ params }: PageProps) {
         </header>
       </div>
 
-      {/* Content */}
       <div className="max-w-5xl mx-auto p-6 space-y-10">
-        {/* Film Header */}
         <section className="flex flex-col md:flex-row gap-6">
-          {/* Cover */}
           {film.cover && (
             <Image
               src={film.cover}
@@ -122,9 +116,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
             />
           )}
 
-          {/* Info */}
           <div className="flex-1 space-y-4">
-            {/* Title */}
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               <span className="text-gray-500 dark:text-gray-400 mr-2">
                 {film.code}
@@ -133,7 +125,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
               <span className="ml-2">{film.title}</span>
             </h1>
 
-            {/* Badges */}
             <div className="flex flex-wrap gap-2 text-sm">
               <span className="px-3 py-1 rounded-full bg-blue-600 text-white">
                 {film.cencored}
@@ -146,8 +137,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {/* Meta */}
-            {/* Meta */}
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
               {film.director && (
                 <p>
@@ -157,9 +146,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                       film.director
                     )}`}
                     className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                    bg-blue-100 dark:bg-blue-900
+                    text-blue-700 dark:text-blue-300 text-xs
+                    hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                   >
                     {film.director}
                   </Link>
@@ -172,9 +161,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                   <Link
                     href={`/filmfy/maker/${encodeURIComponent(film.maker)}`}
                     className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                    bg-blue-100 dark:bg-blue-900
+                    text-blue-700 dark:text-blue-300 text-xs
+                    hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                   >
                     {film.maker}
                   </Link>
@@ -187,9 +176,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                   <Link
                     href={`/filmfy/label/${encodeURIComponent(film.label)}`}
                     className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                    bg-blue-100 dark:bg-blue-900
+                    text-blue-700 dark:text-blue-300 text-xs
+                    hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                   >
                     {film.label}
                   </Link>
@@ -202,9 +191,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                   <Link
                     href={`/filmfy/series/${encodeURIComponent(film.series)}`}
                     className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                    bg-blue-100 dark:bg-blue-900
+                    text-blue-700 dark:text-blue-300 text-xs
+                    hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                   >
                     {film.series}
                   </Link>
@@ -219,9 +208,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                       <Link
                         href={`/filmfy/cast/${encodeURIComponent(name)}`}
                         className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                        bg-blue-100 dark:bg-blue-900
+                        text-blue-700 dark:text-blue-300 text-xs
+                        hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                       >
                         {name}
                       </Link>
@@ -232,7 +221,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {/* Genre */}
             {film.genre.length > 0 && (
               <p className="text-sm text-gray-800 dark:text-gray-200">
                 {film.genre.map((g, i) => (
@@ -240,9 +228,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
                     <Link
                       href={`/filmfy/genre/${encodeURIComponent(g)}`}
                       className="inline-block px-2 py-1 mr-2 rounded-full
-             bg-blue-100 dark:bg-blue-900
-             text-blue-700 dark:text-blue-300 text-xs
-             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                      bg-blue-100 dark:bg-blue-900
+                      text-blue-700 dark:text-blue-300 text-xs
+                      hover:bg-blue-200 dark:hover:bg-blue-800 transition"
                     >
                       {g}
                     </Link>
@@ -254,7 +242,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Parts */}
         <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 border">
           <h2 className="text-lg font-semibold mb-4">Part Film</h2>
 
@@ -282,7 +269,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
           )}
         </section>
 
-        {/* Footer */}
         <footer className="text-xs text-gray-400 text-center">
           Dibuat: {new Date(film.createdAt).toLocaleString("id-ID")}
         </footer>

@@ -19,7 +19,7 @@ interface Part {
 
 export default function FilmfyUploadPage() {
   const [cencoredOptions, setCencoredOptions] = useState<string[]>([]);
-  const [cencored, setCencored] = useState(cencoredOptions[0] || "");
+  const [cencored, setCencored] = useState("Cencored");
   const [nextId, setNextId] = useState<number | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -100,7 +100,6 @@ export default function FilmfyUploadPage() {
 
     alert("Film berhasil disimpan");
 
-    // reset
     setTitle("");
     setCode("");
     setReleaseDate("");

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Filmfy :: Movie",
-  description: "Filmfy is Comics Collection",
+  description: "Filmfy is Movies Collection",
 };
 
 export default function KomicfyLayout({

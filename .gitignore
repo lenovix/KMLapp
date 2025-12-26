@@ -45,3 +45,5 @@ next-env.d.ts
 /public/komify/*
 /public/filmfy/*
 /public/tmp_upload
+/public/data/filmfy/directors.json
+/public/data/filmfy/directors/*

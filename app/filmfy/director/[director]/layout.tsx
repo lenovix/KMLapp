@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Detail :: Filmfy",
+  title: "Director :: Filmfy",
   description: "Filmfy is Movies Collection",
 };
 
