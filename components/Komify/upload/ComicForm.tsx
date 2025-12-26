@@ -8,7 +8,7 @@ import { Upload } from "lucide-react";
 export interface ComicData {
   slug: number;
   title: string;
-  author: string;
+  authors: string;
   artist: string;
   groups: string;
   parodies: string;

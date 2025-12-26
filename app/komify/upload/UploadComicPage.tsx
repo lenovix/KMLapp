@@ -27,7 +27,7 @@ export default function UploadComicPage({
   interface ComicData {
     slug: number;
     title: string;
-    author: string;
+    authors: string;
     artist: string;
     groups: string;
     parodies: string;
@@ -41,7 +41,7 @@ export default function UploadComicPage({
   const [comicData, setComicData] = useState<ComicData>({
     slug: defaultSlug,
     title: "",
-    author: "",
+    authors: "",
     artist: "",
     groups: "",
     parodies: "",

@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, Bookmark, Plus } from "lucide-react";
 
 interface FilmPart {
   order: number;
@@ -29,40 +31,109 @@ interface Film {
 
 const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
-export default function FilmDetailPage({ params }: { params: { id: String } }) {
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default async function FilmDetailPage({ params }: PageProps) {
+  const { id } = await params; // ✅ WAJIB
+
+  if (!id) {
+    return notFound();
+  }
+
   if (!fs.existsSync(DATA_FILE)) {
-    notFound();
+    return notFound();
   }
 
   const raw = fs.readFileSync(DATA_FILE, "utf-8");
   const films: Film[] = JSON.parse(raw || "[]");
 
-  const film = films.find((f) => f.id === Number(params.id));
+  const filmId = Number(id);
+  if (Number.isNaN(filmId)) {
+    return notFound();
+  }
 
+  const film = films.find((f) => f.id === filmId);
   if (!film) {
-    notFound();
+    return notFound();
   }
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
-        <header className="flex gap-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Top Navbar */}
+        <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur py-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between max-w-7xl mx-auto">
+            {/* Left */}
+            <div className="flex items-center gap-4">
+              <Link
+                href="/filmfy"
+                className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition"
+                aria-label="Kembali"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                Filmfy
+              </h1>
+            </div>
+
+            {/* Right */}
+            <div className="flex items-center gap-3">
+              <button
+                className="p-2 rounded-xl border border-gray-300 dark:border-gray-700
+            bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                title="Bookmark"
+              >
+                <Bookmark className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              </button>
+
+              <Link
+                href="/filmfy/upload"
+                className="inline-flex items-center gap-2 px-4 py-2
+            rounded-xl bg-blue-600 text-white text-sm font-medium
+            hover:bg-blue-700 transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Tambah Film</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-5xl mx-auto p-6 space-y-10">
+        {/* Film Header */}
+        <section className="flex flex-col md:flex-row gap-6">
+          {/* Cover */}
           {film.cover && (
             <Image
               src={film.cover}
               alt={film.title}
               width={260}
               height={380}
-              className="rounded-xl object-cover border"
+              className="rounded-2xl object-cover border self-start"
+              priority
             />
           )}
 
-          <div className="space-y-3">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {film.title}
+          {/* Info */}
+          <div className="flex-1 space-y-4">
+            {/* Title */}
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              <span className="text-gray-500 dark:text-gray-400 mr-2">
+                {film.code}
+              </span>
+              <span>-</span>
+              <span className="ml-2">{film.title}</span>
             </h1>
 
+            {/* Badges */}
             <div className="flex flex-wrap gap-2 text-sm">
               <span className="px-3 py-1 rounded-full bg-blue-600 text-white">
                 {film.cencored}
@@ -75,26 +146,23 @@ export default function FilmDetailPage({ params }: { params: { id: String } }) {
               )}
             </div>
 
+            {/* Meta */}
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
               {film.director && <p>🎬 Director: {film.director}</p>}
               {film.maker && <p>🏭 Maker: {film.maker}</p>}
               {film.label && <p>🏷 Label: {film.label}</p>}
               {film.series && <p>📀 Series: {film.series}</p>}
+              {film.cast.length > 0 && <p>👥 Cast: {film.cast.join(", ")}</p>}
             </div>
 
+            {/* Genre */}
             {film.genre.length > 0 && (
-              <p className="text-sm">
-                <b>Genre:</b> {film.genre.join(", ")}
-              </p>
-            )}
-
-            {film.cast.length > 0 && (
-              <p className="text-sm">
-                <b>Cast:</b> {film.cast.join(", ")}
+              <p className="text-sm text-gray-800 dark:text-gray-200">
+                {film.genre.join(", ")}
               </p>
             )}
           </div>
-        </header>
+        </section>
 
         {/* Parts */}
         <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 border">
@@ -125,10 +193,11 @@ export default function FilmDetailPage({ params }: { params: { id: String } }) {
         </section>
 
         {/* Footer */}
-        <footer className="text-xs text-gray-400">
-          Dibuat: {new Date(film.createdAt).toLocaleString()}
+        <footer className="text-xs text-gray-400 text-center">
+          Dibuat: {new Date(film.createdAt).toLocaleString("id-ID")}
         </footer>
       </div>
     </main>
   );
+
 }
