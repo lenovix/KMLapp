@@ -147,18 +147,108 @@ export default async function FilmDetailPage({ params }: PageProps) {
             </div>
 
             {/* Meta */}
+            {/* Meta */}
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              {film.director && <p>🎬 Director: {film.director}</p>}
-              {film.maker && <p>🏭 Maker: {film.maker}</p>}
-              {film.label && <p>🏷 Label: {film.label}</p>}
-              {film.series && <p>📀 Series: {film.series}</p>}
-              {film.cast.length > 0 && <p>👥 Cast: {film.cast.join(", ")}</p>}
+              {film.director && (
+                <p>
+                  🎬 Director:{" "}
+                  <Link
+                    href={`/filmfy/director/${encodeURIComponent(
+                      film.director
+                    )}`}
+                    className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                  >
+                    {film.director}
+                  </Link>
+                </p>
+              )}
+
+              {film.maker && (
+                <p>
+                  🏭 Maker:{" "}
+                  <Link
+                    href={`/filmfy/maker/${encodeURIComponent(film.maker)}`}
+                    className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                  >
+                    {film.maker}
+                  </Link>
+                </p>
+              )}
+
+              {film.label && (
+                <p>
+                  🏷 Label:{" "}
+                  <Link
+                    href={`/filmfy/label/${encodeURIComponent(film.label)}`}
+                    className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                  >
+                    {film.label}
+                  </Link>
+                </p>
+              )}
+
+              {film.series && (
+                <p>
+                  📀 Series:{" "}
+                  <Link
+                    href={`/filmfy/series/${encodeURIComponent(film.series)}`}
+                    className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                  >
+                    {film.series}
+                  </Link>
+                </p>
+              )}
+
+              {film.cast.length > 0 && (
+                <p>
+                  👥 Cast:{" "}
+                  {film.cast.map((name, i) => (
+                    <span key={name}>
+                      <Link
+                        href={`/filmfy/cast/${encodeURIComponent(name)}`}
+                        className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                      >
+                        {name}
+                      </Link>
+                      {i < film.cast.length - 1 && ", "}
+                    </span>
+                  ))}
+                </p>
+              )}
             </div>
 
             {/* Genre */}
             {film.genre.length > 0 && (
               <p className="text-sm text-gray-800 dark:text-gray-200">
-                {film.genre.join(", ")}
+                {film.genre.map((g, i) => (
+                  <span key={g}>
+                    <Link
+                      href={`/filmfy/genre/${encodeURIComponent(g)}`}
+                      className="inline-block px-2 py-1 mr-2 rounded-full
+             bg-blue-100 dark:bg-blue-900
+             text-blue-700 dark:text-blue-300 text-xs
+             hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                    >
+                      {g}
+                    </Link>
+                    {i < film.genre.length - 1 && ", "}
+                  </span>
+                ))}
               </p>
             )}
           </div>
@@ -199,5 +289,4 @@ export default async function FilmDetailPage({ params }: PageProps) {
       </div>
     </main>
   );
-
 }
