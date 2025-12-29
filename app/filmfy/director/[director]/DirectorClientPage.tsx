@@ -58,7 +58,9 @@ export default function DirectorClientPage({
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
-              <h1 className="text-xl font-bold">Filmfy</h1>
+              <h1 className="text-xl font-bold">
+                Filmfy :: {directorInfo.name}
+              </h1>
             </div>
 
             <div className="flex items-center gap-3">
@@ -91,50 +93,7 @@ export default function DirectorClientPage({
           </div>
         </header>
 
-        <section className="flex gap-6 items-start">
-          <div
-            className="w-32 h-32 rounded-2xl bg-gray-200 dark:bg-gray-800
-                       flex items-center justify-center overflow-hidden"
-          >
-            {directorInfo.avatar ? (
-              <Image
-                src={directorInfo.avatar}
-                alt={directorInfo.name}
-                width={128}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <span className="text-4xl font-bold text-gray-500">
-                {directorInfo.name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold">{directorInfo.name}</h1>
-
-            <p className="text-sm text-gray-600 dark:text-gray-300 max-w-xl">
-              {directorInfo.description ||
-                `Daftar film yang disutradarai oleh ${directorInfo.name}.`}
-            </p>
-
-            <button
-              onClick={() => setIsEditOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2
-                         rounded-xl bg-blue-600 text-white text-sm"
-            >
-              <Pencil className="w-4 h-4" />
-              Edit Director
-            </button>
-          </div>
-        </section>
-
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            Film oleh {directorInfo.name}
-          </h2>
-
           {filteredFilms.length === 0 && (
             <p className="text-gray-500 text-sm">Tidak ada film yang cocok.</p>
           )}
