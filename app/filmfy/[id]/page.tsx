@@ -147,7 +147,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                 <p className="font-medium dark:text-gray-200">
                   <Link
                     href={`/filmfy/director/${encodeURIComponent(
-                      film.director
+                      film.director? film.director : ""
                     )}`}
                   >
                     {film.director || "-"}
@@ -175,7 +175,11 @@ export default async function FilmDetailPage({ params }: PageProps) {
               <div>
                 <p className="text-gray-500">Cast</p>
                 <p className="font-medium dark:text-gray-200">
-                  {film.cast || "-"}
+                  <Link
+                    href={`/filmfy/cast/${encodeURIComponent(film.cast? film.cast.join(",") : "")}`}
+                  >
+                    {film.cast || "-"}
+                  </Link>
                 </p>
               </div>
             </div>

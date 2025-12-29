@@ -47,3 +47,5 @@ next-env.d.ts
 /public/tmp_upload
 /public/data/filmfy/directors.json
 /public/data/filmfy/directors/*
+/public/data/filmfy/casts.json
+/public/data/filmfy/casts/*

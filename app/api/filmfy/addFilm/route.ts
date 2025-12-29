@@ -10,6 +10,7 @@ const DATA_FILE = path.join(DATA_DIR, "films.json");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const PUBLIC_FILM_DIR = path.join(PUBLIC_DIR, "filmfy");
 const DIRECTOR_FILE = path.join(PUBLIC_DIR, "data", "filmfy", "directors.json");
+const CAST_FILE = path.join(PUBLIC_DIR, "data", "filmfy", "casts.json");
 
 interface FilmPart {
   order: number;
@@ -38,6 +39,14 @@ interface Film {
 interface Director {
   slug: string;
   name: string;
+  description: string;
+  avatar: string;
+}
+
+interface Cast {
+  slug: string;
+  name: string;
+  character?: string;
   description: string;
   avatar: string;
 }
@@ -143,6 +152,44 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // === AUTO CREATE CAST ===
+    const castRaw = form.get("cast") as string | null;
+
+    if (castRaw) {
+      const castNames = castRaw
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+
+      let casts: any[] = [];
+      if (fs.existsSync(CAST_FILE)) {
+        casts = JSON.parse(fs.readFileSync(CAST_FILE, "utf-8") || "[]");
+      }
+
+      let updated = false;
+
+      for (const castName of castNames) {
+        const slug = slugify(castName);
+        const exists = casts.some((c) => c.slug === slug);
+
+        if (!exists) {
+          casts.push({
+            slug,
+            name: castName,
+            character: "",
+            description: "",
+            avatar: `/data/filmfy/casts/${slug}.jpg`,
+          });
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        fs.mkdirSync(path.dirname(CAST_FILE), { recursive: true });
+        fs.writeFileSync(CAST_FILE, JSON.stringify(casts, null, 2));
+      }
+    }
+
     const newFilm: Film = {
       id: nextId,
       title,
@@ -160,7 +207,7 @@ export async function POST(req: NextRequest) {
       cast:
         (form.get("cast") as string | null)
           ?.split(",")
-          .map((c) => c.trim())
+          .map((c) => slugify(c.trim()))
           .filter(Boolean) || [],
       series: (form.get("series") as string) || null,
       cover: coverPath,
