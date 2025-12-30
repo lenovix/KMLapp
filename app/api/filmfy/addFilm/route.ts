@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
       code,
       cencored,
       releaseDate: form.get("releaseDate") as string,
-      director: directorName ? slugify(directorName) : undefined,
+      director: form.get("director") as string,
       maker: form.get("maker") as string,
       label: form.get("label") as string,
       genre:
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
       cast:
         (form.get("cast") as string | null)
           ?.split(",")
-          .map((c) => slugify(c.trim()))
+          .map((c) => c.trim())
           .filter(Boolean) || [],
       series: (form.get("series") as string) || null,
       cover: coverPath,

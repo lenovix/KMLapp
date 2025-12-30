@@ -120,7 +120,9 @@ export default function FilmfyPage() {
                   src={film.cover ?? "/img/placeholder.png"}
                   alt={film.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
+                  loading="eager"
+                  className="object-cover "
                 />
               </div>
 
