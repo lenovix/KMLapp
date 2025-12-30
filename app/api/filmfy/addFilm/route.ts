@@ -73,7 +73,6 @@ export async function POST(req: NextRequest) {
     const code = form.get("code") as string;
     const coverFile = form.get("cover") as File | null;
     const cencored = form.get("cencored") as string;
-    const directorName = (form.get("director") as string)?.trim();
 
     if (!title || !code) {
       return NextResponse.json(
@@ -181,7 +180,7 @@ export async function POST(req: NextRequest) {
       cast:
         (form.get("cast") as string | null)
           ?.split(",")
-          .map((c) => c.trim())
+          .map((c) => slugify(c.trim()))
           .filter(Boolean) || [],
       series: (form.get("series") as string) || null,
       cover: coverPath,

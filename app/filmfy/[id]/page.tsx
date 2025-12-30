@@ -192,15 +192,22 @@ export default async function FilmDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <p className="text-gray-500">Cast</p>
-                <p className="font-medium dark:text-gray-200">
-                  <Link
-                    href={`/filmfy/cast/${encodeURIComponent(
-                      film.cast ? film.cast.join(",") : ""
-                    )}`}
-                  >
-                    {film.cast || "-"}
-                  </Link>
-                </p>
+
+                {Array.isArray(film.cast) && film.cast.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {film.cast.map((cast) => (
+                      <Link
+                        key={cast}
+                        href={`/filmfy/cast/${encodeURIComponent(cast)}`}
+                        className="font-medium dark:text-gray-200"
+                      >
+                        {cast.replace(/-/g, " ")}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="font-medium dark:text-gray-200">-</p>
+                )}
               </div>
             </div>
           </div>
