@@ -6,10 +6,8 @@ export const dynamic = "force-dynamic";
 
 const DATA_DIR = path.join(process.cwd(), "data", "filmfy");
 const DATA_FILE = path.join(DATA_DIR, "films.json");
-
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const PUBLIC_FILM_DIR = path.join(PUBLIC_DIR, "filmfy");
-// const DIRECTOR_FILE = path.join(PUBLIC_DIR, "data", "filmfy", "directors.json");
 const CAST_FILE = path.join(PUBLIC_DIR, "data", "filmfy", "casts.json");
 
 interface FilmPart {
@@ -93,7 +91,6 @@ export async function POST(req: NextRequest) {
 
     fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.mkdirSync(PUBLIC_FILM_DIR, { recursive: true });
-    // fs.mkdirSync(path.dirname(DIRECTOR_FILE), { recursive: true });
 
     let films: Film[] = [];
     if (fs.existsSync(DATA_FILE)) {
@@ -130,29 +127,6 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    // if (directorName) {
-    //   const slug = slugify(directorName);
-
-    //   let directors: Director[] = [];
-    //   if (fs.existsSync(DIRECTOR_FILE)) {
-    //     directors = JSON.parse(fs.readFileSync(DIRECTOR_FILE, "utf-8") || "[]");
-    //   }
-
-    //   const exists = directors.some((d) => d.slug === slug);
-
-    //   if (!exists) {
-    //     directors.push({
-    //       slug,
-    //       name: directorName,
-    //       description: "",
-    //       avatar: `/data/filmfy/directors/${slug}.jpg`,
-    //     });
-
-    //     fs.writeFileSync(DIRECTOR_FILE, JSON.stringify(directors, null, 2));
-    //   }
-    // }
-
-    // === AUTO CREATE CAST ===
     const castRaw = form.get("cast") as string | null;
 
     if (castRaw) {
@@ -178,7 +152,7 @@ export async function POST(req: NextRequest) {
             name: castName,
             character: "",
             description: "",
-            avatar: `/data/filmfy/casts/${slug}.jpg`,
+            avatar: "",
           });
           updated = true;
         }

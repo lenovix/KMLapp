@@ -289,15 +289,6 @@ export default async function FilmDetailPage({ params }: PageProps) {
             </ul>
           )}
         </section>
-
-        <footer className="text-xs text-gray-400 text-center pb-12">
-          Konten ditambahkan pada{" "}
-          {new Date(film.createdAt).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </footer>
       </div>
     </main>
   );
