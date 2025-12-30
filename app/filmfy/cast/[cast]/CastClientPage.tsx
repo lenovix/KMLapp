@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Plus, Search } from "lucide-react";
+
 import CastDescriptionSection from "@/components/filmfy/CastClientPage/CastDescriptionSection";
 import CastGallerySection from "@/components/filmfy/CastClientPage/CastGallerySection";
 import CastFilmListSection from "@/components/filmfy/CastClientPage/CastFilmListSection";
+import { CastFormData } from "@/components/filmfy/CastClientPage/CastEditModal";
 
 interface Film {
   id: number;
@@ -16,10 +17,15 @@ interface Film {
 }
 
 interface CastInfo {
+  slug: string;
   name: string;
-  character?: string;
-  description?: string;
+  alias?: string;
   avatar?: string | null;
+  birthDate?: string;
+  debutReason?: string;
+  debutStart?: string;
+  debutEnd?: string;
+  description?: string;
 }
 
 export default function CastClientPage({
@@ -33,12 +39,19 @@ export default function CastClientPage({
 }) {
   const [query, setQuery] = useState("");
 
-  const [castInfo] = useState<CastInfo>({
+  /** CAST PROFILE (source of truth) */
+  const castProfile: CastFormData = {
     name: initialCastInfo?.name || cast,
-    character: initialCastInfo?.character || "",
-    description: initialCastInfo?.description || "",
-    avatar: initialCastInfo?.avatar || null,
-  });
+    alias: initialCastInfo?.alias || "",
+    avatar: initialCastInfo?.avatar || "",
+    birthDate: initialCastInfo?.birthDate || "",
+    debutReason: initialCastInfo?.debutReason || "",
+    debutStart: initialCastInfo?.debutStart || "",
+    debutEnd: initialCastInfo?.debutEnd || "",
+    description:
+      initialCastInfo?.description ||
+      `Daftar film yang dibintangi oleh ${cast}.`,
+  };
 
   const filteredFilms = useMemo(() => {
     const q = query.toLowerCase();
@@ -95,29 +108,44 @@ export default function CastClientPage({
           </div>
         </header>
 
+        {/* CAST PROFILE */}
         <CastDescriptionSection
-          profile={{
-            name: castInfo.name,
-            character: castInfo.character,
-            description: castInfo.description,
-            avatar: castInfo.avatar,
-          }}
-          onSave={(updatedProfile) => {
-            console.log("SAVE CAST PROFILE:", updatedProfile);
-            // TODO:
-            // - simpan ke JSON
-            // - atau POST ke API
+          profile={castProfile}
+          onSave={async (data) => {
+            const formData = new FormData();
+
+            formData.append("slug", cast);
+            formData.append("name", data.name);
+
+            if (data.alias) formData.append("alias", data.alias);
+            if (data.birthDate) formData.append("birthDate", data.birthDate);
+            if (data.debutReason)
+              formData.append("debutReason", data.debutReason);
+            if (data.debutStart) formData.append("debutStart", data.debutStart);
+            if (data.debutEnd) formData.append("debutEnd", data.debutEnd);
+            if (data.description)
+              formData.append("description", data.description);
+
+            if (data.avatarFile) {
+              formData.append("avatar", data.avatarFile);
+            }
+
+            await fetch("/api/filmfy/cast", {
+              method: "POST",
+              body: formData, // ⬅️ PENTING
+            });
           }}
         />
 
+        {/* GALLERY */}
         <CastGallerySection
           images={["/cast/ichkmlsdr/1.jpg", "/cast/ichkmlsdr/2.jpg"]}
           onSave={(updatedImages) => {
             console.log("SAVE GALLERY:", updatedImages);
-            // TODO: simpan ke API / file
           }}
         />
 
+        {/* FILM LIST */}
         <CastFilmListSection films={filteredFilms} />
       </div>
     </main>

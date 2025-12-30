@@ -3,68 +3,89 @@ import fs from "fs";
 import path from "path";
 
 const DATA_DIR = path.join(process.cwd(), "public", "data", "filmfy");
-const CASTS_FILE = path.join(DATA_DIR, "casts.json");
+
+const CAST_JSON = path.join(DATA_DIR, "casts.json");
 const AVATAR_DIR = path.join(DATA_DIR, "casts");
 
+/** Pastikan folder ada */
+function ensureDir(dir: string) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
 export async function POST(req: Request) {
-  const formData = await req.formData();
+  try {
+    ensureDir(DATA_DIR);
+    ensureDir(AVATAR_DIR);
 
-  const slug = formData.get("slug") as string;
-  const name = formData.get("name") as string;
-  const character = formData.get("character") as string | null;
-  const description = formData.get("description") as string | null;
-  const avatar = formData.get("avatar") as File | null;
+    const formData = await req.formData();
 
-  if (!slug || !name) {
-    return NextResponse.json(
-      { success: false, message: "Slug & name wajib diisi" },
-      { status: 400 }
-    );
-  }
+    const slug = String(formData.get("slug"));
+    if (!slug) {
+      return NextResponse.json({ error: "Missing cast slug" }, { status: 400 });
+    }
 
-  // Pastikan folder ada
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
-
-  // Load data cast
-  let casts: any[] = [];
-  if (fs.existsSync(CASTS_FILE)) {
-    casts = JSON.parse(fs.readFileSync(CASTS_FILE, "utf-8"));
-  }
-
-  const index = casts.findIndex((c) => c.slug === slug);
-  let avatarPath = index >= 0 ? casts[index].avatar : null;
-
-  // Upload avatar
-  if (avatar) {
-    const buffer = Buffer.from(await avatar.arrayBuffer());
-    const ext = avatar.name.split(".").pop() || "jpg";
-
-    avatarPath = `/data/filmfy/casts/${slug}.${ext}`;
-    fs.writeFileSync(path.join(AVATAR_DIR, `${slug}.${ext}`), buffer);
-  }
-
-  const payload = {
-    slug,
-    name,
-    character,
-    description,
-    avatar: avatarPath,
-  };
-
-  if (index >= 0) {
-    casts[index] = {
-      ...casts[index],
-      ...payload,
+    /** Ambil data text */
+    const payload: any = {
+      slug,
+      name: formData.get("name"),
+      alias: formData.get("alias"),
+      birthDate: formData.get("birthDate"),
+      debutReason: formData.get("debutReason"),
+      debutStart: formData.get("debutStart"),
+      debutEnd: formData.get("debutEnd"),
+      description: formData.get("description"),
     };
-  } else {
-    casts.push(payload);
+
+    /** Bersihkan undefined / empty */
+    Object.keys(payload).forEach(
+      (k) =>
+        (payload[k] === null ||
+          payload[k] === undefined ||
+          payload[k] === "") &&
+        delete payload[k]
+    );
+
+    /** Handle avatar upload */
+    const avatarFile = formData.get("avatar") as File | null;
+
+    if (avatarFile && avatarFile.size > 0) {
+      const buffer = Buffer.from(await avatarFile.arrayBuffer());
+
+      const avatarPath = path.join(AVATAR_DIR, `${slug}.jpg`);
+
+      fs.writeFileSync(avatarPath, buffer);
+
+      payload.avatar = `/data/filmfy/casts/${slug}.jpg`;
+    }
+
+    /** Load JSON */
+    const raw = fs.existsSync(CAST_JSON)
+      ? fs.readFileSync(CAST_JSON, "utf-8")
+      : "[]";
+
+    const casts = JSON.parse(raw);
+
+    const index = casts.findIndex((c: any) => c.slug === slug);
+
+    if (index >= 0) {
+      casts[index] = {
+        ...casts[index],
+        ...payload,
+      };
+    } else {
+      casts.push(payload);
+    }
+
+    fs.writeFileSync(CAST_JSON, JSON.stringify(casts, null, 2));
+
+    return NextResponse.json({
+      success: true,
+      avatar: payload.avatar,
+    });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to save cast" }, { status: 500 });
   }
-
-  fs.writeFileSync(CASTS_FILE, JSON.stringify(casts, null, 2));
-
-  return NextResponse.json({
-    success: true,
-    cast: payload,
-  });
 }

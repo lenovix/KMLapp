@@ -15,9 +15,13 @@ interface Film {
 interface CastInfo {
   slug: string;
   name: string;
-  character?: string;
+  alias?: string;
+  avatar?: string;
+  birthDate?: string;
+  debutReason?: string;
+  debutStart?: string;
+  debutEnd?: string;
   description?: string;
-  avatar?: string | null;
 }
 
 const FILMS_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
@@ -60,10 +64,15 @@ export default async function CastPage({
         cast={slug}
         films={filmsByCast}
         castInfo={{
+          slug: castInfo.slug,
           name: castInfo.name,
-          character: castInfo.character,
-          description: castInfo.description,
+          alias: castInfo.alias,
           avatar: castInfo.avatar,
+          birthDate: castInfo.birthDate,
+          debutReason: castInfo.debutReason,
+          debutStart: castInfo.debutStart,
+          debutEnd: castInfo.debutEnd,
+          description: castInfo.description,
         }}
       />
     );
