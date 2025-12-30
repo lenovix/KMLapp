@@ -4,27 +4,34 @@ import { X, Save } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 
-interface EditDirectorModalProps {
+interface EditCastModalProps {
   isOpen: boolean;
   onClose: () => void;
   slug: string;
   name: string;
+  character?: string;
   description?: string;
   avatar?: string | null;
 
-  onSave: (data: { name: string; description: string }) => void;
+  onSave: (data: {
+    name: string;
+    character: string;
+    description: string;
+  }) => void;
 }
 
-export default function EditDirectorModal({
+export default function EditCastModal({
   isOpen,
   onClose,
   slug,
   name: initialName,
+  character = "",
   description = "",
   avatar,
   onSave,
-}: EditDirectorModalProps) {
+}: EditCastModalProps) {
   const [name, setName] = useState(initialName);
+  const [role, setRole] = useState(character);
   const [desc, setDesc] = useState(description);
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -43,9 +50,10 @@ export default function EditDirectorModal({
         className="relative w-full max-w-lg bg-white dark:bg-gray-900
                    rounded-2xl shadow-xl p-6 space-y-6"
       >
+        {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Edit Director
+            Edit Cast
           </h2>
           <button
             onClick={onClose}
@@ -55,9 +63,10 @@ export default function EditDirectorModal({
           </button>
         </div>
 
+        {/* Avatar */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Logo / Avatar
+            Foto / Avatar
           </label>
 
           <div className="flex items-center gap-4">
@@ -84,7 +93,7 @@ export default function EditDirectorModal({
               className="cursor-pointer text-sm px-4 py-2 rounded-xl
                          border hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              Ganti Logo
+              Ganti Foto
               <input
                 type="file"
                 accept="image/*"
@@ -100,15 +109,31 @@ export default function EditDirectorModal({
           </div>
         </div>
 
+        {/* Form */}
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nama Director
+              Nama Cast
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full px-4 py-2 rounded-xl border
+                         dark:border-gray-700 bg-white dark:bg-gray-800
+                         focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Karakter / Peran
+            </label>
+            <input
+              type="text"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="Contoh: Tony Stark"
               className="mt-1 w-full px-4 py-2 rounded-xl border
                          dark:border-gray-700 bg-white dark:bg-gray-800
                          focus:ring-2 focus:ring-blue-500"
@@ -130,6 +155,7 @@ export default function EditDirectorModal({
           </div>
         </div>
 
+        {/* Action */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={onClose}
@@ -144,15 +170,21 @@ export default function EditDirectorModal({
               const formData = new FormData();
               formData.append("slug", slug);
               formData.append("name", name);
+              formData.append("character", role);
               formData.append("description", desc);
               if (avatarFile) formData.append("avatar", avatarFile);
 
-              await fetch("/api/filmfy/director", {
+              await fetch("/api/filmfy/cast", {
                 method: "POST",
                 body: formData,
               });
 
-              onSave({ name, description: desc });
+              onSave({
+                name,
+                character: role,
+                description: desc,
+              });
+
               onClose();
             }}
             className="inline-flex items-center gap-2 px-4 py-2
