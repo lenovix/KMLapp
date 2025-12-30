@@ -147,7 +147,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                 <p className="font-medium dark:text-gray-200">
                   <Link
                     href={`/filmfy/director/${encodeURIComponent(
-                      film.director? film.director : ""
+                      film.director ? film.director : ""
                     )}`}
                   >
                     {film.director || "-"}
@@ -157,26 +157,46 @@ export default async function FilmDetailPage({ params }: PageProps) {
               <div>
                 <p className="text-gray-500">Maker</p>
                 <p className="font-medium dark:text-gray-200">
-                  {film.maker || "-"}
+                  <Link
+                    href={`/filmfy/maker/${encodeURIComponent(
+                      film.maker ? film.maker : ""
+                    )}`}
+                  >
+                    {film.maker || "-"}
+                  </Link>
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Label</p>
                 <p className="font-medium dark:text-gray-200">
-                  {film.label || "-"}
+                  <Link
+                    href={`/filmfy/label/${encodeURIComponent(
+                      film.label ? film.label : ""
+                    )}`}
+                  >
+                    {film.label || "-"}
+                  </Link>
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Series</p>
                 <p className="font-medium dark:text-gray-200">
-                  {film.series || "-"}
+                  <Link
+                    href={`/filmfy/series/${encodeURIComponent(
+                      film.series ? film.series : ""
+                    )}`}
+                  >
+                    {film.series || "-"}
+                  </Link>
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Cast</p>
                 <p className="font-medium dark:text-gray-200">
                   <Link
-                    href={`/filmfy/cast/${encodeURIComponent(film.cast? film.cast.join(",") : "")}`}
+                    href={`/filmfy/cast/${encodeURIComponent(
+                      film.cast ? film.cast.join(",") : ""
+                    )}`}
                   >
                     {film.cast || "-"}
                   </Link>
