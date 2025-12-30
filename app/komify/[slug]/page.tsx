@@ -43,22 +43,32 @@ export default function ComicDetail() {
   const [deleting, setDeleting] = useState(false);
 
   const coverSrc = useMemo(() => {
-    if (!comic?.cover) return "/placeholder-cover.jpg";
-    return `/komify/${comic.slug}/cover.jpg`;
-  }, [comic]);
+  if (!comic?.cover) return "/placeholder-cover.jpg";
+  return `/komify/${comic.slug}/cover.jpg`;
+}, [comic?.cover, comic?.slug]);
 
-  const [imgSrc, setImgSrc] = useState(coverSrc);
+const [imgSrc, setImgSrc] = useState(coverSrc);
+const [tryIndex, setTryIndex] = useState(0);
 
-  useEffect(() => {
-    setImgSrc(coverSrc);
-  }, [coverSrc]);
+const extensions = [".jpg", ".png", ".webp"];
 
-  const handleImageError = useCallback(() => {
-    if (imgSrc.endsWith(".jpg")) setImgSrc(`/komify/${comic?.slug}/cover.png`);
-    else if (imgSrc.endsWith(".png"))
-      setImgSrc(`/komify/${comic?.slug}/cover.webp`);
-    else setImgSrc("/placeholder-cover.jpg");
-  }, [imgSrc, comic?.slug]);
+useEffect(() => {
+  setImgSrc(coverSrc);
+  setTryIndex(0);
+}, [coverSrc]);
+
+const handleImageError = useCallback(() => {
+  if (!comic?.slug) return;
+
+  const nextIndex = tryIndex + 1;
+  if (nextIndex < extensions.length) {
+    setImgSrc(`/komify/${comic.slug}/cover${extensions[nextIndex]}`);
+    setTryIndex(nextIndex);
+  } else {
+    // Semua ekstensi sudah dicoba, fallback ke placeholder
+    setImgSrc("/placeholder-cover.jpg");
+  }
+}, [tryIndex, comic?.slug]);
 
   useEffect(() => {
     if (!comic) return;
