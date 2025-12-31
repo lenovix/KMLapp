@@ -5,12 +5,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Bookmark, Plus } from "lucide-react";
 import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
+import InfoItem from "@/components/UI/InfoItem";
 
 interface FilmPart {
   order: number;
   title: string;
   note?: string;
   folder: string;
+}
+interface CastFormData {
+  slug: string;
+  name: string;
+  alias?: string;
+  avatar?: string;
+  birthDate?: string;
+  debutReason?: string;
+  debutStart?: string;
+  debutEnd?: string;
+  description?: string;
 }
 
 interface Film {
@@ -29,6 +41,25 @@ interface Film {
   parts: FilmPart[];
   createdAt: string;
 }
+
+interface Cast extends CastFormData {
+  slug: string;
+}
+const CAST_FILE = path.join(
+  process.cwd(),
+  "public",
+  "data",
+  "filmfy",
+  "casts.json"
+);
+
+function loadCasts(): Cast[] {
+  if (!fs.existsSync(CAST_FILE)) return [];
+  return JSON.parse(fs.readFileSync(CAST_FILE, "utf-8") || "[]");
+}
+const casts = loadCasts();
+
+const castMap = new Map<string, Cast>(casts.map((c) => [c.slug, c]));
 
 const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
@@ -129,84 +160,92 @@ export default async function FilmDetailPage({ params }: PageProps) {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm border-t dark:border-gray-800 pt-6">
-              <div>
-                <p className="text-gray-500">Version</p>
-                <p className="font-medium dark:text-gray-200">
-                  {film.cencored || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Release Date</p>
-                <p className="font-medium dark:text-gray-200">
-                  {film.releaseDate || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Director</p>
-                <p className="font-medium dark:text-gray-200">
-                  <Link
-                    href={`/filmfy/director/${encodeURIComponent(
-                      film.director ? film.director : ""
-                    )}`}
-                  >
-                    {film.director || "-"}
-                  </Link>
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Maker</p>
-                <p className="font-medium dark:text-gray-200">
-                  <Link
-                    href={`/filmfy/maker/${encodeURIComponent(
-                      film.maker ? film.maker : ""
-                    )}`}
-                  >
-                    {film.maker || "-"}
-                  </Link>
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Label</p>
-                <p className="font-medium dark:text-gray-200">
-                  <Link
-                    href={`/filmfy/label/${encodeURIComponent(
-                      film.label ? film.label : ""
-                    )}`}
-                  >
-                    {film.label || "-"}
-                  </Link>
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Series</p>
-                <p className="font-medium dark:text-gray-200">
-                  <Link
-                    href={`/filmfy/series/${encodeURIComponent(
-                      film.series ? film.series : ""
-                    )}`}
-                  >
-                    {film.series || "-"}
-                  </Link>
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Cast</p>
+            <div className="border-t border-gray-800 pt-6 space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <InfoItem label="Version">{film.cencored || "-"}</InfoItem>
 
-                {Array.isArray(film.cast) && film.cast.length > 0 ? (
+                <InfoItem label="Release Date">
+                  {film.releaseDate || "-"}
+                </InfoItem>
+
+                <InfoItem label="Director">
+                  {film.director ? (
+                    <Link
+                      href={`/filmfy/director/${encodeURIComponent(
+                        film.director
+                      )}`}
+                      className="link-item"
+                    >
+                      {film.director}
+                    </Link>
+                  ) : (
+                    "-"
+                  )}
+                </InfoItem>
+
+                <InfoItem label="Maker">
+                  {film.maker ? (
+                    <Link
+                      href={`/filmfy/maker/${encodeURIComponent(film.maker)}`}
+                      className="link-item"
+                    >
+                      {film.maker}
+                    </Link>
+                  ) : (
+                    "-"
+                  )}
+                </InfoItem>
+
+                <InfoItem label="Label">
+                  {film.label ? (
+                    <Link
+                      href={`/filmfy/label/${encodeURIComponent(film.label)}`}
+                      className="link-item"
+                    >
+                      {film.label}
+                    </Link>
+                  ) : (
+                    "-"
+                  )}
+                </InfoItem>
+
+                <InfoItem label="Series">
+                  {film.series ? (
+                    <Link
+                      href={`/filmfy/series/${encodeURIComponent(film.series)}`}
+                      className="link-item"
+                    >
+                      {film.series}
+                    </Link>
+                  ) : (
+                    "-"
+                  )}
+                </InfoItem>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                  Cast
+                </p>
+
+                {film.cast.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {film.cast.map((cast) => (
-                      <Link
-                        key={cast}
-                        href={`/filmfy/cast/${encodeURIComponent(cast)}`}
-                        className="font-medium dark:text-gray-200"
-                      >
-                        {cast.replace(/-/g, " ")}
-                      </Link>
-                    ))}
+                    {film.cast.map((castId) => {
+                      const cast = castMap.get(castId);
+
+                      return (
+                        <Link
+                          key={castId}
+                          href={`/filmfy/cast/${encodeURIComponent(castId)}`}
+                          className="cast-chip"
+                        >
+                          {cast?.name || castId}
+                        </Link>
+                      );
+                    })}
                   </div>
                 ) : (
-                  <p className="font-medium dark:text-gray-200">-</p>
+                  <p className="text-sm text-gray-500">-</p>
                 )}
               </div>
             </div>

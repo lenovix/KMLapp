@@ -39,8 +39,8 @@ export default function CastClientPage({
 }) {
   const [query, setQuery] = useState("");
 
-  /** CAST PROFILE (source of truth) */
   const castProfile: CastFormData = {
+    slug: initialCastInfo?.slug || "",
     name: initialCastInfo?.name || cast,
     alias: initialCastInfo?.alias || "",
     avatar: initialCastInfo?.avatar || "",
@@ -48,9 +48,7 @@ export default function CastClientPage({
     debutReason: initialCastInfo?.debutReason || "",
     debutStart: initialCastInfo?.debutStart || "",
     debutEnd: initialCastInfo?.debutEnd || "",
-    description:
-      initialCastInfo?.description ||
-      `Daftar film yang dibintangi oleh ${cast}.`,
+    description: initialCastInfo?.description || "",
   };
 
   const filteredFilms = useMemo(() => {
@@ -65,7 +63,6 @@ export default function CastClientPage({
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto p-6 space-y-10">
-        {/* Header */}
         <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur py-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
@@ -108,7 +105,6 @@ export default function CastClientPage({
           </div>
         </header>
 
-        {/* CAST PROFILE */}
         <CastDescriptionSection
           profile={castProfile}
           onSave={async (data) => {
@@ -132,12 +128,11 @@ export default function CastClientPage({
 
             await fetch("/api/filmfy/cast", {
               method: "POST",
-              body: formData, // ⬅️ PENTING
+              body: formData,
             });
           }}
         />
 
-        {/* GALLERY */}
         <CastGallerySection
           images={["/cast/ichkmlsdr/1.jpg", "/cast/ichkmlsdr/2.jpg"]}
           onSave={(updatedImages) => {
@@ -145,7 +140,6 @@ export default function CastClientPage({
           }}
         />
 
-        {/* FILM LIST */}
         <CastFilmListSection films={filteredFilms} />
       </div>
     </main>

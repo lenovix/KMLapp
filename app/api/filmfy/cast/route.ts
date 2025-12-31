@@ -7,7 +7,6 @@ const DATA_DIR = path.join(process.cwd(), "public", "data", "filmfy");
 const CAST_JSON = path.join(DATA_DIR, "casts.json");
 const AVATAR_DIR = path.join(DATA_DIR, "casts");
 
-/** Pastikan folder ada */
 function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -20,13 +19,15 @@ export async function POST(req: Request) {
     ensureDir(AVATAR_DIR);
 
     const formData = await req.formData();
-
     const slug = String(formData.get("slug"));
-    if (!slug) {
-      return NextResponse.json({ error: "Missing cast slug" }, { status: 400 });
+
+    if (!slug || slug === "undefined" || slug === "null") {
+      return NextResponse.json(
+        { error: "Invalid or missing cast slug" },
+        { status: 400 }
+      );
     }
 
-    /** Ambil data text */
     const payload: any = {
       slug,
       name: formData.get("name"),
@@ -38,7 +39,6 @@ export async function POST(req: Request) {
       description: formData.get("description"),
     };
 
-    /** Bersihkan undefined / empty */
     Object.keys(payload).forEach(
       (k) =>
         (payload[k] === null ||
@@ -47,26 +47,21 @@ export async function POST(req: Request) {
         delete payload[k]
     );
 
-    /** Handle avatar upload */
     const avatarFile = formData.get("avatar") as File | null;
 
     if (avatarFile && avatarFile.size > 0) {
       const buffer = Buffer.from(await avatarFile.arrayBuffer());
 
       const avatarPath = path.join(AVATAR_DIR, `${slug}.jpg`);
-
       fs.writeFileSync(avatarPath, buffer);
-
       payload.avatar = `/data/filmfy/casts/${slug}.jpg`;
     }
 
-    /** Load JSON */
     const raw = fs.existsSync(CAST_JSON)
       ? fs.readFileSync(CAST_JSON, "utf-8")
       : "[]";
 
     const casts = JSON.parse(raw);
-
     const index = casts.findIndex((c: any) => c.slug === slug);
 
     if (index >= 0) {
@@ -75,7 +70,9 @@ export async function POST(req: Request) {
         ...payload,
       };
     } else {
-      casts.push(payload);
+      if (slug !== "undefined") {
+        casts.push(payload);
+      }
     }
 
     fs.writeFileSync(CAST_JSON, JSON.stringify(casts, null, 2));

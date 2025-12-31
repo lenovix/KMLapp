@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { X, Save, Upload } from "lucide-react";
+import { X, Save, Upload, Loader2 } from "lucide-react";
+import InfoItem from "@/components/UI/InfoItem";
 
 export interface CastFormData {
+  slug: string;
   name: string;
   alias?: string;
   avatar?: string;
@@ -21,6 +23,7 @@ interface Props {
   initialData: CastFormData;
   onClose: () => void;
   onSave: (data: CastFormData) => void;
+  isSaving?: boolean;
 }
 
 export default function CastEditModal({
@@ -28,13 +31,13 @@ export default function CastEditModal({
   initialData,
   onClose,
   onSave,
+  isSaving = false,
 }: Props) {
   const [form, setForm] = useState<CastFormData>(initialData);
   const [preview, setPreview] = useState<string | null>(
     initialData.avatar || null
   );
 
-  /** Reset form saat modal dibuka */
   useEffect(() => {
     if (open) {
       setForm(initialData);
@@ -51,40 +54,42 @@ export default function CastEditModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4">
-      <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-3xl p-6 space-y-6 shadow-xl">
-        {/* Header */}
-        <div className="flex justify-between items-center border-b pb-3">
-          <h2 className="text-lg font-semibold">Edit Profil Pemeran</h2>
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="w-full max-w-5xl rounded-2xl bg-gray-900 border border-gray-800 shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-100">
+            Edit Cast Profile
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800"
           >
-            <X />
+            <X size={18} />
           </button>
         </div>
 
-        {/* BODY */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* AVATAR */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 p-6">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-44 h-44 rounded-xl overflow-hidden bg-gray-800 border border-gray-700 flex items-center justify-center">
               {preview ? (
                 <Image
                   src={preview}
                   alt="Avatar"
-                  width={128}
-                  height={128}
+                  width={176}
+                  height={176}
                   className="object-cover w-full h-full"
+                  unoptimized
                 />
               ) : (
-                <span className="text-sm text-gray-400">No Image</span>
+                <span className="text-xs text-gray-500">NO IMAGE</span>
               )}
             </div>
 
-            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
-              <Upload className="w-4 h-4" />
-              Upload Foto
+            <label className="w-full cursor-pointer">
+              <div className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800">
+                <Upload size={14} />
+                Upload Avatar
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -94,99 +99,111 @@ export default function CastEditModal({
             </label>
           </div>
 
-          {/* FORM */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                className="input"
-                placeholder="Nama panggung"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-300 mb-4">
+                Informasi Dasar
+              </h3>
 
-              <input
-                className="input"
-                placeholder="Nama alias"
-                value={form.alias || ""}
-                onChange={(e) => setForm({ ...form, alias: e.target.value })}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoItem label="Nama Panggung">
+                  <input
+                    className="dark-input"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  />
+                </InfoItem>
 
-              <input
-                type="date"
-                className="input"
-                value={form.birthDate || ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    birthDate: e.target.value,
-                  })
-                }
-              />
+                <InfoItem label="Alias">
+                  <input
+                    className="dark-input"
+                    value={form.alias || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, alias: e.target.value })
+                    }
+                  />
+                </InfoItem>
 
-              <input
-                type="date"
-                className="input"
-                value={form.debutStart || ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    debutStart: e.target.value,
-                  })
-                }
-              />
+                <InfoItem label="Tanggal Lahir">
+                  <input
+                    type="date"
+                    className="dark-input"
+                    value={form.birthDate || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, birthDate: e.target.value })
+                    }
+                  />
+                </InfoItem>
 
-              <input
-                type="date"
-                className="input"
-                value={form.debutEnd || ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    debutEnd: e.target.value,
-                  })
-                }
-              />
+                <InfoItem label="Debut Mulai">
+                  <input
+                    type="date"
+                    className="dark-input"
+                    value={form.debutStart || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, debutStart: e.target.value })
+                    }
+                  />
+                </InfoItem>
+
+                <InfoItem label="Debut Selesai">
+                  <input
+                    type="date"
+                    className="dark-input"
+                    value={form.debutEnd || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, debutEnd: e.target.value })
+                    }
+                  />
+                </InfoItem>
+              </div>
             </div>
 
-            <textarea
-              rows={3}
-              className="input"
-              placeholder="Alasan debut"
-              value={form.debutReason || ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  debutReason: e.target.value,
-                })
-              }
-            />
+            <div className="space-y-4">
+              <InfoItem label="Alasan Debut">
+                <textarea
+                  rows={3}
+                  className="dark-input resize-none"
+                  value={form.debutReason || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, debutReason: e.target.value })
+                  }
+                />
+              </InfoItem>
 
-            <textarea
-              rows={4}
-              className="input"
-              placeholder="Deskripsi pemeran"
-              value={form.description || ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  description: e.target.value,
-                })
-              }
-            />
+              <InfoItem label="Deskripsi">
+                <textarea
+                  rows={4}
+                  className="dark-input resize-none"
+                  value={form.description || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                />
+              </InfoItem>
+            </div>
           </div>
         </div>
 
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <button onClick={onClose} className="btn-secondary">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-800 bg-gray-950">
+          <button
+            disabled={isSaving}
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-50"
+          >
             Cancel
           </button>
           <button
+            disabled={isSaving}
             onClick={() => onSave(form)}
-            className="btn-primary inline-flex items-center gap-2"
+            className="px-5 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white inline-flex items-center gap-2 disabled:bg-indigo-800"
           >
-            <Save className="w-4 h-4" />
-            Simpan
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save size={16} />
+            )}
+            {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

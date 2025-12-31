@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { User, Pencil } from "lucide-react";
+import { User, Pencil, Loader2 } from "lucide-react";
 import CastEditModal, { CastFormData } from "./CastEditModal";
 
 interface CastDescriptionSectionProps {
-  profile: CastFormData;
+  profile: CastFormData & { slug: string };
   onSave?: (profile: CastFormData) => void;
 }
 
@@ -15,83 +15,167 @@ export default function CastDescriptionSection({
   onSave,
 }: CastDescriptionSectionProps) {
   const [openModal, setOpenModal] = useState(false);
-  const [form, setForm] = useState<CastFormData>({
-    name: profile.name,
-    alias: profile.alias || "",
-    avatar: profile.avatar || "",
-    birthDate: profile.birthDate || "",
-    debutReason: profile.debutReason || "",
-    debutStart: profile.debutStart || "",
-    debutEnd: profile.debutEnd || "",
-    description:
-      profile.description ||
-      `Daftar film yang dibintangi oleh ${profile.name}.`,
-  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [form, setForm] = useState<CastFormData>(profile);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    profile.avatar || null
+  );
+
+  const handleSave = async (data: CastFormData) => {
+    console.log("Saving for slug:", profile.slug);
+
+    if (!profile.slug) {
+      alert("Error: Cast Slug tidak ditemukan!");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append("slug", profile.slug);
+      formData.append("name", data.name);
+      formData.append("alias", data.alias || "");
+      formData.append("birthDate", data.birthDate || "");
+      formData.append("debutReason", data.debutReason || "");
+      formData.append("debutStart", data.debutStart || "");
+      formData.append("debutEnd", data.debutEnd || "");
+      formData.append("description", data.description || "");
+
+      if (data.avatarFile) {
+        formData.append("avatar", data.avatarFile);
+      }
+
+      const res = await fetch("/api/filmfy/cast", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        setForm({ ...data, avatar: result.avatar || data.avatar });
+
+        if (data.avatarFile) {
+          const objectUrl = URL.createObjectURL(data.avatarFile);
+          setAvatarPreview(objectUrl);
+        }
+
+        setOpenModal(false);
+        onSave?.(data);
+        alert("Data berhasil disimpan!");
+      } else {
+        alert("Gagal menyimpan: " + result.error);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan koneksi.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <>
-      {/* DISPLAY SECTION */}
       <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative">
-        {/* Edit Button */}
         <button
           onClick={() => setOpenModal(true)}
-          className="absolute top-4 right-4 flex items-center gap-1
-                     text-sm text-blue-600 hover:underline"
+          className="absolute top-4 right-4 inline-flex items-center gap-1
+               text-xs font-medium text-blue-600 dark:text-blue-400
+               hover:underline"
         >
           <Pencil className="w-4 h-4" />
           Edit
         </button>
 
-        <div className="flex gap-6 items-start">
-          {/* Avatar */}
-          <div
-            className="w-32 h-32 rounded-2xl bg-gray-200 dark:bg-gray-700
-                          flex items-center justify-center overflow-hidden"
-          >
-            {form.avatar ? (
-              <Image
-                src={form.avatar}
-                alt={form.name}
-                width={128}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <User className="w-12 h-12 text-gray-400" />
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-6">
+          <div className="flex justify-center md:justify-start">
+            <div
+              className="w-32 h-32 rounded-2xl overflow-hidden
+                   bg-gray-200 dark:bg-gray-800
+                   border border-gray-300 dark:border-gray-700
+                   shadow-sm"
+            >
+              {avatarPreview ? (
+                <Image
+                  src={avatarPreview}
+                  alt={form.name}
+                  width={128}
+                  height={128}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <User className="w-10 h-10 text-gray-400" />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1 space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {form.name}
-            </h1>
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {form.name}
+              </h1>
+              {form.alias && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Alias: <span className="font-medium">{form.alias}</span>
+                </p>
+              )}
+            </div>
 
-            {form.alias && (
-              <p className="text-sm text-gray-500">Alias: {form.alias}</p>
+            {form.description && (
+              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-w-2xl">
+                {form.description}
+              </p>
             )}
 
-            <p className="text-sm text-gray-600 dark:text-gray-300 max-w-xl">
-              {form.description}
-            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              {form.birthDate && (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide">
+                    Tanggal Lahir
+                  </p>
+                  <p className="font-medium text-gray-800 dark:text-gray-200">
+                    {form.birthDate}
+                  </p>
+                </div>
+              )}
 
-            {form.birthDate && (
-              <p className="text-xs text-gray-400">Lahir: {form.birthDate}</p>
-            )}
+              {(form.debutStart || form.debutEnd) && (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide">
+                    Masa Debut
+                  </p>
+                  <p className="font-medium text-gray-800 dark:text-gray-200">
+                    {form.debutStart || "?"} – {form.debutEnd || "Sekarang"}
+                  </p>
+                </div>
+              )}
+
+              {form.debutReason && (
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wide">
+                    Alasan Debut
+                  </p>
+                  <p className="font-medium text-gray-800 dark:text-gray-200">
+                    {form.debutReason}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* MODAL */}
       <CastEditModal
         open={openModal}
         initialData={form}
         onClose={() => setOpenModal(false)}
-        onSave={(data) => {
-          setForm(data);
-          setOpenModal(false);
-          onSave?.(data);
-        }}
+        onSave={handleSave}
+        isSaving={isSaving}
       />
     </>
   );

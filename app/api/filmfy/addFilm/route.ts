@@ -34,17 +34,14 @@ interface Film {
   createdAt: string;
 }
 
-interface Director {
-  slug: string;
-  name: string;
-  description: string;
-  avatar: string;
-}
-
 interface Cast {
   slug: string;
   name: string;
-  character?: string;
+  alias: string;
+  birthDate: string;
+  debutReason: string;
+  debutStart: string;
+  debutEnd: string;
   description: string;
   avatar: string;
 }
@@ -134,7 +131,7 @@ export async function POST(req: NextRequest) {
         .map((c) => c.trim())
         .filter(Boolean);
 
-      let casts: any[] = [];
+      let casts: Cast[] = [];
       if (fs.existsSync(CAST_FILE)) {
         casts = JSON.parse(fs.readFileSync(CAST_FILE, "utf-8") || "[]");
       }
@@ -149,7 +146,11 @@ export async function POST(req: NextRequest) {
           casts.push({
             slug,
             name: castName,
-            character: "",
+            alias: "",
+            birthDate: "",
+            debutReason: "",
+            debutStart: "",
+            debutEnd: "",
             description: "",
             avatar: "",
           });
