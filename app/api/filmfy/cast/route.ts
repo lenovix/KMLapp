@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const DATA_DIR = path.join(process.cwd(), "public", "data", "filmfy");
-
+const DATA_DIR = path.join(process.cwd(), "data", "filmfy");
 const CAST_JSON = path.join(DATA_DIR, "casts.json");
-const AVATAR_DIR = path.join(DATA_DIR, "casts");
+
+const AVATAR_BASE_DIR = path.join(process.cwd(), "public", "filmfy", "casts");
 
 function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) {
@@ -16,7 +16,7 @@ function ensureDir(dir: string) {
 export async function POST(req: Request) {
   try {
     ensureDir(DATA_DIR);
-    ensureDir(AVATAR_DIR);
+    ensureDir(AVATAR_BASE_DIR);
 
     const formData = await req.formData();
     const slug = String(formData.get("slug"));
@@ -52,9 +52,15 @@ export async function POST(req: Request) {
     if (avatarFile && avatarFile.size > 0) {
       const buffer = Buffer.from(await avatarFile.arrayBuffer());
 
-      const avatarPath = path.join(AVATAR_DIR, `${slug}.jpg`);
+      const castAvatarDir = path.join(AVATAR_BASE_DIR, slug);
+      ensureDir(castAvatarDir);
+
+      const avatarFilename = "avatar.jpg";
+      const avatarPath = path.join(castAvatarDir, avatarFilename);
+
       fs.writeFileSync(avatarPath, buffer);
-      payload.avatar = `/data/filmfy/casts/${slug}.jpg`;
+
+      payload.avatar = `/filmfy/casts/${slug}/${avatarFilename}`;
     }
 
     const raw = fs.existsSync(CAST_JSON)
