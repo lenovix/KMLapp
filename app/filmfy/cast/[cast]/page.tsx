@@ -25,13 +25,7 @@ interface CastInfo {
 }
 
 const FILMS_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
-const CASTS_FILE = path.join(
-  process.cwd(),
-  "public",
-  "data",
-  "filmfy",
-  "casts.json"
-);
+const CASTS_FILE = path.join(process.cwd(), "data", "filmfy", "casts.json");
 
 export default async function CastPage({
   params,

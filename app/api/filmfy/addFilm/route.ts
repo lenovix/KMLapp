@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 const DATA_DIR = path.join(process.cwd(), "data", "filmfy");
 const DATA_FILE = path.join(DATA_DIR, "films.json");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
-const PUBLIC_FILM_DIR = path.join(PUBLIC_DIR, "filmfy");
-const CAST_FILE = path.join(PUBLIC_DIR, "data", "filmfy", "casts.json");
+const PUBLIC_FILM_DIR = path.join(PUBLIC_DIR, "filmfy", "movie");
+const CAST_FILE = path.join(DATA_DIR, "casts.json");
 
 interface FilmPart {
   order: number;

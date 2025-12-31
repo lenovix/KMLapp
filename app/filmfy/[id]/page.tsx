@@ -13,17 +13,6 @@ interface FilmPart {
   note?: string;
   folder: string;
 }
-interface CastFormData {
-  slug: string;
-  name: string;
-  alias?: string;
-  avatar?: string;
-  birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
-  description?: string;
-}
 
 interface Film {
   id: number;
@@ -42,16 +31,18 @@ interface Film {
   createdAt: string;
 }
 
-interface Cast extends CastFormData {
+interface Cast {
   slug: string;
+  name: string;
+  alias?: string;
+  avatar?: string;
+  birthDate?: string;
+  debutReason?: string;
+  debutStart?: string;
+  debutEnd?: string;
+  description?: string;
 }
-const CAST_FILE = path.join(
-  process.cwd(),
-  "public",
-  "data",
-  "filmfy",
-  "casts.json"
-);
+const CAST_FILE = path.join(process.cwd(), "data", "filmfy", "casts.json");
 
 function loadCasts(): Cast[] {
   if (!fs.existsSync(CAST_FILE)) return [];
