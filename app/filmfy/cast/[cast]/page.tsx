@@ -12,6 +12,11 @@ interface Film {
   createdAt: string;
 }
 
+interface CastGalleryItem {
+  name: string;
+  order: number;
+}
+
 interface CastInfo {
   slug: string;
   name: string;
@@ -22,6 +27,7 @@ interface CastInfo {
   debutStart?: string;
   debutEnd?: string;
   description?: string;
+  gallery?: CastGalleryItem[];
 }
 
 const FILMS_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
@@ -67,6 +73,7 @@ export default async function CastPage({
           debutStart: castInfo.debutStart,
           debutEnd: castInfo.debutEnd,
           description: castInfo.description,
+          gallery: castInfo.gallery,
         }}
       />
     );

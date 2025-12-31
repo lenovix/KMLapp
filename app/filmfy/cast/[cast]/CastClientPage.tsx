@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Plus, Search } from "lucide-react";
 
@@ -15,7 +16,10 @@ interface Film {
   code: string;
   cover?: string | null;
 }
-
+interface CastGalleryItem {
+  name: string;
+  order: number;
+}
 interface CastInfo {
   slug: string;
   name: string;
@@ -26,6 +30,7 @@ interface CastInfo {
   debutStart?: string;
   debutEnd?: string;
   description?: string;
+  gallery?: CastGalleryItem[];
 }
 
 export default function CastClientPage({
@@ -38,7 +43,7 @@ export default function CastClientPage({
   castInfo?: CastInfo;
 }) {
   const [query, setQuery] = useState("");
-
+  const router = useRouter();
   const castProfile: CastFormData = {
     slug: initialCastInfo?.slug || "",
     name: initialCastInfo?.name || cast,
@@ -48,7 +53,7 @@ export default function CastClientPage({
     debutReason: initialCastInfo?.debutReason || "",
     debutStart: initialCastInfo?.debutStart || "",
     debutEnd: initialCastInfo?.debutEnd || "",
-    description: initialCastInfo?.description || "",
+    description: initialCastInfo?.description || ""
   };
 
   const filteredFilms = useMemo(() => {
@@ -134,10 +139,13 @@ export default function CastClientPage({
         />
 
         <CastGallerySection
-          images={["/cast/ichkmlsdr/1.jpg", "/cast/ichkmlsdr/2.jpg"]}
-          onSave={(updatedImages) => {
-            console.log("SAVE GALLERY:", updatedImages);
-          }}
+          slug={cast}
+          images={
+            initialCastInfo?.gallery?.map(
+              (g) => `/filmfy/casts/${cast}/gallery/${g.name}`
+            ) || []
+          }
+          onUploaded={() => router.refresh()}
         />
 
         <CastFilmListSection films={filteredFilms} />

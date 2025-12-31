@@ -81,8 +81,7 @@ export default function CastDescriptionSection({
         <button
           onClick={() => setOpenModal(true)}
           className="absolute top-4 right-4 inline-flex items-center gap-1
-               text-xs font-medium text-blue-600 dark:text-blue-400
-               hover:underline"
+               text-sm bg-blue-600 text-white px-3 py-1 rounded-lg"
         >
           <Pencil className="w-4 h-4" />
           Edit
