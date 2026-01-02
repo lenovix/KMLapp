@@ -8,7 +8,7 @@ interface Props {
   filmId: number;
 }
 
-export default function DeleteMovieButton({ filmId }: Props) {
+export default function MovieActionButtons({ filmId }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -47,10 +47,10 @@ export default function DeleteMovieButton({ filmId }: Props) {
   return (
     <div className="flex gap-2">
       <button
-        disabled
-        className="px-3 py-2 rounded-xl border text-sm flex items-center gap-2
-        text-gray-400 cursor-not-allowed"
-        title="Edit (coming soon)"
+        onClick={() => router.push(`/filmfy/edit-movie?id=${filmId}`)}
+        className="px-3 py-2 rounded-xl border text-sm
+        flex items-center gap-2
+        hover:bg-gray-100 dark:hover:bg-gray-700 transition"
       >
         <Pencil className="w-4 h-4" />
         Edit
@@ -60,7 +60,8 @@ export default function DeleteMovieButton({ filmId }: Props) {
         onClick={handleDelete}
         disabled={loading}
         className="px-3 py-2 rounded-xl bg-red-600 text-white text-sm
-        flex items-center gap-2 hover:bg-red-700 transition"
+        flex items-center gap-2 hover:bg-red-700 transition
+        disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <Trash2 className="w-4 h-4" />
         {loading ? "Menghapus..." : "Hapus"}

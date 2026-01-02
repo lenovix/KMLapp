@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Bookmark, Plus } from "lucide-react";
 import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
 import InfoItem from "@/components/UI/InfoItem";
-import DeleteMovieButton from "@/components/filmfy/DeleteMovieButton";
+import MovieActionButtons from "@/components/filmfy/MovieActionButtons";
 
 interface FilmPart {
   order: number;
@@ -113,7 +113,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                 <Plus className="w-4 h-4" />
                 Tambah Film
               </Link>
-              <DeleteMovieButton filmId={film.id} />
+              <MovieActionButtons filmId={film.id} />
             </div>
           </div>
         </header>
@@ -143,10 +143,12 @@ export default async function FilmDetailPage({ params }: PageProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {film.genre.map((g, i) => (
+              {(film.genre ?? []).map((g, i) => (
                 <span
                   key={`${g}-${i}`}
-                  className="px-4 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                  className="px-4 py-1.5 bg-gray-200 dark:bg-gray-800
+                  text-gray-700 dark:text-gray-300 rounded-full
+                  text-xs font-medium"
                 >
                   {g}
                 </span>
