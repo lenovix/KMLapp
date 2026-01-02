@@ -29,7 +29,6 @@ export async function POST(req: Request) {
 
     fs.writeFileSync(filePath, buffer);
 
-    // === Update JSON ===
     const casts = JSON.parse(fs.readFileSync(CASTS_FILE, "utf-8"));
     const castIndex = casts.findIndex((c: any) => c.slug === slug);
 
@@ -41,9 +40,11 @@ export async function POST(req: Request) {
     }
 
     const gallery = casts[castIndex].gallery || [];
+
     gallery.push({
       name: filename,
       order: gallery.length + 1,
+      addImageDate: new Date().toISOString(),
     });
 
     casts[castIndex].gallery = gallery;

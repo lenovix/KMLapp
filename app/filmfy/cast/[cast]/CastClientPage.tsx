@@ -53,7 +53,7 @@ export default function CastClientPage({
     debutReason: initialCastInfo?.debutReason || "",
     debutStart: initialCastInfo?.debutStart || "",
     debutEnd: initialCastInfo?.debutEnd || "",
-    description: initialCastInfo?.description || ""
+    description: initialCastInfo?.description || "",
   };
 
   const filteredFilms = useMemo(() => {
@@ -138,6 +138,8 @@ export default function CastClientPage({
           }}
         />
 
+        <CastFilmListSection films={filteredFilms} />
+
         <CastGallerySection
           slug={cast}
           images={
@@ -147,8 +149,6 @@ export default function CastClientPage({
           }
           onUploaded={() => router.refresh()}
         />
-
-        <CastFilmListSection films={filteredFilms} />
       </div>
     </main>
   );
