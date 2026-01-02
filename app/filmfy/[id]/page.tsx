@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Bookmark, Plus } from "lucide-react";
 import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
 import InfoItem from "@/components/UI/InfoItem";
+import DeleteMovieButton from "@/components/filmfy/DeleteMovieButton";
 
 interface FilmPart {
   order: number;
@@ -112,6 +113,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                 <Plus className="w-4 h-4" />
                 Tambah Film
               </Link>
+              <DeleteMovieButton filmId={film.id} />
             </div>
           </div>
         </header>
