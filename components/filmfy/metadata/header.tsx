@@ -1,35 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Bookmark, Plus, Search } from "lucide-react";
+import { Bookmark, Plus, Search } from "lucide-react";
 
-interface FilmfyDirectorHeaderProps {
+interface MetadataHeaderProps {
   director: string;
   query: string;
   title: string;
   setQuery: (value: string) => void;
 }
 
-export default function FilmfyDirectorHeader({
+export default function MetadataHeader({
   director,
   query,
   setQuery,
   title,
-}: FilmfyDirectorHeaderProps) {
+}: MetadataHeaderProps) {
   return (
     <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur py-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between max-w-7xl mx-auto px-4">
-        {/* Left */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
-
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-            <Link href="/filmfy">Filmfy</Link> :: {title} :: {director}
+            <Link href="/filmfy">Filmfy</Link> :: {title} : {director}
           </h1>
         </div>
 
-        {/* Right */}
         <div className="flex items-center gap-3">
-          {/* Search */}
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -44,7 +40,6 @@ export default function FilmfyDirectorHeader({
             />
           </div>
 
-          {/* Bookmark */}
           <button
             className="p-2 rounded-xl border border-gray-300 dark:border-gray-700
               bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -53,7 +48,6 @@ export default function FilmfyDirectorHeader({
             <Bookmark className="w-5 h-5 text-gray-700 dark:text-gray-200" />
           </button>
 
-          {/* Add */}
           <Link
             href="/filmfy/upload"
             className="inline-flex items-center gap-2 px-4 py-2

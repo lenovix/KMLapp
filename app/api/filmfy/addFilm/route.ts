@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
     if (coverFile) {
       const buffer = Buffer.from(await coverFile.arrayBuffer());
       fs.writeFileSync(path.join(filmPublicDir, "cover.jpg"), buffer);
-      coverPath = `/filmfy/${code}/cover.jpg`;
+      coverPath = `/filmfy/movie/${code}/cover.jpg`;
     }
 
     const rawParts = form.get("parts") as string;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import FilmfyDirectorHeader from "@/components/filmfy/metadata/header";
+import MetadataHeader from "@/components/filmfy/metadata/header";
 import films from "@/data/filmfy/films.json";
 
 export type MetadataType = "director" | "maker" | "label" | "series";
@@ -51,8 +51,8 @@ export default function FilmfyMetadataPage({
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <FilmfyDirectorHeader
+      <div className="max-w-7xl mx-auto space-y-8">
+        <MetadataHeader
           director={decodedValue}
           query={query}
           setQuery={setQuery}

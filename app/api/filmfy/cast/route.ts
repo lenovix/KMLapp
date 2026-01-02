@@ -13,6 +13,19 @@ function ensureDir(dir: string) {
   }
 }
 
+export async function GET() {
+  const filePath = path.join(process.cwd(), "data", "filmfy", "casts.json");
+
+  try {
+    const file = fs.readFileSync(filePath, "utf-8");
+    const casts = JSON.parse(file);
+
+    return NextResponse.json(casts);
+  } catch (err) {
+    return NextResponse.json([], { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     ensureDir(DATA_DIR);
