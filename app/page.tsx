@@ -31,6 +31,8 @@ export default function Home() {
           <CardWebHome
             logo="/Peoplefy.png"
             name="Peoplefy"
+            startDate="05 Januari 2026"
+            endDate="Present"
             status="not-started"
             link="/Peoplefy"
           />
