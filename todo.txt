@@ -6,3 +6,4 @@ Note for Kamify:
 Note for Filmfy:
 - styling media player
 - add field isDeleted?
+- field "code" adalah unique (tidak boleh ada duplicate)

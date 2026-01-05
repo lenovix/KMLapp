@@ -11,6 +11,21 @@ import categoriesList from "@/public/data/komify/categories.json";
 import FilterGroup from "@/components/Komify/Home/FilterGroup";
 import { useDebounce } from "@/hooks/useDebounce";
 
+interface ComicData {
+  slug: number;
+  title: string;
+  authors: string[];
+  artist: string[];
+  groups: string[];
+  parodies: string[];
+  characters: string[];
+  categories: string[];
+  tags: string[];
+  uploaded: string;
+  status: "Ongoing" | "Completed" | "Hiatus";
+  cover: string;
+}
+
 export default function AllComic() {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -28,7 +43,7 @@ export default function AllComic() {
   }, [debouncedSearch, selectedStatus, selectedCategories, selectedTags]);
 
   const filteredComics = useMemo(() => {
-    const filtered = comics.filter((comic: any) => {
+    const filtered = (comics as ComicData[]).filter((comic) => {
       const title =
         typeof comic.title === "string"
           ? comic.title
@@ -92,7 +107,7 @@ export default function AllComic() {
 
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>();
-    comics.forEach((c: any) => {
+    (comics as ComicData[]).forEach((c) => {
       if (Array.isArray(c.tags)) {
         c.tags.forEach((t: string) => tagsSet.add(t.trim()));
       }
@@ -142,7 +157,7 @@ export default function AllComic() {
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {paginatedComics.map((comic) => {
+            {paginatedComics.map((comic: ComicData) => {
               const title =
                 typeof comic.title === "string"
                   ? comic.title
@@ -165,7 +180,7 @@ export default function AllComic() {
                     height={420}
                     loading="lazy"
                     unoptimized
-                    className="w-full h-full object-cover"
+                    className="flex-none w-[300px] h-[420px] object-cover object-top"
                   />
 
                   <div className="p-3">

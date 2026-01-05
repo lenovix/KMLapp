@@ -8,8 +8,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 import Header from "@/components/Komify/Detail/header";
 import CommentSection from "@/components/Komify/Detail/CommentSection";
-import comics from "@/data/komify/comics.json";
+import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
+
+const comics = comicsData as ComicData[];
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
 import ChaptersHeader from "@/components/Komify/Detail/ChaptersHeader";
@@ -21,12 +23,28 @@ import CoverViewer from "@/components/UI/CoverViewer";
 
 dayjs.extend(relativeTime);
 
+interface ComicData {
+  slug: number;
+  title: string;
+  authors: string[];
+  artist: string[];
+  groups: string[];
+  parodies: string[];
+  characters: string[];
+  categories: string[];
+  tags: string[];
+  uploaded: string;
+  status: "Ongoing" | "Completed" | "Hiatus";
+  cover: string;
+  chapters?: number[];
+}
+
 export default function ComicDetail() {
   const { slug } = useParams();
   const router = useRouter();
 
   const comic = useMemo(
-    () => comics.find((c) => String(c.slug) === String(slug)),
+    () => comics.find((c: ComicData) => String(c.slug) === String(slug)),
     [slug]
   );
 
@@ -42,33 +60,7 @@ export default function ComicDetail() {
   const [alert, setAlert] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const coverSrc = useMemo(() => {
-  if (!comic?.cover) return "/placeholder-cover.jpg";
-  return `/komify/${comic.slug}/cover.jpg`;
-}, [comic?.cover, comic?.slug]);
-
-const [imgSrc, setImgSrc] = useState(coverSrc);
-const [tryIndex, setTryIndex] = useState(0);
-
-const extensions = [".jpg", ".png", ".webp"];
-
-useEffect(() => {
-  setImgSrc(coverSrc);
-  setTryIndex(0);
-}, [coverSrc]);
-
-const handleImageError = useCallback(() => {
-  if (!comic?.slug) return;
-
-  const nextIndex = tryIndex + 1;
-  if (nextIndex < extensions.length) {
-    setImgSrc(`/komify/${comic.slug}/cover${extensions[nextIndex]}`);
-    setTryIndex(nextIndex);
-  } else {
-    // Semua ekstensi sudah dicoba, fallback ke placeholder
-    setImgSrc("/placeholder-cover.jpg");
-  }
-}, [tryIndex, comic?.slug]);
+ 
 
   useEffect(() => {
     if (!comic) return;
@@ -185,12 +177,11 @@ const handleImageError = useCallback(() => {
           </div>
 
           <img
-            src={imgSrc}
-            alt={comic.title}
-            onError={handleImageError}
-            onClick={() => setCoverOpen(true)}
-            className="w-56 rounded-xl cursor-zoom-in"
-          />
+  src={comic.cover}
+  alt={comic.title}
+  onClick={() => setCoverOpen(true)}
+  className="w-56 aspect-3/4 object-cover object-top rounded-xl cursor-zoom-in flex-none"
+/>
 
           <div className="flex-1">
             <ComicMetadata comic={comic} />
@@ -208,7 +199,7 @@ const handleImageError = useCallback(() => {
         <ChaptersHeader slug={Number(comic.slug)} />
         <ChaptersList
           slug={Number(comic.slug)}
-          chapters={comic.chapters}
+          chapters={comic.chapters ?? []}
           onDeleteChapter={(n) => {
             setChapterToDelete(n);
             setDeleteChapterOpen(true);
@@ -251,7 +242,7 @@ const handleImageError = useCallback(() => {
 
       <CoverViewer
         open={coverOpen}
-        src={imgSrc}
+        src={comic.cover}
         alt={comic.title}
         onClose={() => setCoverOpen(false)}
       />
