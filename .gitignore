@@ -47,3 +47,4 @@ next-env.d.ts
 /public/tmp_upload
 /data/filmfy/casts.json
 /data/filmfy/casts/*
+/public/data/report/*

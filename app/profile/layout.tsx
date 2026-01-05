@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import HeaderHome from "@/components/Home/headerHome";
 
+export const metadata: Metadata = {
+  title: "Profile :: KMLapp",
+  description: "KMLapp is SuperAPP for Storage, Comics, Films, Anime",
+};
 export default function ProfileLayout({
   children,
 }: {
@@ -7,7 +12,7 @@ export default function ProfileLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <HeaderHome/>
+      <HeaderHome />
       <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-8">
         {children}
       </main>

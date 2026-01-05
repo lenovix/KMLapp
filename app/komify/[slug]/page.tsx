@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Flag } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -19,10 +19,12 @@ import ChaptersList from "@/components/Komify/Detail/ChaptersList";
 import Alert from "@/components/UI/Alert";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import CoverViewer from "@/components/UI/CoverViewer";
+import ReportComicModal from "@/components/Komify/Detail/ReportComicModal";
 
 dayjs.extend(relativeTime);
 
 export default function ComicDetail() {
+  const [reportOpen, setReportOpen] = useState(false);
   const { slug } = useParams();
   const router = useRouter();
 
@@ -81,8 +83,7 @@ export default function ComicDetail() {
       setImgSrc(`/komify/${comic.slug}/cover${extensions[nextIndex]}`);
       setTryIndex(nextIndex);
     } else {
-      // Semua ekstensi sudah dicoba, fallback ke placeholder
-      setImgSrc("/placeholder-cover.jpg");
+      setImgSrc("/img/placeholder.png");
     }
   }, [tryIndex, comic?.slug]);
 
@@ -171,10 +172,8 @@ export default function ComicDetail() {
     setChapterToDelete(null);
   }, [comic, chapterToDelete, router]);
 
-  
-
   const handleToggleOrder = () => {
-    setOriginalChapters(chapters); // backup
+    setOriginalChapters(chapters);
     setIsOrdering(true);
   };
 
@@ -206,6 +205,14 @@ export default function ComicDetail() {
       <main className="p-6 max-w-6xl mx-auto">
         <div className="relative flex flex-col md:flex-row gap-8 mb-10 bg-slate-900/70 border border-slate-700 rounded-2xl p-6">
           <div className="absolute top-4 right-4 flex gap-2">
+            <PrimaryButton
+              size="sm"
+              className="bg-yellow-600"
+              icon={<Flag />}
+              onClick={() => setReportOpen(true)}
+            >
+              Report
+            </PrimaryButton>
             <PrimaryButton
               size="sm"
               icon={<Edit />}
@@ -316,6 +323,9 @@ export default function ComicDetail() {
         alt={comic.title}
         onClose={() => setCoverOpen(false)}
       />
+      {reportOpen && (
+        <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
+      )}
     </>
   );
 }
