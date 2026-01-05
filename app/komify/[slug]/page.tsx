@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Flag } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -14,12 +14,14 @@ import DialogBox from "@/components/UI/DialogBox";
 const comics = comicsData as ComicData[];
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
+import ComicActions from "@/components/Komify/Detail/ComicActions";
 import ChaptersHeader from "@/components/Komify/Detail/ChaptersHeader";
 import ChaptersList from "@/components/Komify/Detail/ChaptersList";
-import ComicActions from "@/components/Komify/Detail/ComicActions";
-import PrimaryButton from "@/components/UI/PrimaryButton";
+
 import Alert from "@/components/UI/Alert";
+import PrimaryButton from "@/components/UI/PrimaryButton";
 import CoverViewer from "@/components/UI/CoverViewer";
+import ReportComicModal from "@/components/Komify/Detail/ReportComicModal";
 
 dayjs.extend(relativeTime);
 
@@ -40,6 +42,7 @@ interface ComicData {
 }
 
 export default function ComicDetail() {
+  const [reportOpen, setReportOpen] = useState(false);
   const { slug } = useParams();
   const router = useRouter();
 
@@ -47,6 +50,20 @@ export default function ComicDetail() {
     () => comics.find((c: ComicData) => String(c.slug) === String(slug)),
     [slug]
   );
+
+  if (!comic) return <p className="p-6">Loading...</p>;
+
+  const normalizeChapters = (chs: any[]) =>
+    chs.map((ch, i) => ({
+      ...ch,
+      _id: ch._id ?? `chapter-${ch.number}-${i}`,
+    }));
+
+  const [chapters, setChapters] = useState(normalizeChapters(comic.chapters ?? []));
+  const [originalChapters, setOriginalChapters] = useState(
+    normalizeChapters(comic.chapters ?? [])
+  );
+  const [isOrdering, setIsOrdering] = useState(false);
 
   const [bookmarked, setBookmarked] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -58,6 +75,7 @@ export default function ComicDetail() {
   const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
 
   const [alert, setAlert] = useState<string | null>(null);
+  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
  
@@ -147,7 +165,31 @@ export default function ComicDetail() {
     setChapterToDelete(null);
   }, [comic, chapterToDelete, router]);
 
-  if (!comic) return <p className="p-6">Loading...</p>;
+  const handleToggleOrder = () => {
+    setOriginalChapters(chapters);
+    setIsOrdering(true);
+  };
+
+  const handleCancelOrder = () => {
+    setChapters(normalizeChapters(originalChapters));
+    setIsOrdering(false);
+  };
+
+  const handleSaveOrder = async () => {
+    const cleanedChapters = chapters.map(({ _id, ...ch }) => ch);
+
+    await fetch("/api/komify/orderingChapter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: comic.slug,
+        chapters: cleanedChapters,
+      }),
+    });
+
+    setIsOrdering(false);
+    setAlertSuccess("Urutan chapter berhasil disimpan");
+  };
 
   return (
     <>
@@ -156,6 +198,14 @@ export default function ComicDetail() {
       <main className="p-6 max-w-6xl mx-auto">
         <div className="relative flex flex-col md:flex-row gap-8 mb-10 bg-slate-900/70 border border-slate-700 rounded-2xl p-6">
           <div className="absolute top-4 right-4 flex gap-2">
+            <PrimaryButton
+              size="sm"
+              className="bg-yellow-600"
+              icon={<Flag />}
+              onClick={() => setReportOpen(true)}
+            >
+              Report
+            </PrimaryButton>
             <PrimaryButton
               size="sm"
               icon={<Edit />}
@@ -196,10 +246,18 @@ export default function ComicDetail() {
           </div>
         </div>
 
-        <ChaptersHeader slug={Number(comic.slug)} />
+        <ChaptersHeader
+          slug={Number(comic.slug)}
+          isOrdering={isOrdering}
+          onToggleOrder={handleToggleOrder}
+          onSaveOrder={handleSaveOrder}
+          onCancelOrder={handleCancelOrder}
+        />
         <ChaptersList
           slug={Number(comic.slug)}
           chapters={comic.chapters ?? []}
+          setChapters={setChapters}
+          isOrdering={isOrdering}
           onDeleteChapter={(n) => {
             setChapterToDelete(n);
             setDeleteChapterOpen(true);
@@ -209,27 +267,30 @@ export default function ComicDetail() {
         <CommentSection slug={String(comic.slug)} />
       </main>
 
-      <DialogBox
-        open={deleteComicOpen}
-        title="Hapus Komik?"
-        desc="Komik ini akan dihapus permanen."
-        type="danger"
-        confirmText="Hapus"
-        cancelText="Batal"
-        onConfirm={handleDeleteComic}
-        onCancel={() => setDeleteComicOpen(false)}
-      />
-
-      <DialogBox
-        open={deleteChapterOpen}
-        title="Hapus Chapter?"
-        desc={`Chapter ${chapterToDelete} akan dihapus.`}
-        type="danger"
-        confirmText="Hapus"
-        cancelText="Batal"
-        onConfirm={confirmDeleteChapter}
-        onCancel={() => setDeleteChapterOpen(false)}
-      />
+      {
+        <DialogBox
+          open={deleteComicOpen}
+          title="Hapus Komik?"
+          desc="Komik ini akan dihapus permanen."
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={handleDeleteComic}
+          onCancel={() => setDeleteComicOpen(false)}
+        />
+      }
+      {
+        <DialogBox
+          open={deleteChapterOpen}
+          title="Hapus Chapter?"
+          desc={`Chapter ${chapterToDelete} akan dihapus.`}
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={confirmDeleteChapter}
+          onCancel={() => setDeleteChapterOpen(false)}
+        />
+      }
 
       {alert && (
         <Alert
@@ -239,6 +300,14 @@ export default function ComicDetail() {
           onClose={() => setAlert(null)}
         />
       )}
+      {alertSuccess && (
+        <Alert
+          type="success"
+          title="Success"
+          message={alertSuccess}
+          onClose={() => setAlertSuccess(null)}
+        />
+      )}
 
       <CoverViewer
         open={coverOpen}
@@ -246,6 +315,9 @@ export default function ComicDetail() {
         alt={comic.title}
         onClose={() => setCoverOpen(false)}
       />
+      {reportOpen && (
+        <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
+      )}
     </>
   );
 }

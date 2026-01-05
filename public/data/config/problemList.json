@@ -1,0 +1,122 @@
+[
+    {
+        "id": "broken-image",
+        "label": "Gambar rusak / tidak muncul",
+        "title": "Gambar chapter rusak",
+        "description": "Terdapat gambar yang rusak atau tidak bisa ditampilkan di salah satu halaman chapter."
+    },
+    {
+        "id": "wrong-order",
+        "label": "Urutan halaman salah",
+        "title": "Urutan halaman chapter salah",
+        "description": "Urutan gambar pada chapter tidak sesuai atau terbalik."
+    },
+    {
+        "id": "missing-chapter",
+        "label": "Chapter hilang",
+        "title": "Chapter tidak tersedia",
+        "description": "Chapter tidak bisa dibuka atau tidak ditemukan."
+    },
+    {
+        "id": "partial-image",
+        "label": "Gambar terpotong",
+        "title": "Gambar terpotong",
+        "description": "Sebagian gambar chapter terpotong atau tidak tampil sempurna."
+    },
+    {
+        "id": "low-quality",
+        "label": "Kualitas gambar buruk",
+        "title": "Gambar buram / pecah",
+        "description": "Kualitas gambar terlalu rendah, buram, atau pecah."
+    },
+    {
+        "id": "duplicate-page",
+        "label": "Halaman duplikat",
+        "title": "Halaman duplikat",
+        "description": "Terdapat halaman yang muncul lebih dari satu kali."
+    },
+    {
+        "id": "missing-page",
+        "label": "Halaman hilang",
+        "title": "Halaman chapter hilang",
+        "description": "Beberapa halaman chapter tidak tersedia."
+    },
+    {
+        "id": "cannot-next-page",
+        "label": "Tidak bisa lanjut halaman",
+        "title": "Tidak bisa pindah halaman",
+        "description": "Tombol atau gesture untuk berpindah halaman tidak berfungsi."
+    },
+    {
+        "id": "wrong-scroll-mode",
+        "label": "Mode baca bermasalah",
+        "title": "Mode baca tidak sesuai",
+        "description": "Mode scroll atau per halaman tidak bekerja dengan benar."
+    },
+    {
+        "id": "zoom-issue",
+        "label": "Zoom bermasalah",
+        "title": "Zoom tidak berfungsi",
+        "description": "Fitur zoom tidak bisa digunakan atau bermasalah."
+    },
+    {
+        "id": "wrong-title",
+        "label": "Judul salah",
+        "title": "Judul komik salah",
+        "description": "Judul komik tidak sesuai atau salah."
+    },
+    {
+        "id": "wrong-chapter-number",
+        "label": "Nomor chapter salah",
+        "title": "Nomor chapter salah",
+        "description": "Nomor chapter tidak sesuai urutan."
+    },
+    {
+        "id": "wrong-language",
+        "label": "Bahasa salah",
+        "title": "Bahasa chapter salah",
+        "description": "Bahasa terjemahan tidak sesuai."
+    },
+    {
+        "id": "cannot-access",
+        "label": "Tidak bisa diakses",
+        "title": "Chapter tidak bisa diakses",
+        "description": "Chapter terkunci atau tidak bisa dibuka."
+    },
+    {
+        "id": "login-required",
+        "label": "Diminta login terus",
+        "title": "Login bermasalah",
+        "description": "Pengguna diminta login berulang kali."
+    },
+    {
+        "id": "slow-loading",
+        "label": "Loading lama",
+        "title": "Chapter lama dimuat",
+        "description": "Chapter membutuhkan waktu lama untuk dimuat."
+    },
+    {
+        "id": "server-error",
+        "label": "Error server",
+        "title": "Terjadi error server",
+        "description": "Terjadi kesalahan pada server saat membuka halaman."
+    },
+    {
+        "id": "wrong-content",
+        "label": "Konten tidak sesuai",
+        "title": "Konten tidak sesuai",
+        "description": "Isi chapter tidak sesuai dengan judul atau komik."
+    },
+    {
+        "id": "nsfw-issue",
+        "label": "Konten sensitif",
+        "title": "Konten sensitif",
+        "description": "Terdapat konten sensitif tanpa peringatan."
+    },
+    {
+        "id": "other",
+        "label": "Masalah lainnya",
+        "title": "",
+        "description": ""
+    }
+]
