@@ -12,11 +12,12 @@ import comics from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
+import ComicActions from "@/components/Komify/Detail/ComicActions";
 import ChaptersHeader from "@/components/Komify/Detail/ChaptersHeader";
 import ChaptersList from "@/components/Komify/Detail/ChaptersList";
-import ComicActions from "@/components/Komify/Detail/ComicActions";
-import PrimaryButton from "@/components/UI/PrimaryButton";
+
 import Alert from "@/components/UI/Alert";
+import PrimaryButton from "@/components/UI/PrimaryButton";
 import CoverViewer from "@/components/UI/CoverViewer";
 
 dayjs.extend(relativeTime);
@@ -30,6 +31,20 @@ export default function ComicDetail() {
     [slug]
   );
 
+  if (!comic) return <p className="p-6">Loading...</p>;
+
+  const normalizeChapters = (chs: any[]) =>
+    chs.map((ch, i) => ({
+      ...ch,
+      _id: ch._id ?? `chapter-${ch.number}-${i}`,
+    }));
+
+  const [chapters, setChapters] = useState(normalizeChapters(comic.chapters));
+  const [originalChapters, setOriginalChapters] = useState(
+    normalizeChapters(comic.chapters)
+  );
+  const [isOrdering, setIsOrdering] = useState(false);
+
   const [bookmarked, setBookmarked] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
@@ -40,35 +55,36 @@ export default function ComicDetail() {
   const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
 
   const [alert, setAlert] = useState<string | null>(null);
+  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const coverSrc = useMemo(() => {
-  if (!comic?.cover) return "/placeholder-cover.jpg";
-  return `/komify/${comic.slug}/cover.jpg`;
-}, [comic?.cover, comic?.slug]);
+    if (!comic?.cover) return "/placeholder-cover.jpg";
+    return `/komify/${comic.slug}/cover.jpg`;
+  }, [comic?.cover, comic?.slug]);
 
-const [imgSrc, setImgSrc] = useState(coverSrc);
-const [tryIndex, setTryIndex] = useState(0);
+  const [imgSrc, setImgSrc] = useState(coverSrc);
+  const [tryIndex, setTryIndex] = useState(0);
 
-const extensions = [".jpg", ".png", ".webp"];
+  const extensions = [".jpg", ".png", ".webp"];
 
-useEffect(() => {
-  setImgSrc(coverSrc);
-  setTryIndex(0);
-}, [coverSrc]);
+  useEffect(() => {
+    setImgSrc(coverSrc);
+    setTryIndex(0);
+  }, [coverSrc]);
 
-const handleImageError = useCallback(() => {
-  if (!comic?.slug) return;
+  const handleImageError = useCallback(() => {
+    if (!comic?.slug) return;
 
-  const nextIndex = tryIndex + 1;
-  if (nextIndex < extensions.length) {
-    setImgSrc(`/komify/${comic.slug}/cover${extensions[nextIndex]}`);
-    setTryIndex(nextIndex);
-  } else {
-    // Semua ekstensi sudah dicoba, fallback ke placeholder
-    setImgSrc("/placeholder-cover.jpg");
-  }
-}, [tryIndex, comic?.slug]);
+    const nextIndex = tryIndex + 1;
+    if (nextIndex < extensions.length) {
+      setImgSrc(`/komify/${comic.slug}/cover${extensions[nextIndex]}`);
+      setTryIndex(nextIndex);
+    } else {
+      // Semua ekstensi sudah dicoba, fallback ke placeholder
+      setImgSrc("/placeholder-cover.jpg");
+    }
+  }, [tryIndex, comic?.slug]);
 
   useEffect(() => {
     if (!comic) return;
@@ -155,7 +171,33 @@ const handleImageError = useCallback(() => {
     setChapterToDelete(null);
   }, [comic, chapterToDelete, router]);
 
-  if (!comic) return <p className="p-6">Loading...</p>;
+  
+
+  const handleToggleOrder = () => {
+    setOriginalChapters(chapters); // backup
+    setIsOrdering(true);
+  };
+
+  const handleCancelOrder = () => {
+    setChapters(normalizeChapters(originalChapters));
+    setIsOrdering(false);
+  };
+
+  const handleSaveOrder = async () => {
+    const cleanedChapters = chapters.map(({ _id, ...ch }) => ch);
+
+    await fetch("/api/komify/orderingChapter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: comic.slug,
+        chapters: cleanedChapters,
+      }),
+    });
+
+    setIsOrdering(false);
+    setAlertSuccess("Urutan chapter berhasil disimpan");
+  };
 
   return (
     <>
@@ -205,10 +247,18 @@ const handleImageError = useCallback(() => {
           </div>
         </div>
 
-        <ChaptersHeader slug={Number(comic.slug)} />
+        <ChaptersHeader
+          slug={Number(comic.slug)}
+          isOrdering={isOrdering}
+          onToggleOrder={handleToggleOrder}
+          onSaveOrder={handleSaveOrder}
+          onCancelOrder={handleCancelOrder}
+        />
         <ChaptersList
           slug={Number(comic.slug)}
           chapters={comic.chapters}
+          setChapters={setChapters}
+          isOrdering={isOrdering}
           onDeleteChapter={(n) => {
             setChapterToDelete(n);
             setDeleteChapterOpen(true);
@@ -218,27 +268,30 @@ const handleImageError = useCallback(() => {
         <CommentSection slug={String(comic.slug)} />
       </main>
 
-      <DialogBox
-        open={deleteComicOpen}
-        title="Hapus Komik?"
-        desc="Komik ini akan dihapus permanen."
-        type="danger"
-        confirmText="Hapus"
-        cancelText="Batal"
-        onConfirm={handleDeleteComic}
-        onCancel={() => setDeleteComicOpen(false)}
-      />
-
-      <DialogBox
-        open={deleteChapterOpen}
-        title="Hapus Chapter?"
-        desc={`Chapter ${chapterToDelete} akan dihapus.`}
-        type="danger"
-        confirmText="Hapus"
-        cancelText="Batal"
-        onConfirm={confirmDeleteChapter}
-        onCancel={() => setDeleteChapterOpen(false)}
-      />
+      {
+        <DialogBox
+          open={deleteComicOpen}
+          title="Hapus Komik?"
+          desc="Komik ini akan dihapus permanen."
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={handleDeleteComic}
+          onCancel={() => setDeleteComicOpen(false)}
+        />
+      }
+      {
+        <DialogBox
+          open={deleteChapterOpen}
+          title="Hapus Chapter?"
+          desc={`Chapter ${chapterToDelete} akan dihapus.`}
+          type="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+          onConfirm={confirmDeleteChapter}
+          onCancel={() => setDeleteChapterOpen(false)}
+        />
+      }
 
       {alert && (
         <Alert
@@ -246,6 +299,14 @@ const handleImageError = useCallback(() => {
           title="Error"
           message={alert}
           onClose={() => setAlert(null)}
+        />
+      )}
+      {alertSuccess && (
+        <Alert
+          type="success"
+          title="Success"
+          message={alertSuccess}
+          onClose={() => setAlertSuccess(null)}
         />
       )}
 
