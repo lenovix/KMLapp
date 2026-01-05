@@ -17,11 +17,7 @@ export default function Home() {
             status="release"
             version="1.0"
             startDate="17 Juli 2025"
-<<<<<<< HEAD
-            endDate="04 Januari 2026"
-=======
             endDate="05 Januari 2026"
->>>>>>> 250478399a6234ba478ebcfe63ba9318144048e3
             link="/komify"
           />
           <CardWebHome
