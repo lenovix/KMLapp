@@ -29,12 +29,12 @@ export default function ChaptersHeader({
             <button
               onClick={onToggleOrder}
               className="
-          inline-flex items-center gap-2
-          px-4 py-2 rounded-xl
-          bg-slate-700 hover:bg-slate-600
-          text-white font-medium shadow
-          transition
-        "
+                inline-flex items-center gap-2
+                px-4 py-2 rounded-xl
+                bg-slate-700 hover:bg-slate-600
+                text-white font-medium shadow
+                transition
+              "
             >
               <ListOrdered size={18} />
               Edit Order
@@ -43,18 +43,15 @@ export default function ChaptersHeader({
 
           {isOrdering && (
             <>
-              <div className="mb-4 text-sm text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3">
-                Drag chapter untuk mengubah urutan, lalu klik <b>Save Order</b>
-              </div>
               <button
                 onClick={onSaveOrder}
                 className="
-            inline-flex items-center gap-2
-            px-4 py-2 rounded-xl
-            bg-emerald-600 hover:bg-emerald-700
-            text-white font-medium shadow
-            transition
-          "
+                  inline-flex items-center gap-2
+                  px-4 py-2 rounded-xl
+                  bg-emerald-600 hover:bg-emerald-700
+                  text-white font-medium shadow
+                  transition
+                "
               >
                 <Save size={18} />
                 Save Order

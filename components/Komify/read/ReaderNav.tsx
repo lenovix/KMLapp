@@ -18,7 +18,7 @@ export default function ReaderNav({ comic, prev, next }: ReaderNavProps) {
   return (
     <div
       className="sticky top-0 z-10 flex justify-between items-center
-      bg-white/70 dark:bg-slate-900/70 backdrop-blur
+       backdrop-blur
       py-3 mb-4 border-b border-slate-700"
     >
       {prev ? (

@@ -1,6 +1,7 @@
 Note for Kamify:
 - Fix bug Page/image chapter order
 - add feature report comic/chapter
+- add metadata page category
 
 Note for Filmfy:
 - styling media player

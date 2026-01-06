@@ -11,7 +11,7 @@ import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
 
-const comics = comicsData as ComicData[];
+const comics = comicsData as unknown as ComicData[];
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
 import ComicActions from "@/components/Komify/Detail/ComicActions";
@@ -59,7 +59,9 @@ export default function ComicDetail() {
       _id: ch._id ?? `chapter-${ch.number}-${i}`,
     }));
 
-  const [chapters, setChapters] = useState(normalizeChapters(comic.chapters ?? []));
+  const [chapters, setChapters] = useState(
+    normalizeChapters(comic.chapters ?? [])
+  );
   const [originalChapters, setOriginalChapters] = useState(
     normalizeChapters(comic.chapters ?? [])
   );
@@ -77,8 +79,6 @@ export default function ComicDetail() {
   const [alert, setAlert] = useState<string | null>(null);
   const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-
- 
 
   useEffect(() => {
     if (!comic) return;
@@ -227,11 +227,11 @@ export default function ComicDetail() {
           </div>
 
           <img
-  src={comic.cover}
-  alt={comic.title}
-  onClick={() => setCoverOpen(true)}
-  className="w-56 aspect-3/4 object-cover object-top rounded-xl cursor-zoom-in flex-none"
-/>
+            src={comic.cover}
+            alt={comic.title}
+            onClick={() => setCoverOpen(true)}
+            className="w-56 aspect-3/4 object-cover object-top rounded-xl cursor-zoom-in flex-none"
+          />
 
           <div className="flex-1">
             <ComicMetadata comic={comic} />
