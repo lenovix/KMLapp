@@ -34,7 +34,15 @@ export default function Home() {
             startDate="05 Januari 2026"
             endDate="Present"
             status="development"
-            link="/Peoplefy"
+            link="/peoplefy"
+          />
+          <CardWebHome
+            logo="/Sportfy.png"
+            name="Sportfy"
+            startDate="06 Januari 2026"
+            endDate="Present"
+            status="development"
+            link="/sportfy"
           />
         </div>
       </div>
