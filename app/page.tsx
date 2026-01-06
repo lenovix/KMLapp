@@ -33,7 +33,7 @@ export default function Home() {
             name="Peoplefy"
             startDate="05 Januari 2026"
             endDate="Present"
-            status="not-started"
+            status="development"
             link="/Peoplefy"
           />
         </div>

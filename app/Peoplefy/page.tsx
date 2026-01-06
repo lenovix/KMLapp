@@ -1,12 +1,5 @@
-import React from "react";
-import {
-  Search,
-  Heart,
-  Plus,
-  MoreVertical,
-  Link,
-  ArrowLeft,
-} from "lucide-react";
+import { Search, Heart, Plus, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function PeoplefyHome() {
   // Data dummy tetap sama
@@ -14,26 +7,18 @@ export default function PeoplefyHome() {
     {
       id: 1,
       name: "Budi Santoso",
-      role: "Developer",
-      image: "https://i.pravatar.cc/150?u=1",
     },
     {
       id: 2,
       name: "Siti Aminah",
-      role: "Designer",
-      image: "https://i.pravatar.cc/150?u=2",
     },
     {
       id: 3,
       name: "Andi Wijaya",
-      role: "Photographer",
-      image: "https://i.pravatar.cc/150?u=3",
     },
     {
       id: 4,
       name: "Rina Kartika",
-      role: "Writer",
-      image: "https://i.pravatar.cc/150?u=4",
     },
   ];
 
@@ -99,7 +84,7 @@ export default function PeoplefyHome() {
               {/* Image Container */}
               <div className="relative h-56 bg-slate-700 overflow-hidden">
                 <img
-                  src={person.image}
+                  // src={person.image}
                   alt={person.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-500 opacity-90 group-hover:opacity-100"
                 />
@@ -113,11 +98,7 @@ export default function PeoplefyHome() {
                   <h3 className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">
                     {person.name}
                   </h3>
-                  <p className="text-sm text-slate-400">{person.role}</p>
                 </div>
-                <button className="text-slate-500 hover:text-white p-1">
-                  <MoreVertical size={18} />
-                </button>
               </div>
             </div>
           ))}
