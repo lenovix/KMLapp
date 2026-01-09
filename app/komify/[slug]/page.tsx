@@ -22,8 +22,14 @@ import Alert from "@/components/UI/Alert";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import CoverViewer from "@/components/UI/CoverViewer";
 import ReportComicModal from "@/components/Komify/Detail/ReportComicModal";
+import DownloadComicModal from "@/components/Komify/Detail/DownloadComicModal";
 
 dayjs.extend(relativeTime);
+
+interface ComicChapter {
+  number: string;
+  title: string;
+}
 
 interface ComicData {
   slug: number;
@@ -38,13 +44,11 @@ interface ComicData {
   uploaded: string;
   status: "Ongoing" | "Completed" | "Hiatus";
   cover: string;
-  chapters?: number[];
+  chapters?: ComicChapter[];
 }
 
 export default function ComicDetail() {
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const [chapterDownloadOpen, setChapterDownloadOpen] = useState(false);
-  const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [reportOpen, setReportOpen] = useState(false);
   const { slug } = useParams();
   const router = useRouter();
@@ -199,7 +203,7 @@ export default function ComicDetail() {
     setAlertSuccess("Menyiapkan file download...");
   };
 
-  const handleDownloadSelectedChapters = async () => {
+  const handleDownloadSelectedChapters = async (chapters: string[]) => {
     setAlertSuccess("Menyiapkan file download...");
 
     const res = await fetch("/api/komify/download-chapters", {
@@ -209,7 +213,7 @@ export default function ComicDetail() {
       },
       body: JSON.stringify({
         slug: comic.slug,
-        chapters: selectedChapters,
+        chapters,
       }),
     });
 
@@ -223,8 +227,10 @@ export default function ComicDetail() {
 
     const a = document.createElement("a");
     a.href = url;
+
     const date = new Date().toISOString().split("T")[0];
-    a.download = `${date}_${comic.slug}_chapters ${selectedChapters}.zip`;
+    a.download = `${date}_${comic.slug}_chapters_${chapters.join("-")}.zip`;
+
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -234,7 +240,7 @@ export default function ComicDetail() {
 
   return (
     <>
-      <Header defaulftSlug={comic.title} />
+      <Header defaultSlug={comic.title} />
 
       <main className="p-6 max-w-6xl mx-auto">
         <div className="relative mb-10 rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
@@ -383,113 +389,14 @@ export default function ComicDetail() {
       {reportOpen && (
         <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
       )}
-      {downloadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setDownloadOpen(false)}
-          />
-
-          <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold text-white">
-              Download Options
-            </h2>
-            <p className="mb-6 text-sm text-slate-400">
-              Pilih metode download yang kamu inginkan
-            </p>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => {
-                  setDownloadOpen(false);
-                  handleBatchDownload();
-                }}
-                className="w-full rounded-xl border border-emerald-600/40 bg-emerald-600/20 px-4 py-3 text-left text-white hover:bg-emerald-600/30 transition"
-              >
-                <div className="font-medium">📦 Download Batch</div>
-                <div className="text-xs text-slate-300">
-                  Semua chapter dalam satu file
-                </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  setDownloadOpen(false);
-                  setChapterDownloadOpen(true);
-                }}
-                className="w-full rounded-xl border border-blue-600/40 bg-blue-600/20 px-4 py-3 text-left text-white hover:bg-blue-600/30 transition"
-              >
-                <div className="font-medium">📂 Download Per Chapter</div>
-                <div className="text-xs text-slate-300">
-                  Pilih chapter yang ingin diunduh
-                </div>
-              </button>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setDownloadOpen(false)}
-                className="text-sm text-slate-400 hover:text-white"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {chapterDownloadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setChapterDownloadOpen(false)}
-          />
-
-          <div className="relative z-10 w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-slate-700">
-            <h2 className="text-lg font-semibold mb-4">Pilih Chapter</h2>
-
-            <div className="max-h-64 overflow-y-auto space-y-2">
-              {comic.chapters?.map((ch: any) => (
-                <label
-                  key={ch.number}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    value={ch.number}
-                    checked={selectedChapters.includes(ch.number)}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setSelectedChapters((prev) =>
-                        prev.includes(val)
-                          ? prev.filter((c) => c !== val)
-                          : [...prev, val]
-                      );
-                    }}
-                  />
-                  Chapter {ch.number} — {ch.title}
-                </label>
-              ))}
-            </div>
-
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                onClick={() => setChapterDownloadOpen(false)}
-                className="text-sm text-slate-400"
-              >
-                Batal
-              </button>
-
-              <PrimaryButton
-                size="sm"
-                disabled={selectedChapters.length === 0}
-                onClick={handleDownloadSelectedChapters}
-              >
-                Download
-              </PrimaryButton>
-            </div>
-          </div>
-        </div>
-      )}
+      
+      <DownloadComicModal
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+        chapters={comic.chapters ?? []}
+        onDownloadBatch={handleBatchDownload}
+        onDownloadChapters={handleDownloadSelectedChapters}
+      />
     </>
   );
 }

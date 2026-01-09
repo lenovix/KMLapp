@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Upload, Bookmark } from "lucide-react";
 
 interface UploadComicHeaderProps {
-  defaulftSlug: string;
+  defaultSlug: string;
 }
 
 export default function UploadComicHeader({
-  defaulftSlug,
+  defaultSlug,
 }: UploadComicHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -18,7 +18,7 @@ export default function UploadComicHeader({
             <Link href="/komify" className="hover:opacity-80">
               Komify
             </Link>
-            <span> :: {defaulftSlug}</span>
+            <span> :: {defaultSlug}</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
