@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash, Flag } from "lucide-react";
+import { Edit, Trash, Flag, Download } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -42,6 +42,9 @@ interface ComicData {
 }
 
 export default function ComicDetail() {
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [chapterDownloadOpen, setChapterDownloadOpen] = useState(false);
+  const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [reportOpen, setReportOpen] = useState(false);
   const { slug } = useParams();
   const router = useRouter();
@@ -191,58 +194,120 @@ export default function ComicDetail() {
     setAlertSuccess("Urutan chapter berhasil disimpan");
   };
 
+  const handleBatchDownload = () => {
+    window.location.href = `/api/komify/download-batch?slug=${comic.slug}`;
+    setAlertSuccess("Menyiapkan file download...");
+  };
+
+  const handleDownloadSelectedChapters = async () => {
+    setAlertSuccess("Menyiapkan file download...");
+
+    const res = await fetch("/api/komify/download-chapters", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        slug: comic.slug,
+        chapters: selectedChapters,
+      }),
+    });
+
+    if (!res.ok) {
+      setAlert("Gagal menyiapkan download");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    const date = new Date().toISOString().split("T")[0];
+    a.download = `${date}_${comic.slug}_chapters ${selectedChapters}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <Header defaulftSlug={comic.title} />
 
       <main className="p-6 max-w-6xl mx-auto">
-        <div className="relative flex flex-col md:flex-row gap-8 mb-10 bg-slate-900/70 border border-slate-700 rounded-2xl p-6">
-          <div className="absolute top-4 right-4 flex gap-2">
-            <PrimaryButton
-              size="sm"
-              className="bg-yellow-600"
-              icon={<Flag />}
-              onClick={() => setReportOpen(true)}
-            >
-              Report
-            </PrimaryButton>
-            <PrimaryButton
-              size="sm"
-              icon={<Edit />}
-              onClick={() =>
-                router.push(`/komify/edit-comic?slug=${comic.slug}`)
-              }
-            >
-              Edit
-            </PrimaryButton>
-
-            <PrimaryButton
-              size="sm"
-              className="bg-red-600"
-              icon={<Trash />}
-              onClick={() => setDeleteComicOpen(true)}
-            >
-              {deleting ? "Menghapus..." : "Delete"}
-            </PrimaryButton>
-          </div>
-
-          <img
-            src={comic.cover}
-            alt={comic.title}
-            onClick={() => setCoverOpen(true)}
-            className="w-56 aspect-3/4 object-cover object-top rounded-xl cursor-zoom-in flex-none"
-          />
-
-          <div className="flex-1">
-            <ComicMetadata comic={comic} />
-            <ComicTags tags={comic.tags} />
-            <ComicActions
-              bookmarked={bookmarked}
-              onBookmark={handleBookmark}
-              userRating={userRating}
-              onRate={handleRating}
-              avgRating={avgRating}
+        <div className="relative mb-10 rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
+          <div className="flex flex-col gap-6 md:flex-row">
+            <img
+              src={comic.cover}
+              alt={comic.title}
+              onClick={() => setCoverOpen(true)}
+              className="
+                w-full
+                max-w-[220px]
+                mx-auto
+                md:mx-0
+                aspect-3/4
+                object-cover
+                object-top
+                rounded-xl
+                cursor-zoom-in
+                shadow-lg
+              "
             />
+
+            <div className="flex-1 space-y-4">
+              <ComicMetadata comic={comic} />
+              <ComicTags tags={comic.tags} />
+              <ComicActions
+                bookmarked={bookmarked}
+                onBookmark={handleBookmark}
+                userRating={userRating}
+                onRate={handleRating}
+                avgRating={avgRating}
+              />
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <PrimaryButton
+                  size="sm"
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  icon={<Download />}
+                  onClick={() => setDownloadOpen(true)}
+                >
+                  Download
+                </PrimaryButton>
+
+                <div className="flex flex-wrap gap-2">
+                  <PrimaryButton
+                    size="sm"
+                    className="bg-yellow-600"
+                    icon={<Flag />}
+                    onClick={() => setReportOpen(true)}
+                  >
+                    Report
+                  </PrimaryButton>
+
+                  <PrimaryButton
+                    size="sm"
+                    icon={<Edit />}
+                    onClick={() =>
+                      router.push(`/komify/edit-comic?slug=${comic.slug}`)
+                    }
+                  >
+                    Edit
+                  </PrimaryButton>
+
+                  <PrimaryButton
+                    size="sm"
+                    className="bg-red-600"
+                    icon={<Trash />}
+                    onClick={() => setDeleteComicOpen(true)}
+                  >
+                    {deleting ? "Menghapus..." : "Delete"}
+                  </PrimaryButton>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -317,6 +382,113 @@ export default function ComicDetail() {
       />
       {reportOpen && (
         <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
+      )}
+      {downloadOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setDownloadOpen(false)}
+          />
+
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
+            <h2 className="mb-2 text-lg font-semibold text-white">
+              Download Options
+            </h2>
+            <p className="mb-6 text-sm text-slate-400">
+              Pilih metode download yang kamu inginkan
+            </p>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setDownloadOpen(false);
+                  handleBatchDownload();
+                }}
+                className="w-full rounded-xl border border-emerald-600/40 bg-emerald-600/20 px-4 py-3 text-left text-white hover:bg-emerald-600/30 transition"
+              >
+                <div className="font-medium">📦 Download Batch</div>
+                <div className="text-xs text-slate-300">
+                  Semua chapter dalam satu file
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setDownloadOpen(false);
+                  setChapterDownloadOpen(true);
+                }}
+                className="w-full rounded-xl border border-blue-600/40 bg-blue-600/20 px-4 py-3 text-left text-white hover:bg-blue-600/30 transition"
+              >
+                <div className="font-medium">📂 Download Per Chapter</div>
+                <div className="text-xs text-slate-300">
+                  Pilih chapter yang ingin diunduh
+                </div>
+              </button>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setDownloadOpen(false)}
+                className="text-sm text-slate-400 hover:text-white"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {chapterDownloadOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setChapterDownloadOpen(false)}
+          />
+
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-slate-900 p-6 border border-slate-700">
+            <h2 className="text-lg font-semibold mb-4">Pilih Chapter</h2>
+
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {comic.chapters?.map((ch: any) => (
+                <label
+                  key={ch.number}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    value={ch.number}
+                    checked={selectedChapters.includes(ch.number)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedChapters((prev) =>
+                        prev.includes(val)
+                          ? prev.filter((c) => c !== val)
+                          : [...prev, val]
+                      );
+                    }}
+                  />
+                  Chapter {ch.number} — {ch.title}
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setChapterDownloadOpen(false)}
+                className="text-sm text-slate-400"
+              >
+                Batal
+              </button>
+
+              <PrimaryButton
+                size="sm"
+                disabled={selectedChapters.length === 0}
+                onClick={handleDownloadSelectedChapters}
+              >
+                Download
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
