@@ -48,3 +48,6 @@ next-env.d.ts
 /data/filmfy/casts.json
 /data/filmfy/casts/*
 /public/data/report/*
+
+*.db-wal
+*.db-shm
