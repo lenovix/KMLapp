@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
+import FixParagraphModal from "@/components/Komify/Detail/FixParagraphModal";
 
 export interface ComicData {
   slug: number;
@@ -67,7 +68,9 @@ export default function ComicForm({
   setCoverDialogOpen,
   handleComicChange,
 }: ComicFormProps) {
-  const [categories, setCategories] = useState<string[]>(["Doujinshi"]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [fixOpen, setFixOpen] = useState(false);
+  const [activeField, setActiveField] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/data/komify/categories.json")
@@ -80,30 +83,70 @@ export default function ComicForm({
       })
       .catch(console.error);
   }, []);
+
+  const applyFixResult = (value: string) => {
+    if (!activeField) return;
+
+    setComicData((prev) => ({
+      ...prev,
+      [activeField]: value,
+    }));
+
+    setFixOpen(false);
+    setActiveField(null);
+  };
   return (
-    <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
-          <div className="grid gap-4">
-            {[
-              { name: "title", placeholder: "Title" },
-              { name: "parodies", placeholder: "Parodies" },
-              { name: "characters", placeholder: "Characters" },
-              { name: "tags", placeholder: "Tags" },
-              { name: "artist", placeholder: "Artist" },
-              { name: "groups", placeholder: "Groups" },
-              { name: "authors", placeholder: "Authors" },
-            ].map((field) => (
-              <input
-                key={field.name}
-                name={field.name}
-                placeholder={field.placeholder}
-                value={(comicData as any)[field.name]}
-                onChange={handleComicChange}
-                className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            ))}
-            <div>
+    <>
+      <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
+            <div className="grid gap-4">
+              {[
+                { name: "title", placeholder: "Title", fix: false },
+                { name: "parodies", placeholder: "Parodies", fix: true },
+                { name: "characters", placeholder: "Characters", fix: true },
+                { name: "tags", placeholder: "Tags", fix: true },
+                { name: "artist", placeholder: "Artist", fix: true },
+                { name: "groups", placeholder: "Groups", fix: true },
+                { name: "authors", placeholder: "Authors", fix: true },
+              ].map((field) => (
+                <div key={field.name} className="flex items-start gap-2">
+                  <input
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    value={(comicData as any)[field.name]}
+                    onChange={handleComicChange}
+                    className="flex-1 border p-2 rounded bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+
+                  {field.fix && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveField(field.name);
+                        setFixOpen(true);
+                      }}
+                      title="Fix format"
+                      className="
+                        px-3
+                        py-2
+                        rounded-lg
+                        text-xs
+                        border
+                        border-slate-600
+                        bg-slate-800
+                        text-slate-300
+                        hover:bg-slate-700
+                        hover:text-white
+                        transition
+                      "
+                    >
+                      Fix
+                    </button>
+                  )}
+                </div>
+              ))}
+
               <select
                 name="categories"
                 value={comicData.categories}
@@ -123,31 +166,42 @@ export default function ComicForm({
               </select>
             </div>
           </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
+            <PrimaryButton
+              type="submit"
+              onClick={handleOpenDialog}
+              icon={<Upload size={18} />}
+              iconPosition="left"
+            >
+              Upload Comic
+            </PrimaryButton>
+            <ComicCover
+              cover={comicData.cover}
+              onClick={() => setCoverDialogOpen(true)}
+              onDelete={() => setComicData({ ...comicData, cover: "" })}
+            />
+          </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
-          <PrimaryButton
-            type="submit"
-            onClick={handleOpenDialog}
-            icon={<Upload size={18} />}
-            iconPosition="left"
-          >
-            Upload Comic
-          </PrimaryButton>
-          <ComicCover
-            cover={comicData.cover}
-            onClick={() => setCoverDialogOpen(true)}
-            onDelete={() => setComicData({ ...comicData, cover: "" })}
-          />
-        </div>
-      </div>
-      <ChapterSection
-        chapters={chapters}
-        addChapter={addChapter}
-        removeChapter={removeChapter}
-        handleChapterChange={handleChapterChange}
-        handleChapterFile={handleChapterFile}
-        openPreview={openPreview}
-      />
-    </form>
+        <ChapterSection
+          chapters={chapters}
+          addChapter={addChapter}
+          removeChapter={removeChapter}
+          handleChapterChange={handleChapterChange}
+          handleChapterFile={handleChapterFile}
+          openPreview={openPreview}
+        />
+      </form>
+      {
+        <FixParagraphModal
+          open={fixOpen}
+          value={activeField ? (comicData as any)[activeField] : ""}
+          onApply={applyFixResult}
+          onClose={() => {
+            setFixOpen(false);
+            setActiveField(null);
+          }}
+        />
+      }
+    </>
   );
 }
