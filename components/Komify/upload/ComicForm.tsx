@@ -1,9 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { Upload } from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import { Upload } from "lucide-react";
 
 export interface ComicData {
   slug: number;
@@ -48,7 +49,9 @@ interface ComicFormProps {
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleComicChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleComicChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
 }
 
 export default function ComicForm({
@@ -64,6 +67,19 @@ export default function ComicForm({
   setCoverDialogOpen,
   handleComicChange,
 }: ComicFormProps) {
+  const [categories, setCategories] = useState<string[]>(["Doujinshi"]);
+
+  useEffect(() => {
+    fetch("/data/komify/categories.json")
+      .then((res) => res.json())
+      .then((data: string[]) => {
+        setCategories((prev) => {
+          const merged = new Set([...prev, ...data]);
+          return Array.from(merged);
+        });
+      })
+      .catch(console.error);
+  }, []);
   return (
     <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -77,7 +93,6 @@ export default function ComicForm({
               { name: "artist", placeholder: "Artist" },
               { name: "groups", placeholder: "Groups" },
               { name: "authors", placeholder: "Authors" },
-              { name: "categories", placeholder: "Categories" },
             ].map((field) => (
               <input
                 key={field.name}
@@ -88,6 +103,25 @@ export default function ComicForm({
                 className="border p-2 rounded w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ))}
+            <div>
+              <select
+                name="categories"
+                value={comicData.categories}
+                onChange={handleComicChange}
+                className="w-full rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-white"
+                required
+              >
+                {categories.map((cat) => (
+                  <option
+                    key={cat}
+                    value={cat}
+                    className="bg-slate-800 text-white"
+                  >
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">

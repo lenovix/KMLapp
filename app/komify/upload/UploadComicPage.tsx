@@ -46,7 +46,7 @@ export default function UploadComicPage({
     groups: "",
     parodies: "",
     characters: "",
-    categories: "",
+    categories: "Doujinshi",
     tags: "",
     uploaded: new Date().toISOString().split("T")[0],
     status: "Ongoing",
@@ -78,10 +78,12 @@ export default function UploadComicPage({
   const handleComicChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setComicData({
-      ...comicData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setComicData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleChapterChange = (
