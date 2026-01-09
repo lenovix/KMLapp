@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { db } from "@/lib/db";
 
 async function fileToBuffer(file: any): Promise<Buffer | null> {
   if (!file) return null;
@@ -18,141 +19,150 @@ async function fileToBuffer(file: any): Promise<Buffer | null> {
   return null;
 }
 
-type NormalizedField = string | string[] | null;
-
-const normalizeField = (value: any): NormalizedField => {
-  if (!value) return null;
-
-  let arr: string[] = [];
-
-  if (Array.isArray(value)) {
-    arr = value
-      .flatMap((v) => String(v).split(","))
-      .map((v) => v.trim())
-      .filter(Boolean);
-  } else if (typeof value === "string") {
-    arr = value
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-  }
-
-  arr = [...new Set(arr)];
-
-  if (arr.length === 0) return null;
-  if (arr.length === 1) return arr[0];
-  return arr;
+const normalizeArray = (value: any): string[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  return [String(value)];
 };
 
-const getString = (v: any) => (Array.isArray(v) ? v[0] : v ?? "");
+const insertOrGetId = (table: string, name: string): number => {
+  db.prepare(`INSERT OR IGNORE INTO ${table} (name) VALUES (?)`).run(name);
+  const row = db.prepare(`SELECT id FROM ${table} WHERE name = ?`).get(name) as
+    | { id: number }
+    | undefined;
+
+  if (!row) throw new Error(`Failed to get id from ${table}: ${name}`);
+
+  return row.id;
+};
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    const uploadDir = path.join(process.cwd(), "public", "komify");
-    const slug = formData.get("slug")?.toString() || "unknown";
-    const slugPath = path.join(uploadDir, slug);
+    const slug = formData.get("slug")!.toString();
 
-    fs.mkdirSync(slugPath, { recursive: true });
+    const uploadDir = path.join(process.cwd(), "public", "komify", slug);
+    fs.mkdirSync(uploadDir, { recursive: true });
 
     const coverFile = formData.get("cover") as File | null;
     const coverBuffer = await fileToBuffer(coverFile);
 
     if (coverBuffer) {
-      const coverPath = path.join(slugPath, "cover.jpg");
-      fs.writeFileSync(coverPath, coverBuffer);
-    } else {
-      console.warn("⚠ Tidak ada cover file yang diterima.");
+      fs.writeFileSync(path.join(uploadDir, "cover.jpg"), coverBuffer);
     }
 
-    const chaptersStr = formData.get("chapters")?.toString() || "[]";
-    const chapters = JSON.parse(chaptersStr);
+    const chapters = JSON.parse(formData.get("chapters")?.toString() || "[]");
 
-    const chaptersWithPages = [];
+    const chaptersWithPages: any[] = [];
 
     for (const ch of chapters) {
-      const chapterDir = path.join(slugPath, "chapters", ch.number);
+      const chapterDir = path.join(uploadDir, "chapters", ch.number);
       fs.mkdirSync(chapterDir, { recursive: true });
 
-      const fieldKey = `chapter-${ch.number}`;
-      const uploadedFiles = formData.getAll(fieldKey) as File[];
-
+      const files = formData.getAll(`chapter-${ch.number}`) as File[];
       const pages = [];
 
-      for (let i = 0; i < uploadedFiles.length; i++) {
-        const buffer = await fileToBuffer(uploadedFiles[i]);
-        if (!buffer) continue;
+      for (let i = 0; i < files.length; i++) {
+        const buf = await fileToBuffer(files[i]);
+        if (!buf) continue;
 
         const filename = `page${i + 1}.jpg`;
-        const filePath = path.join(chapterDir, filename);
+        fs.writeFileSync(path.join(chapterDir, filename), buf);
 
-        fs.writeFileSync(filePath, buffer);
-
-        pages.push({
-          id: `${Date.now()}_${i}`,
-          filename,
-        });
+        pages.push({ filename });
       }
 
-      chaptersWithPages.push({
-        ...ch,
-        pages,
-      });
+      chaptersWithPages.push({ ...ch, pages });
     }
 
-    const comicsPath = path.join(process.cwd(), "data/komify", "comics.json");
-    fs.mkdirSync(path.dirname(comicsPath), { recursive: true });
+    db.transaction(() => {
+      db.prepare(
+        `
+    INSERT OR IGNORE INTO comics
+    (slug, title, category, status, uploaded_at, cover, rating, bookmark)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `
+      ).run(
+        slug,
+        formData.get("title"),
+        formData.get("categories"),
+        formData.get("status"),
+        new Date().toISOString(),
+        `/komify/${slug}/cover.jpg`,
+        Number(formData.get("rating") ?? 0),
+        formData.get("bookmarked") === "true" ? 1 : 0
+      );
 
-    let comics: any[] = [];
-    if (fs.existsSync(comicsPath)) {
-      comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
-    }
+      const comicRow = db
+        .prepare(`SELECT id FROM comics WHERE slug = ?`)
+        .get(slug) as { id: number } | undefined;
 
-    const newComic = {
-      slug: Number(slug),
-      title: getString(formData.get("title")),
+      if (!comicRow) {
+        throw new Error(`Comic with slug ${slug} not found`);
+      }
 
-      parodies: normalizeField(formData.get("parodies")),
-      characters: normalizeField(formData.get("characters")),
-      artists: normalizeField(formData.get("artist")),
-      groups: normalizeField(formData.get("groups")),
-      categories: normalizeField(formData.get("categories")),
-      authors: normalizeField(formData.get("authors")),
-      tags: normalizeField(formData.get("tags")),
+      const comicId = comicRow.id;
 
-      status: getString(formData.get("status")),
+      [
+        "comic_tags",
+        "comic_artists",
+        "comic_groups",
+        "comic_authors",
+        "comic_parodies",
+        "comic_characters",
+      ].forEach((t) =>
+        db.prepare(`DELETE FROM ${t} WHERE comic_id = ?`).run(comicId)
+      );
 
-      uploaded: new Date()
-        .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
-        .replace("T", " "),
+      normalizeArray(formData.get("tags")).forEach((v) =>
+        db
+          .prepare(`INSERT INTO comic_tags VALUES (?, ?)`)
+          .run(comicId, insertOrGetId("tags", v))
+      );
 
-      cover: `/komify/${slug}/cover.jpg`,
+      normalizeArray(formData.get("groups")).forEach((v) =>
+        db
+          .prepare(`INSERT INTO comic_groups VALUES (?, ?)`)
+          .run(comicId, insertOrGetId("groups", v))
+      );
 
-      rating: Number(formData.get("rating") ?? 0),
-      bookmark: formData.get("bookmarked") === "true",
+      db.prepare(`DELETE FROM chapters WHERE comic_id = ?`).run(comicId);
 
-      chapters: chaptersWithPages.map((ch) => ({
-        number: ch.number,
-        title: ch.title,
-        language: ch.language,
-        cencored: ch.cencored,
-        uploadChapter: new Date()
-          .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
-          .replace("T", " "),
-        pages: ch.pages,
-      })),
-    };
+      for (const ch of chaptersWithPages) {
+        const res = db
+          .prepare(
+            `
+      INSERT INTO chapters
+      (comic_id, number, title, language, censored, uploaded_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `
+          )
+          .run(
+            comicId,
+            ch.number,
+            ch.title,
+            ch.language,
+            ch.cencored,
+            new Date().toISOString()
+          );
 
-    const index = comics.findIndex((c) => c.slug === Number(slug));
-    if (index !== -1) comics[index] = newComic;
-    else comics.push(newComic);
+        ch.pages.forEach((p: any, i: number) =>
+          db
+            .prepare(
+              `
+        INSERT INTO pages (chapter_id, page_order, filename)
+        VALUES (?, ?, ?)
+      `
+            )
+            .run(res.lastInsertRowid, i + 1, p.filename)
+        );
+      }
+    })();
 
-    fs.writeFileSync(comicsPath, JSON.stringify(comics, null, 2));
-
-    return NextResponse.json({ message: "Upload successful" });
+    return NextResponse.json({ message: "Upload successful (SQLite)" });
   } catch (err: any) {
-    console.error("Upload error:", err);
+    console.error(err);
     return NextResponse.json(
       { message: "Upload failed", error: err.toString() },
       { status: 500 }

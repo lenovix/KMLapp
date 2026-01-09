@@ -1,22 +1,12 @@
-import fs from "fs";
-import path from "path";
 import UploadComicPage from "./UploadComicPage";
+import { db } from "@/lib/db";
 
 export default function Page() {
-  const filePath = path.join(process.cwd(), "data/komify", "comics.json");
+  const row = db
+    .prepare(`SELECT MAX(CAST(slug AS INTEGER)) as maxSlug FROM comics`)
+    .get() as { maxSlug: number | null };
 
-  let nextSlug = 1;
-  try {
-    const data = fs.readFileSync(filePath, "utf-8");
-    const comics = JSON.parse(data);
-
-    const lastSlug =
-      comics.length > 0 ? parseInt(comics[comics.length - 1].slug) : 0;
-
-    nextSlug = lastSlug + 1;
-  } catch (err) {
-    console.error("Gagal membaca comics.json:", err);
-  }
+  const nextSlug = (row?.maxSlug ?? 0) + 1;
 
   return <UploadComicPage defaultSlug={nextSlug} />;
 }
