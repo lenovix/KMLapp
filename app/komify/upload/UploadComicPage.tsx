@@ -165,14 +165,6 @@ export default function UploadComicPage({
         });
         return false;
       }
-
-      if (!ch.files || ch.files.length === 0) {
-        setAlertData({
-          type: "error",
-          title: `File Chapter ${ch.number} Kosong`,
-        });
-        return false;
-      }
     }
 
     return true;
