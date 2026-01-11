@@ -4,6 +4,9 @@ Note for Kamify:
 - add metadata page category
 
 Note for Filmfy:
+- halaman tags
 - styling media player
 - add field isDeleted?
 - field "code" adalah unique (tidak boleh ada duplicate)
+- pada cast page, tambahkan field sosmed
+- buat tool untuk convert .ts ke .mp4

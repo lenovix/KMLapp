@@ -267,6 +267,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                     process.cwd(),
                     "public",
                     "filmfy",
+                    "movie",
                     film.code,
                     part.folder
                   );
@@ -292,8 +293,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                       {videos.length > 0 ? (
                         <div className="grid grid-cols-1 gap-6 ml-0 md:ml-11">
                           {videos.map((file) => {
-                            const src = `/filmfy/${film.code}/${part.folder}/${file}`;
-
+                            const src = `/filmfy/movie/${film.code}/${part.folder}/${file}`;
                             return (
                               <div
                                 key={file}
