@@ -22,6 +22,7 @@ interface Film {
   title: string;
   code: string;
   cencored: string;
+  isDeleted: boolean;
   releaseDate?: string;
   director?: string;
   maker?: string;
@@ -70,6 +71,8 @@ export async function POST(req: NextRequest) {
     const code = form.get("code") as string;
     const coverFile = form.get("cover") as File | null;
     const cencored = form.get("cencored") as string;
+    const isDeletedRaw = form.get("isDeleted") as string | null;
+    const isDeleted = isDeletedRaw === "yes";
 
     if (!title || !code) {
       return NextResponse.json(
@@ -96,14 +99,27 @@ export async function POST(req: NextRequest) {
     const lastId = films.length ? Math.max(...films.map((f) => f.id)) : 0;
     const nextId = lastId + 1;
 
-    const filmPublicDir = path.join(PUBLIC_FILM_DIR, code);
+    const normalizedCode = code.trim().toLowerCase();
+
+    const isDuplicate = films.some(
+      (f) => f.code.toLowerCase() === normalizedCode
+    );
+
+    if (isDuplicate) {
+      return NextResponse.json(
+        { message: `Film dengan code "${code}" sudah ada` },
+        { status: 409 }
+      );
+    }
+
+    const filmPublicDir = path.join(PUBLIC_FILM_DIR, normalizedCode);
     fs.mkdirSync(filmPublicDir, { recursive: true });
 
     let coverPath: string | null = null;
     if (coverFile) {
       const buffer = Buffer.from(await coverFile.arrayBuffer());
       fs.writeFileSync(path.join(filmPublicDir, "cover.jpg"), buffer);
-      coverPath = `/filmfy/movie/${code}/cover.jpg`;
+      coverPath = `/filmfy/movie/${normalizedCode}/cover.jpg`;
     }
 
     const rawParts = form.get("parts") as string;
@@ -167,8 +183,9 @@ export async function POST(req: NextRequest) {
     const newFilm: Film = {
       id: nextId,
       title,
-      code,
+      code: normalizedCode,
       cencored,
+      isDeleted,
       releaseDate: form.get("releaseDate") as string,
       director: form.get("director") as string,
       maker: form.get("maker") as string,

@@ -47,7 +47,7 @@ export default function MovieActionButtons({ filmId }: Props) {
   return (
     <div className="flex gap-2">
       <button
-        onClick={() => router.push(`/filmfy/edit-movie?id=${filmId}`)}
+        onClick={() => router.push(`/filmfy/edit-movie/${filmId}`)}
         className="px-3 py-2 rounded-xl border text-sm
         flex items-center gap-2
         hover:bg-gray-100 dark:hover:bg-gray-700 transition"

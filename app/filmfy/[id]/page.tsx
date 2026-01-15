@@ -20,6 +20,7 @@ interface Film {
   title: string;
   code: string;
   cencored: string;
+  isDeleted: boolean;
   releaseDate?: string;
   director?: string;
   maker?: string;
@@ -157,6 +158,17 @@ export default async function FilmDetailPage({ params }: PageProps) {
 
             <div className="border-t border-gray-800 pt-6 space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <InfoItem label="Deleted">
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      film.isDeleted
+                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    }`}
+                  >
+                    {film.isDeleted ? "Yes" : "No"}
+                  </span>
+                </InfoItem>
                 <InfoItem label="Version">{film.cencored || "-"}</InfoItem>
 
                 <InfoItem label="Release Date">

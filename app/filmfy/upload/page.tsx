@@ -19,6 +19,7 @@ interface Part {
 }
 
 export default function FilmfyUploadPage() {
+  const [isDeleted, setIsDeleted] = useState<"no" | "yes">("yes");
   const [cencoredOptions, setCencoredOptions] = useState<string[]>([]);
   const [cencored, setCencored] = useState("Cencored");
   const [nextId, setNextId] = useState<number | null>(null);
@@ -80,8 +81,8 @@ export default function FilmfyUploadPage() {
   };
 
   const submitMetadata = async () => {
-    if (!title.trim() || !coverFile) {
-      alert("Title dan Cover wajib diisi!");
+    if (!title.trim()) {
+      alert("Title wajib diisi!");
       return;
     }
 
@@ -96,9 +97,10 @@ export default function FilmfyUploadPage() {
     formData.append("genre", genre);
     formData.append("cast", cast);
     formData.append("series", series);
-    formData.append("cover", coverFile);
+    formData.append("cover", coverFile ? coverFile : "");
     formData.append("parts", JSON.stringify(parts));
     formData.append("cencored", cencored);
+    formData.append("isDeleted", isDeleted);
 
     try {
       const res = await fetch("/api/filmfy/addFilm", {
@@ -355,6 +357,16 @@ export default function FilmfyUploadPage() {
                     {opt}
                   </option>
                 ))}
+              </select>
+
+              <label className="text-sm font-semibold">Sudah Dihapus?</label>
+              <select
+                value={isDeleted}
+                onChange={(e) => setIsDeleted(e.target.value as "yes" | "no")}
+                className={inputClass}
+              >
+                <option value="yes">Yes (Sudah Dihapus)</option>
+                <option value="no">No (Masih Ada)</option>
               </select>
             </section>
 

@@ -7,14 +7,9 @@ import { useState } from "react";
 interface MovieFormProps {
   mode: "create" | "edit";
   initialData?: any;
-  onSubmit: (data: FormData) => Promise<void>;
 }
 
-export default function MovieForm({
-  mode,
-  initialData,
-  onSubmit,
-}: MovieFormProps) {
+export default function MovieForm({ mode, initialData }: MovieFormProps) {
   const router = useRouter();
 
   const [code, setCode] = useState(initialData?.code || "");
@@ -34,6 +29,10 @@ export default function MovieForm({
   const [series, setSeries] = useState(initialData?.series || "");
   const [cencored, setCencored] = useState(
     initialData?.cencored || "Uncensored"
+  );
+
+  const [isDeleted, setIsDeleted] = useState<"yes" | "no">(
+    initialData?.isDeleted === true ? "yes" : "no"
   );
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -58,15 +57,22 @@ export default function MovieForm({
     fd.append("cencored", cencored);
     fd.append("genre", genre);
     fd.append("cast", cast);
+    fd.append("isDeleted", isDeleted);
 
     if (coverFile) fd.append("cover", coverFile);
 
-    await onSubmit(fd);
+    const res = await fetch("/api/filmfy/updateMovie", {
+      method: "POST",
+      body: fd,
+    });
 
-    if (initialData?.id) {
-      router.push(`/filmfy/${initialData.id}`);
-      router.refresh();
+    if (!res.ok) {
+      alert("Gagal menyimpan perubahan");
+      return;
     }
+
+    router.push(`/filmfy/${initialData.id}`);
+    router.refresh();
   };
 
   const inputClass =
@@ -80,8 +86,13 @@ export default function MovieForm({
         <input
           placeholder="Code"
           value={code}
+          disabled={mode === "edit"}
           onChange={(e) => setCode(e.target.value)}
-          className={inputClass}
+          className={`${inputClass} ${
+            mode === "edit"
+              ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
+              : ""
+          }`}
         />
         <input
           placeholder="Title"
@@ -181,6 +192,15 @@ export default function MovieForm({
           >
             <option value="Uncensored">Uncensored</option>
             <option value="Cencored">Cencored</option>
+          </select>
+          <label className="text-sm font-semibold">Sudah Dihapus?</label>
+          <select
+            value={isDeleted}
+            onChange={(e) => setIsDeleted(e.target.value as "yes" | "no")}
+            className={inputClass}
+          >
+            <option value="yes">Yes (Sudah Dihapus)</option>
+            <option value="no">No (Masih Ada)</option>
           </select>
         </section>
       </aside>
