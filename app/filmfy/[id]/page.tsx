@@ -312,6 +312,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                                   key={`${film.id}-${part.order}-${file}`}
                                   src={src}
                                   filmId={film.id}
+                                  // subtitleSrc={`/filmfy/movie/${film.code}/${part.folder}/${file}.vtt`}
                                 />
                               </div>
                             );
