@@ -135,7 +135,7 @@ export default function CastDescriptionSection({
               {form.birthDate && (
                 <div>
                   <p className="text-xs text-gray-400 uppercase tracking-wide">
-                    Tanggal Lahir
+                    Tanggal Lahir (DOB)
                   </p>
                   <p className="font-medium text-gray-800 dark:text-gray-200">
                     {form.birthDate}
