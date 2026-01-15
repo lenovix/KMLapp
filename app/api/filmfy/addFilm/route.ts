@@ -22,6 +22,7 @@ interface Film {
   title: string;
   code: string;
   cencored: string;
+  isDeleted: boolean;
   releaseDate?: string;
   director?: string;
   maker?: string;
@@ -70,6 +71,8 @@ export async function POST(req: NextRequest) {
     const code = form.get("code") as string;
     const coverFile = form.get("cover") as File | null;
     const cencored = form.get("cencored") as string;
+    const isDeletedRaw = form.get("isDeleted") as string | null;
+    const isDeleted = isDeletedRaw === "yes";
 
     if (!title || !code) {
       return NextResponse.json(
@@ -182,6 +185,7 @@ export async function POST(req: NextRequest) {
       title,
       code: normalizedCode,
       cencored,
+      isDeleted,
       releaseDate: form.get("releaseDate") as string,
       director: form.get("director") as string,
       maker: form.get("maker") as string,
