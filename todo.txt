@@ -1,16 +1,11 @@
 Note for Kamify:
 - Fix bug Page/image chapter order
-- add feature report comic/chapter
 - add metadata page category
 
 Note for Filmfy:
 - setelah cover diupload, file asli akan dicut/dihapus
-- field "code" adalah unique (tidak boleh ada duplicate)
 - add favorite button on every movie
 - halaman tags
-- styling media player
-- add field isDeleted?
-- buat tool untuk convert .ts ke .mp4
 - ada field yang belum diisi di cast page:
   - Height
   - Measurements

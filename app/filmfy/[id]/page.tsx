@@ -8,6 +8,8 @@ import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
 import InfoItem from "@/components/UI/InfoItem";
 import MovieActionButtons from "@/components/filmfy/MovieActionButtons";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 interface FilmPart {
   order: number;
   title: string;
@@ -44,15 +46,15 @@ interface Cast {
   debutEnd?: string;
   description?: string;
 }
-const CAST_FILE = path.join(process.cwd(), "data", "filmfy", "casts.json");
 
-function loadCasts(): Cast[] {
-  if (!fs.existsSync(CAST_FILE)) return [];
-  return JSON.parse(fs.readFileSync(CAST_FILE, "utf-8") || "[]");
+async function getCasts(): Promise<Cast[]> {
+  const res = await fetch(`${BASE_URL}/api/filmfy/cast`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return [];
+  return res.json();
 }
-const casts = loadCasts();
-
-const castMap = new Map<string, Cast>(casts.map((c) => [c.slug, c]));
 
 const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
@@ -75,6 +77,9 @@ export default async function FilmDetailPage({ params }: PageProps) {
   const id = resolvedParams?.id;
 
   if (!id) return notFound();
+
+  const casts = await getCasts();
+  const castMap = new Map<string, Cast>(casts.map((c) => [c.slug, c]));
 
   if (!fs.existsSync(DATA_FILE)) return notFound();
 
