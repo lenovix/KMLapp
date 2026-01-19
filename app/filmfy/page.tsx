@@ -12,11 +12,16 @@ interface FilmItem {
   title: string;
   cover: string | null;
   createdAt: string;
+  isDeleted: boolean;
+  cencored: string;
 }
 
 export default function FilmfyPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [filterDeleted, setFilterDeleted] = useState<string>("all");
+  const [filterCensored, setFilterCensored] = useState<string>("all");
+
   const PAGE_SIZE = 15;
 
   const handlePageChange = (newPage: number) => {
@@ -38,17 +43,29 @@ export default function FilmfyPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    return sorted.filter(
-      (film) =>
+    return sorted.filter((film) => {
+      const matchesQuery =
         film.title.toLowerCase().includes(query.toLowerCase()) ||
-        film.code.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [query]);
+        film.code.toLowerCase().includes(query.toLowerCase());
+
+      const matchesDelete =
+        filterDeleted === "all"
+          ? true
+          : filterDeleted === "deleted"
+            ? film.isDeleted === true
+            : film.isDeleted === false;
+
+      const matchesCensored =
+        filterCensored === "all" ? true : film.cencored === filterCensored;
+
+      return matchesQuery && matchesDelete && matchesCensored;
+    });
+  }, [query, filterDeleted, filterCensored]);
 
   const totalPages = Math.ceil(sortedAndFilteredFilms.length / PAGE_SIZE);
   const paginatedFilms = sortedAndFilteredFilms.slice(
     (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
+    page * PAGE_SIZE,
   );
 
   return (
@@ -193,6 +210,34 @@ export default function FilmfyPage() {
             </button>
           </div>
         )}
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          <select
+            value={filterDeleted}
+            onChange={(e) => {
+              setFilterDeleted(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <option value="all">Semua Status</option>
+            <option value="active">Aktif (Tersedia)</option>
+            <option value="deleted">Terhapus</option>
+          </select>
+
+          <select
+            value={filterCensored}
+            onChange={(e) => {
+              setFilterCensored(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <option value="all">Semua Sensor</option>
+            <option value="Cencored">Censored</option>
+            <option value="Uncencored">Uncensored</option>
+          </select>
+        </div>
       </div>
     </main>
   );

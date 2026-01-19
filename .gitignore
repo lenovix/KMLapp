@@ -40,12 +40,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/data/komify/comics.json
-/data/filmfy/films.json
 /public/komify/*
 /public/filmfy/*
-/public/tmp_upload
-/data/filmfy/casts.json
 /data/filmfy/casts/*
 /public/data/report/*
+
+/data/komify/comics.json
+/data/filmfy/films.json
+/data/filmfy/casts.json
+/data/filmfy/metadata-cast.json
+
 /command.txt
+/public/tmp_upload

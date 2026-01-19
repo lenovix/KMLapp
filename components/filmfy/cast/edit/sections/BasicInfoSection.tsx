@@ -1,9 +1,10 @@
 "use client";
 
-import InfoItem from "@/components/UI/InfoItem";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
+import CalendarPicker from "@/components/UI/CalendarPicker";
+import InfoItem from "@/components/UI/InfoItem";
 
 interface Props {
   form: any;
@@ -92,12 +93,10 @@ export default function BasicInfoSection({ form, setForm }: Props) {
           />
         </InfoItem>
 
-        <InfoItem label="Tanggal Lahir">
-          <input
-            type="date"
-            className="dark-input"
-            value={form.birthDate || ""}
-            onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+        <InfoItem label="Birth Date">
+          <CalendarPicker
+            value={form.birthDate}
+            onChange={(val) => setForm({ ...form, birthDate: val })}
           />
         </InfoItem>
 

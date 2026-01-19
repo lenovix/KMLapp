@@ -4,7 +4,6 @@ import path from "path";
 
 const DATA_DIR = path.join(process.cwd(), "data", "filmfy");
 const CAST_JSON = path.join(DATA_DIR, "casts.json");
-
 const AVATAR_BASE_DIR = path.join(process.cwd(), "public", "filmfy", "casts");
 
 function ensureDir(dir: string) {
@@ -18,7 +17,6 @@ export async function GET() {
     if (!fs.existsSync(CAST_JSON)) {
       return NextResponse.json([]);
     }
-
     const casts = JSON.parse(fs.readFileSync(CAST_JSON, "utf-8"));
     return NextResponse.json(casts);
   } catch (err) {
@@ -38,15 +36,25 @@ export async function POST(req: Request) {
     if (!slug) {
       return NextResponse.json(
         { error: "Cast slug is required" },
-        { status: 400 }
+        { status: 400 },
       );
+    }
+
+    let socialMediaPayload = undefined;
+    const socialMediaRaw = formData.get("socialMedia");
+
+    if (socialMediaRaw) {
+      try {
+        socialMediaPayload = JSON.parse(String(socialMediaRaw));
+      } catch (e) {
+        console.error("Failed to parse socialMedia JSON", e);
+      }
     }
 
     const payload: any = {
       slug,
       name: formData.get("name") || undefined,
       alias: formData.get("alias") || undefined,
-
       birthDate: formData.get("birthDate") || undefined,
       age: formData.get("age") || undefined,
       birthplace: formData.get("birthplace") || undefined,
@@ -67,12 +75,7 @@ export async function POST(req: Request) {
         specialSkills: formData.get("profile.specialSkills") || undefined,
       },
 
-      socialMedia: {
-        instagram: formData.get("social.instagram") || undefined,
-        twitter: formData.get("social.twitter") || undefined,
-        tiktok: formData.get("social.tiktok") || undefined,
-        youtube: formData.get("social.youtube") || undefined,
-      },
+      socialMedia: socialMediaPayload,
 
       debut: {
         reason: formData.get("debut.reason") || undefined,
@@ -91,12 +94,16 @@ export async function POST(req: Request) {
     };
 
     function clean(obj: any) {
+      if (!obj || typeof obj !== "object") return;
       Object.keys(obj).forEach((k) => {
         const v = obj[k];
         if (
           v === undefined ||
           v === null ||
-          (typeof v === "object" && Object.keys(v).length === 0)
+          v === "" ||
+          (typeof v === "object" &&
+            !Array.isArray(v) &&
+            Object.keys(v).length === 0)
         ) {
           delete obj[k];
         }
@@ -105,43 +112,48 @@ export async function POST(req: Request) {
 
     clean(payload.physical);
     clean(payload.profile);
-    clean(payload.socialMedia);
     clean(payload.debut);
+
+    if (
+      Array.isArray(payload.socialMedia) &&
+      payload.socialMedia.length === 0
+    ) {
+      delete payload.socialMedia;
+    }
+
     clean(payload);
 
     const avatarFile = formData.get("avatar") as File | null;
-
     if (avatarFile && avatarFile.size > 0) {
       const buffer = Buffer.from(await avatarFile.arrayBuffer());
-
       const castDir = path.join(AVATAR_BASE_DIR, slug);
       ensureDir(castDir);
 
       const avatarFilename = "avatar.jpg";
       const avatarPath = path.join(castDir, avatarFilename);
-
       fs.writeFileSync(avatarPath, buffer);
-
       payload.avatar = `/filmfy/casts/${slug}/${avatarFilename}`;
     }
 
     const raw = fs.existsSync(CAST_JSON)
       ? fs.readFileSync(CAST_JSON, "utf-8")
       : "[]";
+    let casts = JSON.parse(raw);
 
-    const casts = JSON.parse(raw);
     const index = casts.findIndex((c: any) => c.slug === slug);
+    const now = new Date().toISOString();
 
     if (index >= 0) {
       casts[index] = {
         ...casts[index],
         ...payload,
-        updatedAt: new Date().toISOString(),
+        updatedAt: now,
       };
     } else {
       casts.push({
         ...payload,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
       });
     }
 

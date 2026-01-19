@@ -1,3 +1,4 @@
+import CalendarPicker from "@/components/UI/CalendarPicker";
 import InfoItem from "@/components/UI/InfoItem";
 
 export default function DebutSection({ form, setForm }: any) {
@@ -23,26 +24,27 @@ export default function DebutSection({ form, setForm }: any) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InfoItem label="Debut Mulai">
-          <input
-            className="dark-input"
-            value={debut.start || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                debut: { ...debut, start: e.target.value },
-              })
+          <CalendarPicker
+            value={form.debut?.start || ""}
+            onChange={(val) =>
+              setForm((prev: any) => ({
+                ...prev,
+                debut: {
+                  ...(prev.debut || {}),
+                  start: val,
+                },
+              }))
             }
           />
         </InfoItem>
 
         <InfoItem label="Debut Selesai">
-          <input
-            className="dark-input"
+          <CalendarPicker
             value={debut.end || ""}
-            onChange={(e) =>
+            onChange={(val) =>
               setForm({
                 ...form,
-                debut: { ...debut, end: e.target.value },
+                debut: { ...debut, end: val },
               })
             }
           />

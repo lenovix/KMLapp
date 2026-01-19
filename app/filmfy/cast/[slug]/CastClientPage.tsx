@@ -21,6 +21,11 @@ interface CastGalleryItem {
   order: number;
 }
 
+export interface SocialMediaItem {
+  platform: string;
+  url: string;
+}
+
 export interface CastInfo {
   slug: string;
   name: string;
@@ -49,12 +54,7 @@ export interface CastInfo {
 
   tags?: string[];
 
-  socialMedia?: {
-    instagram?: string;
-    twitter?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
+  socialMedia?: SocialMediaItem[];
 
   debut?: {
     reason?: string;
@@ -81,7 +81,7 @@ export default function CastClientPage({ cast, films, castInfo }: Props) {
     return films.filter(
       (film) =>
         film.title.toLowerCase().includes(q) ||
-        film.code.toLowerCase().includes(q)
+        film.code.toLowerCase().includes(q),
     );
   }, [query, films]);
 
@@ -106,6 +106,10 @@ export default function CastClientPage({ cast, films, castInfo }: Props) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <h1 className="text-xl font-bold">Filmfy</h1>
+              <span className="text-gray-400">/</span>
+              <h1 className="text-xl font-bold">
+                <Link href="/filmfy/cast">Casts</Link>
+              </h1>
             </div>
 
             <div className="flex items-center gap-3">
@@ -145,7 +149,7 @@ export default function CastClientPage({ cast, films, castInfo }: Props) {
           slug={cast}
           images={
             castInfo.gallery?.map(
-              (g) => `/filmfy/casts/${cast}/gallery/${g.name}`
+              (g) => `/filmfy/casts/${cast}/gallery/${g.name}`,
             ) || []
           }
           onUploaded={() => router.refresh()}

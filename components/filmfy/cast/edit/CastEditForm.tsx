@@ -11,6 +11,11 @@ import SocialMediaSection from "@/components/filmfy/cast/edit/sections/SocialMed
 import DebutSection from "@/components/filmfy/cast/edit/sections/DebutSection";
 import TagsSection from "@/components/filmfy/cast/edit/sections/TagsSection";
 
+export interface SocialMediaItem {
+  platform: string;
+  url: string;
+}
+
 export interface CastFormData {
   slug: string;
   name: string;
@@ -40,12 +45,7 @@ export interface CastFormData {
 
   tags?: string[];
 
-  socialMedia?: {
-    instagram?: string;
-    twitter?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
+  socialMedia?: SocialMediaItem[];
 
   debut?: {
     reason?: string;
@@ -68,12 +68,10 @@ export default function CastEditForm({
   const handleSave = async () => {
     try {
       setSaving(true);
-
       const formData = new FormData();
 
       formData.append("slug", form.slug);
       formData.append("name", form.name);
-
       if (form.alias) formData.append("alias", form.alias);
       if (form.birthDate) formData.append("birthDate", form.birthDate);
       if (form.age) formData.append("age", form.age);
@@ -91,17 +89,14 @@ export default function CastEditForm({
           if (v) formData.append(`physical.${k}`, v);
         });
       }
-
       if (form.profile) {
         Object.entries(form.profile).forEach(([k, v]) => {
           if (v) formData.append(`profile.${k}`, v);
         });
       }
 
-      if (form.socialMedia) {
-        Object.entries(form.socialMedia).forEach(([k, v]) => {
-          if (v) formData.append(`socialMedia.${k}`, v);
-        });
+      if (form.socialMedia && form.socialMedia.length > 0) {
+        formData.append("socialMedia", JSON.stringify(form.socialMedia));
       }
 
       if (form.debut) {
@@ -138,21 +133,21 @@ export default function CastEditForm({
   return (
     <div className="space-y-10">
       <BasicInfoSection form={form} setForm={setForm} />
-      <PhysicalSection form={form} setForm={setForm} />
-      <ProfileSection form={form} setForm={setForm} />
-      <SocialMediaSection form={form} setForm={setForm} />
       <DebutSection form={form} setForm={setForm} />
+      <PhysicalSection form={form} setForm={setForm} />
       <TagsSection form={form} setForm={setForm} />
+      <SocialMediaSection form={form} setForm={setForm} />
+      <ProfileSection form={form} setForm={setForm} />
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pb-10">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 rounded-lg bg-indigo-600 text-white
-                     flex items-center gap-2 disabled:opacity-60"
+          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white
+                     flex items-center gap-2 disabled:opacity-60 transition-all shadow-lg shadow-indigo-500/20"
         >
-          <Save size={16} />
-          {saving ? "Saving..." : "Save Changes"}
+          <Save size={18} />
+          {saving ? "Saving Changes..." : "Save Changes"}
         </button>
       </div>
     </div>

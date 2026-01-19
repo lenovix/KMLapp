@@ -1,22 +1,38 @@
 "use client";
 
 import Image from "next/image";
-import { User, Pencil } from "lucide-react";
+import {
+  User,
+  Pencil,
+  Heart,
+  Ruler,
+  Share2,
+  PlayCircle,
+  Tags,
+  Globe,
+  Instagram,
+  Twitter,
+  Youtube,
+  MessageCircle,
+} from "lucide-react";
 import InfoItem from "@/components/UI/InfoItem";
 import Link from "next/link";
+
+export interface SocialMediaItem {
+  platform: string;
+  url: string;
+}
 
 export interface CastFormData {
   slug: string;
   name: string;
   alias?: string;
   avatar?: string;
-
   birthDate?: string;
   age?: string;
   birthplace?: string;
   sign?: string;
   blood?: string;
-
   physical?: {
     height?: string;
     measurements?: string;
@@ -25,181 +41,293 @@ export interface CastFormData {
     hairLength?: string;
     hairColor?: string;
   };
-
   profile?: {
     hobbies?: string;
     specialSkills?: string;
   };
-
   tags?: string[];
-
-  socialMedia?: {
-    instagram?: string;
-    twitter?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
-
+  socialMedia?: SocialMediaItem[];
   debut?: {
     reason?: string;
     start?: string;
     end?: string;
   };
-
   description?: string;
 }
+
+const getSocialIcon = (platform: string) => {
+  const p = platform.toLowerCase();
+  if (p.includes("instagram")) return <Instagram className="w-3.5 h-3.5" />;
+  if (p.includes("twitter") || p.includes("x"))
+    return <Twitter className="w-3.5 h-3.5" />;
+  if (p.includes("youtube")) return <Youtube className="w-3.5 h-3.5" />;
+  if (p.includes("tiktok")) return <MessageCircle className="w-3.5 h-3.5" />;
+  return <Globe className="w-3.5 h-3.5" />;
+};
 
 interface CastDescriptionSectionProps {
   profile: CastFormData;
 }
 
+function calculateAge(birthDate: string | undefined): string {
+  if (!birthDate) return "-";
+
+  const birth = new Date(birthDate);
+  const today = new Date();
+
+  if (isNaN(birth.getTime())) return "-";
+
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+
+  return age > 0 ? `${age} Tahun` : "-";
+}
+
+function calculateDebutAge(
+  birthDate: string | undefined,
+  debutDate: string | undefined,
+): string {
+  if (!birthDate || !debutDate) return "-";
+
+  const birth = new Date(birthDate);
+  const debut = new Date(debutDate);
+
+  if (isNaN(birth.getTime()) || isNaN(debut.getTime())) return "-";
+
+  let ageAtDebut = debut.getFullYear() - birth.getFullYear();
+  const monthDiff = debut.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && debut.getDate() < birth.getDate())) {
+    ageAtDebut--;
+  }
+
+  return ageAtDebut > 0 ? `${ageAtDebut} Tahun` : "-";
+}
+
 export default function CastDescriptionSection({
   profile,
 }: CastDescriptionSectionProps) {
+  const currentAge = calculateAge(profile.birthDate);
+  const debutAge = calculateDebutAge(profile.birthDate, profile.debut?.start);
   return (
-    <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative space-y-8">
+    <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative shadow-sm border border-gray-100 dark:border-gray-700">
       <Link
         href={`/filmfy/cast/${profile.slug}/edit`}
-        className="absolute top-4 right-4 inline-flex items-center gap-1
-        text-sm bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-500"
+        className="absolute top-6 right-6 inline-flex items-center gap-2
+        text-xs font-semibold bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20"
       >
-        <Pencil className="w-4 h-4" />
-        Edit
+        <Pencil className="w-3.5 h-3.5" />
+        EDIT PROFILE
       </Link>
 
-      <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-6">
-        <div className="flex justify-center md:justify-start">
-          <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 border">
+      <div className="flex flex-col md:flex-row gap-8 pb-8 border-b border-gray-100 dark:border-gray-700/50">
+        <div className="relative w-40 h-40 self-center md:self-start">
+          <div className="w-full h-full rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-900 border-4 border-white dark:border-gray-800 shadow-md">
             {profile.avatar ? (
               <Image
                 src={profile.avatar}
                 alt={profile.name}
-                width={128}
-                height={128}
+                fill
                 unoptimized
-                className="object-cover w-full h-full"
+                className="object-cover"
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full">
-                <User className="w-10 h-10 text-gray-400" />
+                <User className="w-16 h-16 text-gray-300" />
               </div>
             )}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {profile.name}
-          </h1>
-
-          {profile.alias && (
-            <p className="text-sm text-gray-500">
-              Alias: <span className="font-medium">{profile.alias}</span>
-            </p>
-          )}
+        <div className="flex-1 space-y-4 text-center md:text-left">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              {profile.name}
+            </h1>
+            {profile.alias && (
+              <p className="text-blue-500 font-medium text-sm mt-1">
+                aka {profile.alias}
+              </p>
+            )}
+          </div>
 
           {profile.description && (
-            <p className="text-sm text-gray-700 dark:text-gray-300 max-w-2xl">
-              {profile.description}
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 max-w-2xl italic">
+              "{profile.description}"
             </p>
+          )}
+
+          <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-2">
+            <div className="text-center md:text-left">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                Birth Date
+              </p>
+              <p className="text-sm font-semibold dark:text-gray-200">
+                {profile.birthDate || "-"}
+              </p>
+            </div>
+            <div className="text-center md:text-left border-l border-gray-100 dark:border-gray-700 px-6">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                Current Age
+              </p>
+              <p className="text-sm font-semibold dark:text-gray-200">
+                {currentAge}
+              </p>
+            </div>
+
+            <div className="text-center md:text-left border-l border-gray-100 dark:border-gray-700 px-6">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                Debut Age
+              </p>
+              <p className="text-sm font-semibold dark:text-gray-200">
+                {debutAge}
+              </p>
+            </div>
+            <div className="text-center md:text-left border-l border-gray-100 dark:border-gray-700 px-6">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                Zodiac
+              </p>
+              <p className="text-sm font-semibold dark:text-gray-200">
+                {profile.sign || "-"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8 pt-8">
+        {profile.physical && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2">
+              <Ruler className="w-5 h-5 text-blue-500" />
+              <h3 className="font-bold text-sm uppercase tracking-wider">
+                Physical Stats
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+              <InfoItem label="Height">
+                {profile.physical.height || "-"}
+              </InfoItem>
+              <InfoItem label="Cup Size" className="font-bold text-pink-500">
+                {profile.physical.cup || "-"}
+              </InfoItem>
+              <InfoItem label="Measurements">
+                {profile.physical.measurements || "-"}
+              </InfoItem>
+              <InfoItem label="Shoe Size">
+                {profile.physical.shoeSize || "-"}
+              </InfoItem>
+              <InfoItem label="Hair">{`${profile.physical.hairLength || "-"} (${profile.physical.hairColor || "-"})`}</InfoItem>
+              <InfoItem label="Blood Type">{profile.blood || "-"}</InfoItem>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-8">
+          {profile.profile && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2">
+                <Heart className="w-5 h-5 text-red-500" />
+                <h3 className="font-bold text-sm uppercase tracking-wider">
+                  Interests & Skills
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <InfoItem label="Hobbies">
+                  {profile.profile.hobbies || "-"}
+                </InfoItem>
+                <InfoItem label="Special Skills">
+                  {profile.profile.specialSkills || "-"}
+                </InfoItem>
+              </div>
+            </div>
+          )}
+
+          {profile.debut && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-900 dark:text-white border-b dark:border-gray-700 pb-2">
+                <PlayCircle className="w-5 h-5 text-green-500" />
+                <h3 className="font-bold text-sm uppercase tracking-wider">
+                  Career Debut
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <InfoItem label="Start Date">
+                  {profile.debut.start || "-"}
+                </InfoItem>
+                <InfoItem label="End Date">{profile.debut.end || "-"}</InfoItem>
+                <div className="col-span-2">
+                  <InfoItem label="Reason">
+                    {profile.debut.reason || "-"}
+                  </InfoItem>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <InfoItem label="Tanggal Lahir">{profile.birthDate || "-"}</InfoItem>
-        <InfoItem label="Usia">{profile.age || "-"}</InfoItem>
-        <InfoItem label="Tempat Lahir">{profile.birthplace || "-"}</InfoItem>
-        <InfoItem label="Zodiak">{profile.sign || "-"}</InfoItem>
-        <InfoItem label="Golongan Darah">{profile.blood || "-"}</InfoItem>
-      </div>
-
-      {profile.physical && (
-        <div>
-          <h3 className="section-title">Physical</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <InfoItem label="Tinggi">{profile.physical.height || "-"}</InfoItem>
-            <InfoItem label="Measurements">
-              {profile.physical.measurements || "-"}
-            </InfoItem>
-            <InfoItem label="Cup">{profile.physical.cup || "-"}</InfoItem>
-            <InfoItem label="Shoe Size">
-              {profile.physical.shoeSize || "-"}
-            </InfoItem>
-            <InfoItem label="Hair Length">
-              {profile.physical.hairLength || "-"}
-            </InfoItem>
-            <InfoItem label="Hair Color">
-              {profile.physical.hairColor || "-"}
-            </InfoItem>
+      <div className="pt-8 mt-8 border-t border-gray-100 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+            <Share2 className="w-4 h-4 text-blue-500" />
+            <h3 className="font-bold text-xs uppercase tracking-widest">
+              Connect
+            </h3>
           </div>
-        </div>
-      )}
-
-      {profile.profile && (
-        <div>
-          <h3 className="section-title">Profile</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Hobbies">
-              {profile.profile.hobbies || "-"}
-            </InfoItem>
-            <InfoItem label="Special Skills">
-              {profile.profile.specialSkills || "-"}
-            </InfoItem>
-          </div>
-        </div>
-      )}
-
-      {profile.socialMedia && (
-        <div>
-          <h3 className="section-title">Social Media</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(profile.socialMedia).map(
-              ([key, value]) =>
-                value && (
-                  <InfoItem key={key} label={key}>
-                    <a
-                      href={value}
-                      target="_blank"
-                      className="text-blue-500 hover:underline break-all"
-                    >
-                      {value}
-                    </a>
-                  </InfoItem>
-                )
+          <div className="flex flex-wrap gap-3">
+            {profile.socialMedia &&
+            Array.isArray(profile.socialMedia) &&
+            profile.socialMedia.length > 0 ? (
+              profile.socialMedia.map((item, index) => (
+                <a
+                  key={index}
+                  href={
+                    item.url.startsWith("http")
+                      ? item.url
+                      : `https://${item.url}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-xs font-medium hover:border-blue-500 hover:text-blue-500 transition-all shadow-sm"
+                >
+                  {getSocialIcon(item.platform)}
+                  <span>{item.platform}</span>
+                </a>
+              ))
+            ) : (
+              <p className="text-[10px] text-gray-400 italic">
+                No social media links available
+              </p>
             )}
           </div>
         </div>
-      )}
 
-      {profile.debut && (
-        <div>
-          <h3 className="section-title">Debut</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <InfoItem label="Reason">{profile.debut.reason || "-"}</InfoItem>
-            <InfoItem label="Start">{profile.debut.start || "-"}</InfoItem>
-            <InfoItem label="End">{profile.debut.end || "-"}</InfoItem>
+        {profile.tags && profile.tags.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+              <Tags className="w-4 h-4 text-purple-500" />
+              <h3 className="font-bold text-xs uppercase tracking-widest">
+                Tags
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {profile.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 text-[11px] font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {profile.tags && profile.tags.length > 0 && (
-        <div>
-          <h3 className="section-title">Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {profile.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 text-xs rounded-full
-                bg-gray-200 dark:bg-gray-700
-                text-gray-700 dark:text-gray-200"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

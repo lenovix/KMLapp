@@ -17,6 +17,11 @@ interface CastGalleryItem {
   order: number;
 }
 
+interface SocialMediaItem {
+  platform: string;
+  url: string;
+}
+
 interface CastInfo {
   slug: string;
   name: string;
@@ -45,12 +50,7 @@ interface CastInfo {
 
   tags?: string[];
 
-  socialMedia?: {
-    instagram?: string;
-    twitter?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
+  socialMedia?: SocialMediaItem[];
 
   debut?: {
     reason?: string;
@@ -88,7 +88,7 @@ export default async function CastPage({
     }
 
     const filmsByCast = films.filter(
-      (film) => Array.isArray(film.cast) && film.cast.includes(slug)
+      (film) => Array.isArray(film.cast) && film.cast.includes(slug),
     );
 
     return (
@@ -96,25 +96,8 @@ export default async function CastPage({
         cast={slug}
         films={filmsByCast}
         castInfo={{
-          slug: castInfo.slug,
-          name: castInfo.name,
-          alias: castInfo.alias,
-          avatar: castInfo.avatar,
-
-          birthDate: castInfo.birthDate,
-          age: castInfo.age,
-          birthplace: castInfo.birthplace,
-          sign: castInfo.sign,
-          blood: castInfo.blood,
-
-          physical: castInfo.physical,
-          profile: castInfo.profile,
-          tags: castInfo.tags,
-          socialMedia: castInfo.socialMedia,
-          debut: castInfo.debut,
-
-          description: castInfo.description,
-          gallery: castInfo.gallery,
+          ...castInfo,
+          socialMedia: castInfo.socialMedia || [],
         }}
       />
     );

@@ -8,11 +8,8 @@ interface Cast {
   slug: string;
   name: string;
   alias?: string;
-  birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
-  description?: string;
+  updatedAt?: string;
+  createdAt?: string;
   avatar?: string;
 }
 
@@ -29,12 +26,26 @@ export default function CastPage() {
   }, []);
 
   const filteredCasts = useMemo(() => {
-    if (!query) return casts;
-    const q = query.toLowerCase();
-    return casts.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
-    );
+    let result = [...casts];
+
+    if (query) {
+      const q = query.toLowerCase();
+      result = result.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q),
+      );
+    }
+
+    return result.sort((a, b) => {
+      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+
+      if (dateA !== dateB) {
+        return dateB - dateA;
+      }
+
+      return a.name.localeCompare(b.name);
+    });
   }, [casts, query]);
 
   if (loading) {

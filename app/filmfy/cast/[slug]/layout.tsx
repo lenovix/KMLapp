@@ -1,9 +1,32 @@
 import type { Metadata } from "next";
+import fs from "fs";
+import path from "path";
 
-export const metadata: Metadata = {
-  title: "Cast :: Filmfy",
-  description: "Filmfy is Movies Collection",
+type Props = {
+  params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  const CAST_JSON = path.join(process.cwd(), "data", "filmfy", "casts.json");
+
+  try {
+    const raw = fs.readFileSync(CAST_JSON, "utf-8");
+    const casts = JSON.parse(raw);
+    const cast = casts.find((c: any) => c.slug === slug);
+    const title = cast ? `${cast.name} :: Filmfy` : "Cast Not Found :: Filmfy";
+
+    return {
+      title: title,
+      description: cast?.description || "Filmfy is Movies Collection",
+    };
+  } catch (error) {
+    return {
+      title: "Cast :: Filmfy",
+    };
+  }
+}
 
 export default function KomicfyLayout({
   children,
