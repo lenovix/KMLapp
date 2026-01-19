@@ -69,7 +69,6 @@ export default function FilmfyPage() {
                 Filmfy
               </h1>
             </div>
-
             <div className="flex items-center gap-3">
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -105,6 +104,18 @@ export default function FilmfyPage() {
             </div>
           </div>
         </header>
+
+        <Link
+          href="/filmfy/cast"
+          className="inline-flex items-center gap-2 px-4 py-2
+             rounded-xl border border-gray-300 dark:border-gray-700
+             bg-white dark:bg-gray-800
+             text-sm font-medium text-gray-700 dark:text-gray-200
+             hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        >
+          🎭
+          <span className="hidden sm:inline">Casts</span>
+        </Link>
 
         <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {paginatedFilms.map((film) => (

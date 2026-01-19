@@ -22,10 +22,42 @@ interface CastInfo {
   name: string;
   alias?: string;
   avatar?: string;
+
   birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
+  age?: string;
+  birthplace?: string;
+  sign?: string;
+  blood?: string;
+
+  physical?: {
+    height?: string;
+    measurements?: string;
+    cup?: string;
+    shoeSize?: string;
+    hairLength?: string;
+    hairColor?: string;
+  };
+
+  profile?: {
+    hobbies?: string;
+    specialSkills?: string;
+  };
+
+  tags?: string[];
+
+  socialMedia?: {
+    instagram?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+
+  debut?: {
+    reason?: string;
+    start?: string;
+    end?: string;
+  };
+
   description?: string;
   gallery?: CastGalleryItem[];
 }
@@ -36,10 +68,10 @@ const CASTS_FILE = path.join(process.cwd(), "data", "filmfy", "casts.json");
 export default async function CastPage({
   params,
 }: {
-  params: Promise<{ cast: string }>;
+  params: Promise<{ slug: string }>;
 }) {
   const resolvedParams = await params;
-  const slug = decodeURIComponent(resolvedParams.cast);
+  const slug = decodeURIComponent(resolvedParams.slug);
 
   if (!fs.existsSync(FILMS_FILE) || !fs.existsSync(CASTS_FILE)) {
     return notFound();
@@ -68,10 +100,19 @@ export default async function CastPage({
           name: castInfo.name,
           alias: castInfo.alias,
           avatar: castInfo.avatar,
+
           birthDate: castInfo.birthDate,
-          debutReason: castInfo.debutReason,
-          debutStart: castInfo.debutStart,
-          debutEnd: castInfo.debutEnd,
+          age: castInfo.age,
+          birthplace: castInfo.birthplace,
+          sign: castInfo.sign,
+          blood: castInfo.blood,
+
+          physical: castInfo.physical,
+          profile: castInfo.profile,
+          tags: castInfo.tags,
+          socialMedia: castInfo.socialMedia,
+          debut: castInfo.debut,
+
           description: castInfo.description,
           gallery: castInfo.gallery,
         }}

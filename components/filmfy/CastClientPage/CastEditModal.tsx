@@ -11,10 +11,42 @@ export interface CastFormData {
   alias?: string;
   avatar?: string;
   avatarFile?: File | null;
+
   birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
+  age?: string;
+  birthplace?: string;
+  sign?: string;
+  blood?: string;
+
+  physical?: {
+    height?: string;
+    measurements?: string;
+    cup?: string;
+    shoeSize?: string;
+    hairLength?: string;
+    hairColor?: string;
+  };
+
+  profile?: {
+    hobbies?: string;
+    specialSkills?: string;
+  };
+
+  tags?: string[];
+
+  socialMedia?: {
+    instagram?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+
+  debut?: {
+    reason?: string;
+    start?: string;
+    end?: string;
+  };
+
   description?: string;
 }
 
@@ -135,54 +167,210 @@ export default function CastEditModal({
                   />
                 </InfoItem>
 
-                <InfoItem label="Debut Mulai">
+                <InfoItem label="Tempat Lahir">
                   <input
-                    type="date"
                     className="dark-input"
-                    value={form.debutStart || ""}
+                    value={form.birthplace || ""}
                     onChange={(e) =>
-                      setForm({ ...form, debutStart: e.target.value })
+                      setForm({ ...form, birthplace: e.target.value })
                     }
                   />
                 </InfoItem>
 
-                <InfoItem label="Debut Selesai">
+                <InfoItem label="Zodiak">
                   <input
-                    type="date"
                     className="dark-input"
-                    value={form.debutEnd || ""}
+                    value={form.sign || ""}
+                    onChange={(e) => setForm({ ...form, sign: e.target.value })}
+                  />
+                </InfoItem>
+
+                <InfoItem label="Golongan Darah">
+                  <input
+                    className="dark-input"
+                    value={form.blood || ""}
                     onChange={(e) =>
-                      setForm({ ...form, debutEnd: e.target.value })
+                      setForm({ ...form, blood: e.target.value })
                     }
                   />
                 </InfoItem>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <InfoItem label="Alasan Debut">
+              <h3 className="text-sm font-semibold text-gray-300 mt-6">
+                Physical
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoItem label="Height">
+                  <input
+                    className="dark-input"
+                    value={form.physical?.height || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        physical: { ...form.physical, height: e.target.value },
+                      })
+                    }
+                  />
+                </InfoItem>
+
+                <InfoItem label="Measurements">
+                  <input
+                    className="dark-input"
+                    value={form.physical?.measurements || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        physical: {
+                          ...form.physical,
+                          measurements: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </InfoItem>
+
+                <InfoItem label="Cup">
+                  <input
+                    className="dark-input"
+                    value={form.physical?.cup || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        physical: { ...form.physical, cup: e.target.value },
+                      })
+                    }
+                  />
+                </InfoItem>
+
+                <InfoItem label="Shoe Size">
+                  <input
+                    className="dark-input"
+                    value={form.physical?.shoeSize || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        physical: {
+                          ...form.physical,
+                          shoeSize: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </InfoItem>
+              </div>
+
+              <InfoItem label="Hobbies">
                 <textarea
-                  rows={3}
+                  rows={2}
                   className="dark-input resize-none"
-                  value={form.debutReason || ""}
+                  value={form.profile?.hobbies || ""}
                   onChange={(e) =>
-                    setForm({ ...form, debutReason: e.target.value })
+                    setForm({
+                      ...form,
+                      profile: { ...form.profile, hobbies: e.target.value },
+                    })
                   }
                 />
               </InfoItem>
 
-              <InfoItem label="Deskripsi">
+              <InfoItem label="Special Skills">
                 <textarea
-                  rows={4}
+                  rows={2}
                   className="dark-input resize-none"
-                  value={form.description || ""}
+                  value={form.profile?.specialSkills || ""}
                   onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
+                    setForm({
+                      ...form,
+                      profile: {
+                        ...form.profile,
+                        specialSkills: e.target.value,
+                      },
+                    })
+                  }
+                />
+              </InfoItem>
+
+              <h3 className="text-sm font-semibold text-gray-300 mt-6">
+                Social Media
+              </h3>
+
+              <InfoItem label="Instagram">
+                <input
+                  className="dark-input"
+                  value={form.socialMedia?.instagram || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      socialMedia: {
+                        ...form.socialMedia,
+                        instagram: e.target.value,
+                      },
+                    })
                   }
                 />
               </InfoItem>
             </div>
+
+            <h3 className="text-sm font-semibold text-gray-300 mt-6">Debut</h3>
+
+            <InfoItem label="Alasan Debut">
+              <textarea
+                rows={2}
+                className="dark-input"
+                value={form.debut?.reason || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    debut: { ...form.debut, reason: e.target.value },
+                  })
+                }
+              />
+            </InfoItem>
+
+            <InfoItem label="Debut Mulai">
+              <input
+                className="dark-input"
+                value={form.debut?.start || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    debut: { ...form.debut, start: e.target.value },
+                  })
+                }
+              />
+            </InfoItem>
+
+            <InfoItem label="Debut Selesai">
+              <input
+                className="dark-input"
+                value={form.debut?.end || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    debut: { ...form.debut, end: e.target.value },
+                  })
+                }
+              />
+            </InfoItem>
           </div>
+
+          <InfoItem label="Tags">
+            <input
+              className="dark-input"
+              placeholder="actor, model, content creator"
+              value={(form.tags || []).join(", ")}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  tags: e.target.value
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                })
+              }
+            />
+          </InfoItem>
         </div>
 
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-800 bg-gray-950">

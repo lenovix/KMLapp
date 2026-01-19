@@ -14,14 +14,15 @@ function ensureDir(dir: string) {
 }
 
 export async function GET() {
-  const filePath = path.join(process.cwd(), "data", "filmfy", "casts.json");
-
   try {
-    const file = fs.readFileSync(filePath, "utf-8");
-    const casts = JSON.parse(file);
+    if (!fs.existsSync(CAST_JSON)) {
+      return NextResponse.json([]);
+    }
 
+    const casts = JSON.parse(fs.readFileSync(CAST_JSON, "utf-8"));
     return NextResponse.json(casts);
   } catch (err) {
+    console.error(err);
     return NextResponse.json([], { status: 500 });
   }
 }
@@ -32,44 +33,92 @@ export async function POST(req: Request) {
     ensureDir(AVATAR_BASE_DIR);
 
     const formData = await req.formData();
-    const slug = String(formData.get("slug"));
+    const slug = String(formData.get("slug") || "").trim();
 
-    if (!slug || slug === "undefined" || slug === "null") {
+    if (!slug) {
       return NextResponse.json(
-        { error: "Invalid or missing cast slug" },
+        { error: "Cast slug is required" },
         { status: 400 }
       );
     }
 
     const payload: any = {
       slug,
-      name: formData.get("name"),
-      alias: formData.get("alias"),
-      birthDate: formData.get("birthDate"),
-      debutReason: formData.get("debutReason"),
-      debutStart: formData.get("debutStart"),
-      debutEnd: formData.get("debutEnd"),
-      description: formData.get("description"),
+      name: formData.get("name") || undefined,
+      alias: formData.get("alias") || undefined,
+
+      birthDate: formData.get("birthDate") || undefined,
+      age: formData.get("age") || undefined,
+      birthplace: formData.get("birthplace") || undefined,
+      sign: formData.get("sign") || undefined,
+      blood: formData.get("blood") || undefined,
+
+      physical: {
+        height: formData.get("physical.height") || undefined,
+        measurements: formData.get("physical.measurements") || undefined,
+        cup: formData.get("physical.cup") || undefined,
+        shoeSize: formData.get("physical.shoeSize") || undefined,
+        hairLength: formData.get("physical.hairLength") || undefined,
+        hairColor: formData.get("physical.hairColor") || undefined,
+      },
+
+      profile: {
+        hobbies: formData.get("profile.hobbies") || undefined,
+        specialSkills: formData.get("profile.specialSkills") || undefined,
+      },
+
+      socialMedia: {
+        instagram: formData.get("social.instagram") || undefined,
+        twitter: formData.get("social.twitter") || undefined,
+        tiktok: formData.get("social.tiktok") || undefined,
+        youtube: formData.get("social.youtube") || undefined,
+      },
+
+      debut: {
+        reason: formData.get("debut.reason") || undefined,
+        start: formData.get("debut.start") || undefined,
+        end: formData.get("debut.end") || undefined,
+      },
+
+      description: formData.get("description") || undefined,
+
+      tags: formData.get("tags")
+        ? String(formData.get("tags"))
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : undefined,
     };
 
-    Object.keys(payload).forEach(
-      (k) =>
-        (payload[k] === null ||
-          payload[k] === undefined ||
-          payload[k] === "") &&
-        delete payload[k]
-    );
+    function clean(obj: any) {
+      Object.keys(obj).forEach((k) => {
+        const v = obj[k];
+        if (
+          v === undefined ||
+          v === null ||
+          (typeof v === "object" && Object.keys(v).length === 0)
+        ) {
+          delete obj[k];
+        }
+      });
+    }
+
+    clean(payload.physical);
+    clean(payload.profile);
+    clean(payload.socialMedia);
+    clean(payload.debut);
+    clean(payload);
 
     const avatarFile = formData.get("avatar") as File | null;
 
     if (avatarFile && avatarFile.size > 0) {
       const buffer = Buffer.from(await avatarFile.arrayBuffer());
 
-      const castAvatarDir = path.join(AVATAR_BASE_DIR, slug);
-      ensureDir(castAvatarDir);
+      const castDir = path.join(AVATAR_BASE_DIR, slug);
+      ensureDir(castDir);
 
       const avatarFilename = "avatar.jpg";
-      const avatarPath = path.join(castAvatarDir, avatarFilename);
+      const avatarPath = path.join(castDir, avatarFilename);
 
       fs.writeFileSync(avatarPath, buffer);
 
@@ -87,21 +136,24 @@ export async function POST(req: Request) {
       casts[index] = {
         ...casts[index],
         ...payload,
+        updatedAt: new Date().toISOString(),
       };
     } else {
-      if (slug !== "undefined") {
-        casts.push(payload);
-      }
+      casts.push({
+        ...payload,
+        createdAt: new Date().toISOString(),
+      });
     }
 
     fs.writeFileSync(CAST_JSON, JSON.stringify(casts, null, 2));
 
     return NextResponse.json({
       success: true,
+      slug,
       avatar: payload.avatar,
     });
   } catch (err) {
-    console.error(err);
+    console.error("CAST SAVE ERROR:", err);
     return NextResponse.json({ error: "Failed to save cast" }, { status: 500 });
   }
 }

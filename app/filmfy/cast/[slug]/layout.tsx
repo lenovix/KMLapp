@@ -12,9 +12,7 @@ export default function KomicfyLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <main className="">
-        {children}
-      </main>
+      <main className="">{children}</main>
     </div>
   );
 }

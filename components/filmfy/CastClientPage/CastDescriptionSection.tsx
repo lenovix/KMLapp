@@ -1,181 +1,205 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { User, Pencil, Loader2 } from "lucide-react";
-import CastEditModal, { CastFormData } from "./CastEditModal";
+import { User, Pencil } from "lucide-react";
+import InfoItem from "@/components/UI/InfoItem";
+import Link from "next/link";
+
+export interface CastFormData {
+  slug: string;
+  name: string;
+  alias?: string;
+  avatar?: string;
+
+  birthDate?: string;
+  age?: string;
+  birthplace?: string;
+  sign?: string;
+  blood?: string;
+
+  physical?: {
+    height?: string;
+    measurements?: string;
+    cup?: string;
+    shoeSize?: string;
+    hairLength?: string;
+    hairColor?: string;
+  };
+
+  profile?: {
+    hobbies?: string;
+    specialSkills?: string;
+  };
+
+  tags?: string[];
+
+  socialMedia?: {
+    instagram?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+
+  debut?: {
+    reason?: string;
+    start?: string;
+    end?: string;
+  };
+
+  description?: string;
+}
 
 interface CastDescriptionSectionProps {
-  profile: CastFormData & { slug: string };
-  onSave?: (profile: CastFormData) => void;
+  profile: CastFormData;
 }
 
 export default function CastDescriptionSection({
   profile,
-  onSave,
 }: CastDescriptionSectionProps) {
-  const [openModal, setOpenModal] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const [form, setForm] = useState<CastFormData>(profile);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    profile.avatar || null
-  );
-
-  const handleSave = async (data: CastFormData) => {
-    console.log("Saving for slug:", profile.slug);
-
-    if (!profile.slug) {
-      alert("Error: Cast Slug tidak ditemukan!");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const formData = new FormData();
-      formData.append("slug", profile.slug);
-      formData.append("name", data.name);
-      formData.append("alias", data.alias || "");
-      formData.append("birthDate", data.birthDate || "");
-      formData.append("debutReason", data.debutReason || "");
-      formData.append("debutStart", data.debutStart || "");
-      formData.append("debutEnd", data.debutEnd || "");
-      formData.append("description", data.description || "");
-
-      if (data.avatarFile) {
-        formData.append("avatar", data.avatarFile);
-      }
-
-      const res = await fetch("/api/filmfy/cast", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      if (result.success) {
-        setForm({ ...data, avatar: result.avatar || data.avatar });
-
-        if (data.avatarFile) {
-          const objectUrl = URL.createObjectURL(data.avatarFile);
-          setAvatarPreview(objectUrl);
-        }
-
-        setOpenModal(false);
-        onSave?.(data);
-        alert("Data berhasil disimpan!");
-      } else {
-        alert("Gagal menyimpan: " + result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan koneksi.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
-    <>
-      <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative">
-        <button
-          onClick={() => setOpenModal(true)}
-          className="absolute top-4 right-4 inline-flex items-center gap-1
-               text-sm bg-blue-600 text-white px-3 py-1 rounded-lg"
-        >
-          <Pencil className="w-4 h-4" />
-          Edit
-        </button>
+    <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative space-y-8">
+      <Link
+        href={`/filmfy/cast/${profile.slug}/edit`}
+        className="absolute top-4 right-4 inline-flex items-center gap-1
+        text-sm bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-500"
+      >
+        <Pencil className="w-4 h-4" />
+        Edit
+      </Link>
 
-        <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-6">
-          <div className="flex justify-center md:justify-start">
-            <div
-              className="w-32 h-32 rounded-2xl overflow-hidden
-                   bg-gray-200 dark:bg-gray-800
-                   border border-gray-300 dark:border-gray-700
-                   shadow-sm"
-            >
-              {avatarPreview ? (
-                <Image
-                  src={avatarPreview}
-                  alt={form.name}
-                  width={128}
-                  height={128}
-                  unoptimized
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full">
-                  <User className="w-10 h-10 text-gray-400" />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Info */}
-          <div className="space-y-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {form.name}
-              </h1>
-              {form.alias && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Alias: <span className="font-medium">{form.alias}</span>
-                </p>
-              )}
-            </div>
-
-            {form.description && (
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-w-2xl">
-                {form.description}
-              </p>
+      <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-6">
+        <div className="flex justify-center md:justify-start">
+          <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 border">
+            {profile.avatar ? (
+              <Image
+                src={profile.avatar}
+                alt={profile.name}
+                width={128}
+                height={128}
+                unoptimized
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full">
+                <User className="w-10 h-10 text-gray-400" />
+              </div>
             )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              {form.birthDate && (
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">
-                    Tanggal Lahir (DOB)
-                  </p>
-                  <p className="font-medium text-gray-800 dark:text-gray-200">
-                    {form.birthDate}
-                  </p>
-                </div>
-              )}
-
-              {(form.debutStart || form.debutEnd) && (
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">
-                    Masa Debut
-                  </p>
-                  <p className="font-medium text-gray-800 dark:text-gray-200">
-                    {form.debutStart || "?"} – {form.debutEnd || "Sekarang"}
-                  </p>
-                </div>
-              )}
-
-              {form.debutReason && (
-                <div className="sm:col-span-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">
-                    Alasan Debut
-                  </p>
-                  <p className="font-medium text-gray-800 dark:text-gray-200">
-                    {form.debutReason}
-                  </p>
-                </div>
-              )}
-            </div>
           </div>
         </div>
-      </section>
 
-      <CastEditModal
-        open={openModal}
-        initialData={form}
-        onClose={() => setOpenModal(false)}
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
-    </>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {profile.name}
+          </h1>
+
+          {profile.alias && (
+            <p className="text-sm text-gray-500">
+              Alias: <span className="font-medium">{profile.alias}</span>
+            </p>
+          )}
+
+          {profile.description && (
+            <p className="text-sm text-gray-700 dark:text-gray-300 max-w-2xl">
+              {profile.description}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <InfoItem label="Tanggal Lahir">{profile.birthDate || "-"}</InfoItem>
+        <InfoItem label="Usia">{profile.age || "-"}</InfoItem>
+        <InfoItem label="Tempat Lahir">{profile.birthplace || "-"}</InfoItem>
+        <InfoItem label="Zodiak">{profile.sign || "-"}</InfoItem>
+        <InfoItem label="Golongan Darah">{profile.blood || "-"}</InfoItem>
+      </div>
+
+      {profile.physical && (
+        <div>
+          <h3 className="section-title">Physical</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <InfoItem label="Tinggi">{profile.physical.height || "-"}</InfoItem>
+            <InfoItem label="Measurements">
+              {profile.physical.measurements || "-"}
+            </InfoItem>
+            <InfoItem label="Cup">{profile.physical.cup || "-"}</InfoItem>
+            <InfoItem label="Shoe Size">
+              {profile.physical.shoeSize || "-"}
+            </InfoItem>
+            <InfoItem label="Hair Length">
+              {profile.physical.hairLength || "-"}
+            </InfoItem>
+            <InfoItem label="Hair Color">
+              {profile.physical.hairColor || "-"}
+            </InfoItem>
+          </div>
+        </div>
+      )}
+
+      {profile.profile && (
+        <div>
+          <h3 className="section-title">Profile</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Hobbies">
+              {profile.profile.hobbies || "-"}
+            </InfoItem>
+            <InfoItem label="Special Skills">
+              {profile.profile.specialSkills || "-"}
+            </InfoItem>
+          </div>
+        </div>
+      )}
+
+      {profile.socialMedia && (
+        <div>
+          <h3 className="section-title">Social Media</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(profile.socialMedia).map(
+              ([key, value]) =>
+                value && (
+                  <InfoItem key={key} label={key}>
+                    <a
+                      href={value}
+                      target="_blank"
+                      className="text-blue-500 hover:underline break-all"
+                    >
+                      {value}
+                    </a>
+                  </InfoItem>
+                )
+            )}
+          </div>
+        </div>
+      )}
+
+      {profile.debut && (
+        <div>
+          <h3 className="section-title">Debut</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <InfoItem label="Reason">{profile.debut.reason || "-"}</InfoItem>
+            <InfoItem label="Start">{profile.debut.start || "-"}</InfoItem>
+            <InfoItem label="End">{profile.debut.end || "-"}</InfoItem>
+          </div>
+        </div>
+      )}
+
+      {profile.tags && profile.tags.length > 0 && (
+        <div>
+          <h3 className="section-title">Tags</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 text-xs rounded-full
+                bg-gray-200 dark:bg-gray-700
+                text-gray-700 dark:text-gray-200"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
   );
 }

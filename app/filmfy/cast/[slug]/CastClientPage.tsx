@@ -8,7 +8,6 @@ import { ArrowLeft, Bookmark, Plus, Search } from "lucide-react";
 import CastDescriptionSection from "@/components/filmfy/CastClientPage/CastDescriptionSection";
 import CastGallerySection from "@/components/filmfy/CastClientPage/CastGallerySection";
 import CastFilmListSection from "@/components/filmfy/CastClientPage/CastFilmListSection";
-import { CastFormData } from "@/components/filmfy/CastClientPage/CastEditModal";
 
 interface Film {
   id: number;
@@ -16,45 +15,66 @@ interface Film {
   code: string;
   cover?: string | null;
 }
+
 interface CastGalleryItem {
   name: string;
   order: number;
 }
-interface CastInfo {
+
+export interface CastInfo {
   slug: string;
   name: string;
   alias?: string;
-  avatar?: string | null;
+  avatar?: string;
+
   birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
+  age?: string;
+  birthplace?: string;
+  sign?: string;
+  blood?: string;
+
+  physical?: {
+    height?: string;
+    measurements?: string;
+    cup?: string;
+    shoeSize?: string;
+    hairLength?: string;
+    hairColor?: string;
+  };
+
+  profile?: {
+    hobbies?: string;
+    specialSkills?: string;
+  };
+
+  tags?: string[];
+
+  socialMedia?: {
+    instagram?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+
+  debut?: {
+    reason?: string;
+    start?: string;
+    end?: string;
+  };
+
   description?: string;
   gallery?: CastGalleryItem[];
 }
 
-export default function CastClientPage({
-  cast,
-  films,
-  castInfo: initialCastInfo,
-}: {
+interface Props {
   cast: string;
   films: Film[];
   castInfo?: CastInfo;
-}) {
+}
+
+export default function CastClientPage({ cast, films, castInfo }: Props) {
   const [query, setQuery] = useState("");
   const router = useRouter();
-  const castProfile: CastFormData = {
-    slug: initialCastInfo?.slug || "",
-    name: initialCastInfo?.name || cast,
-    alias: initialCastInfo?.alias || "",
-    avatar: initialCastInfo?.avatar || "",
-    birthDate: initialCastInfo?.birthDate || "",
-    debutReason: initialCastInfo?.debutReason || "",
-    debutStart: initialCastInfo?.debutStart || "",
-    debutEnd: initialCastInfo?.debutEnd || "",
-    description: initialCastInfo?.description || "",
-  };
 
   const filteredFilms = useMemo(() => {
     const q = query.toLowerCase();
@@ -64,6 +84,14 @@ export default function CastClientPage({
         film.code.toLowerCase().includes(q)
     );
   }, [query, films]);
+
+  if (!castInfo) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-400">Cast data not found</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -110,40 +138,13 @@ export default function CastClientPage({
           </div>
         </header>
 
-        <CastDescriptionSection
-          profile={castProfile}
-          onSave={async (data) => {
-            const formData = new FormData();
-
-            formData.append("slug", cast);
-            formData.append("name", data.name);
-
-            if (data.alias) formData.append("alias", data.alias);
-            if (data.birthDate) formData.append("birthDate", data.birthDate);
-            if (data.debutReason)
-              formData.append("debutReason", data.debutReason);
-            if (data.debutStart) formData.append("debutStart", data.debutStart);
-            if (data.debutEnd) formData.append("debutEnd", data.debutEnd);
-            if (data.description)
-              formData.append("description", data.description);
-
-            if (data.avatarFile) {
-              formData.append("avatar", data.avatarFile);
-            }
-
-            await fetch("/api/filmfy/cast", {
-              method: "POST",
-              body: formData,
-            });
-          }}
-        />
-
+        <CastDescriptionSection profile={castInfo} />
         <CastFilmListSection films={filteredFilms} />
 
         <CastGallerySection
           slug={cast}
           images={
-            initialCastInfo?.gallery?.map(
+            castInfo.gallery?.map(
               (g) => `/filmfy/casts/${cast}/gallery/${g.name}`
             ) || []
           }
