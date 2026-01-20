@@ -3,16 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Plus, Search } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-
-interface Cast {
-  slug: string;
-  name: string;
-  alias?: string;
-  updatedAt?: string;
-  createdAt?: string;
-  avatar?: string;
-  tags?: string[];
-}
+import { Cast } from "@/types/filmfy";
 
 export default function CastPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);

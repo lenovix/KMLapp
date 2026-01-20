@@ -3,66 +3,31 @@ import path from "path";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Bookmark, Plus } from "lucide-react";
+import { ArrowLeft, Bookmark, Plus, Film as FilmIcon } from "lucide-react";
 
 import InfoItem from "@/components/UI/InfoItem";
 import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
 import MovieActionButtons from "@/components/filmfy/MovieActionButtons";
 import FavoriteRatingButtons from "@/components/filmfy/FavoriteRatingButtons";
 
+import { Film, Cast } from "@/types/filmfy";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-interface FilmPart {
-  order: number;
-  title: string;
-  note?: string;
-  folder: string;
-}
-
-interface Film {
-  id: number;
-  title: string;
-  code: string;
-  cencored: string;
-  isDeleted: boolean;
-  releaseDate?: string;
-  director?: string;
-  maker?: string;
-  label?: string;
-  genre: string[];
-  cast: string[];
-  series?: string | null;
-  cover?: string | null;
-  parts: FilmPart[];
-  createdAt: string;
-}
-
-interface Cast {
-  slug: string;
-  name: string;
-  alias?: string;
-  avatar?: string;
-  birthDate?: string;
-  debutReason?: string;
-  debutStart?: string;
-  debutEnd?: string;
-  description?: string;
-}
+const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
 async function getCasts(): Promise<Cast[]> {
-  const res = await fetch(`${BASE_URL}/api/filmfy/cast`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/api/filmfy/cast`, {
+      cache: "no-store",
+    });
+    return res.ok ? res.json() : [];
+  } catch {
+    return [];
+  }
 }
-
-const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
 function getVideoFiles(folderPath: string) {
   if (!fs.existsSync(folderPath)) return [];
-
   return fs
     .readdirSync(folderPath)
     .filter((file) =>
@@ -70,221 +35,162 @@ function getVideoFiles(folderPath: string) {
     );
 }
 
-interface PageProps {
+export default async function FilmDetailPage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
-
-export default async function FilmDetailPage({ params }: PageProps) {
-  const resolvedParams = await params;
-  const id = resolvedParams?.id;
-
+}) {
+  const { id } = await params;
   if (!id) return notFound();
 
   const casts = await getCasts();
   const castMap = new Map<string, Cast>(casts.map((c) => [c.slug, c]));
 
   if (!fs.existsSync(DATA_FILE)) return notFound();
-
   const films: Film[] = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8") || "[]");
+  const film = films.find((f) => f.id === Number(id));
 
-  const filmId = Number(id);
-  if (Number.isNaN(filmId)) return notFound();
-
-  const film = films.find((f) => f.id === filmId);
   if (!film) return notFound();
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <header className="sticky top-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/filmfy"
-                className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Filmfy
-              </h1>
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <header className="sticky top-0 z-30 w-full bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/filmfy"
+              className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Filmfy <span className="text-blue-600">Detail</span>
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/filmfy/favorite"
+              className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 transition"
+            >
+              <Bookmark className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </Link>
+            <Link
+              href="/filmfy/upload"
+              className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-500/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-12">
+        <section className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12 items-start">
+          <div className="mx-auto md:mx-0 w-full max-w-75">
+            <div className="aspect-2/3 relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 dark:ring-gray-800">
+              {film.cover ? (
+                <Image
+                  src={film.cover}
+                  alt={film.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                  <FilmIcon className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
             </div>
 
-            <div className="flex gap-2">
-              <Link
-                href="/filmfy/favorite"
-                className="p-2 rounded-xl border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <Bookmark className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </Link>
-              <Link
-                href="/filmfy/upload"
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm flex items-center gap-2 hover:bg-blue-700 transition"
-              >
-                <Plus className="w-4 h-4" />
-                Tambah Film
-              </Link>
+            <div className="mt-6 space-y-3">
+              <FavoriteRatingButtons filmId={film.id} />
+              <MovieActionButtons filmId={film.id} />
             </div>
           </div>
-        </header>
 
-        <section className="flex flex-col md:flex-row gap-8 items-start">
-          {film.cover && (
-            <div className="relative shrink-0 mx-auto md:mx-0">
-              <Image
-                src={film.cover}
-                alt={film.title}
-                width={260}
-                height={380}
-                className="rounded-2xl border dark:border-gray-700 object-cover shadow-lg"
-                priority
-              />
-            </div>
-          )}
-
-          <div className="space-y-6 flex-1">
-            <div className="space-y-2">
-              <span className="text-blue-600 font-mono text-sm font-bold uppercase tracking-wider">
+          <div className="flex flex-col">
+            <div className="mb-6">
+              <span className="inline-block px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black mb-3 tracking-widest">
                 {film.code}
               </span>
-              <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white leading-tight">
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-6">
                 {film.title}
-              </h1>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {(film.genre ?? []).map((g, i) => (
-                <span
-                  key={`${g}-${i}`}
-                  className="px-4 py-1.5 bg-gray-200 dark:bg-gray-800
-                  text-gray-700 dark:text-gray-300 rounded-full
-                  text-xs font-medium"
-                >
-                  {g}
-                </span>
-              ))}
-            </div>
-
-            <div className="border-t border-gray-800 pt-6 space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                <InfoItem label="Deleted">
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {film.genre.map((g) => (
                   <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      film.isDeleted
-                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                        : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                    }`}
+                    key={g}
+                    className="px-4 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-bold shadow-sm border border-gray-100 dark:border-gray-700"
                   >
-                    {film.isDeleted ? "Yes" : "No"}
+                    {g}
                   </span>
-                </InfoItem>
-                <InfoItem label="Version">{film.cencored || "-"}</InfoItem>
-
-                <InfoItem label="Release Date">
-                  {film.releaseDate || "-"}
-                </InfoItem>
-
-                <InfoItem label="Director">
-                  {film.director ? (
-                    <Link
-                      href={`/filmfy/director/${encodeURIComponent(
-                        film.director
-                      )}`}
-                      className="link-item"
-                    >
-                      {film.director}
-                    </Link>
-                  ) : (
-                    "-"
-                  )}
-                </InfoItem>
-
-                <InfoItem label="Maker">
-                  {film.maker ? (
-                    <Link
-                      href={`/filmfy/maker/${encodeURIComponent(film.maker)}`}
-                      className="link-item"
-                    >
-                      {film.maker}
-                    </Link>
-                  ) : (
-                    "-"
-                  )}
-                </InfoItem>
-
-                <InfoItem label="Label">
-                  {film.label ? (
-                    <Link
-                      href={`/filmfy/label/${encodeURIComponent(film.label)}`}
-                      className="link-item"
-                    >
-                      {film.label}
-                    </Link>
-                  ) : (
-                    "-"
-                  )}
-                </InfoItem>
-
-                <InfoItem label="Series">
-                  {film.series ? (
-                    <Link
-                      href={`/filmfy/series/${encodeURIComponent(film.series)}`}
-                      className="link-item"
-                    >
-                      {film.series}
-                    </Link>
-                  ) : (
-                    "-"
-                  )}
-                </InfoItem>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
-                  Cast
-                </p>
-
-                {film.cast.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {film.cast.map((castId) => {
-                      const cast = castMap.get(castId);
-
-                      return (
-                        <Link
-                          key={castId}
-                          href={`/filmfy/cast/${encodeURIComponent(castId)}`}
-                          className="cast-chip"
-                        >
-                          {cast?.name || castId}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">-</p>
-                )}
+                ))}
               </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <FavoriteRatingButtons filmId={film.id} />
-            <MovieActionButtons filmId={film.id} />
+
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-4 py-8 border-y border-gray-200 dark:border-gray-800">
+              <InfoItem label="Status">
+                <span
+                  className={`text-xs font-black tracking-tighter ${
+                    film.isDeleted ? "text-red-500" : "text-green-500"
+                  }`}
+                >
+                  {film.isDeleted ? "● DELETED" : "● ACTIVE"}
+                </span>
+              </InfoItem>
+              <InfoItem label="Version">{film.cencored || "-"}</InfoItem>
+              <InfoItem label="Release">{film.releaseDate || "-"}</InfoItem>
+              <InfoLink
+                label="Director"
+                href={`/filmfy/director/`}
+                value={film.director}
+              />
+              <InfoLink
+                label="Maker"
+                href={`/filmfy/maker/`}
+                value={film.maker}
+              />
+              <InfoLink
+                label="Series"
+                href={`/filmfy/series/`}
+                value={film.series}
+              />
+            </div>
+
+            <div className="mt-8">
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
+                Cast Members
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {film.cast.map((cId) => (
+                  <Link
+                    key={cId}
+                    href={`/filmfy/cast/${cId}`}
+                    className="px-5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:border-blue-500 transition shadow-sm"
+                  >
+                    {castMap.get(cId)?.name || cId}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="bg-white dark:bg-gray-800/50 rounded-3xl p-6 md:p-8 border dark:border-gray-700 shadow-sm">
-          <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
-            Playlist Part
-          </h2>
+        <section className="pt-12">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="h-10 w-1.5 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]" />
+            <h2 className="text-2xl font-black tracking-tight">
+              Video Playlist
+            </h2>
+          </div>
 
           {film.parts.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed rounded-2xl dark:border-gray-700">
-              <p className="text-sm text-gray-500">
-                Film ini belum memiliki part video.
-              </p>
-            </div>
+            <EmptyState />
           ) : (
-            <ul className="space-y-8">
+            <div className="space-y-12">
               {film.parts
                 .sort((a, b) => a.order - b.order)
                 .map((part) => {
@@ -296,60 +202,114 @@ export default async function FilmDetailPage({ params }: PageProps) {
                     film.code,
                     part.folder
                   );
-
                   const videos = getVideoFiles(folderPath);
 
                   return (
-                    <li key={part.order} className="group space-y-4">
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold text-sm">
-                          {part.order}
-                        </span>
-                        <div>
-                          <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-500 transition">
-                            {part.title}
-                          </h3>
-                          {part.note && (
-                            <p className="text-xs text-gray-500">{part.note}</p>
-                          )}
-                        </div>
+                    <div
+                      key={part.order}
+                      className="relative pl-8 md:pl-14 border-l-2 border-gray-200 dark:border-gray-800 ml-4"
+                    >
+                      <div className="absolute -left-2.75 top-0 w-5 h-5 rounded-full bg-blue-600 border-4 border-gray-50 dark:border-gray-900 shadow-sm" />
+
+                      <div className="mb-6">
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white leading-none">
+                          Part {part.order}{" "}
+                          <span className="text-blue-600 mx-2">—</span>{" "}
+                          {part.title}
+                        </h3>
+                        {part.note && (
+                          <p className="text-sm text-gray-500 mt-2 font-medium italic opacity-80">
+                            {part.note}
+                          </p>
+                        )}
                       </div>
 
-                      {videos.length > 0 && (
-                        <div className="grid grid-cols-1 gap-6 ml-0 md:ml-11">
-                          {videos.map((file) => {
-                            const src = `/filmfy/movie/${film.code}/${part.folder}/${file}`;
-                            return (
-                              <div
-                                key={file}
-                                className="space-y-3 bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl border dark:border-gray-700"
-                              >
-                                <div className="flex justify-between items-center px-1">
-                                  <p className="text-xs font-mono text-gray-400 truncate max-w-50">
-                                    {file}
-                                  </p>
-                                  <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-600 px-2 py-0.5 rounded uppercase font-bold">
-                                    {path.extname(file).replace(".", "")}
-                                  </span>
-                                </div>
-
-                                <FilmfyPlayerClient
-                                  key={`${film.id}-${part.order}-${file}`}
-                                  src={src}
-                                  filmId={film.id}
-                                />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </li>
+                      <div className="grid grid-cols-1 gap-8">
+                        {videos.map((file) => (
+                          <VideoCard
+                            key={file}
+                            file={file}
+                            filmId={film.id}
+                            src={`/filmfy/movie/${film.code}/${part.folder}/${file}`}
+                            partOrder={part.order}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   );
                 })}
-            </ul>
+            </div>
           )}
         </section>
       </div>
     </main>
+  );
+}
+
+function InfoLink({
+  label,
+  href,
+  value,
+}: {
+  label: string;
+  href: string;
+  value?: string | null;
+}) {
+  return (
+    <InfoItem label={label}>
+      {value ? (
+        <Link
+          href={`${href}${encodeURIComponent(value)}`}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          {value}
+        </Link>
+      ) : (
+        "-"
+      )}
+    </InfoItem>
+  );
+}
+
+function VideoCard({
+  file,
+  src,
+  filmId,
+  partOrder,
+}: {
+  file: string;
+  src: string;
+  filmId: number;
+  partOrder: number;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <div className="px-4 py-2 border-b dark:border-gray-800 flex justify-between items-center bg-gray-100/50 dark:bg-gray-800/50">
+        <span className="text-[10px] font-mono text-gray-500 truncate max-w-xs">
+          {file}
+        </span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-gray-700 shadow-sm uppercase">
+          {path.extname(file).replace(".", "")}
+        </span>
+      </div>
+      <div className="p-1">
+        <FilmfyPlayerClient
+          src={src}
+          filmId={filmId}
+          key={`${filmId}-${partOrder}-${file}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/30 rounded-3xl border-2 border-dashed dark:border-gray-800">
+      <FilmIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+      <p className="text-gray-500">
+        Belum ada video yang tersedia untuk film ini.
+      </p>
+    </div>
   );
 }
