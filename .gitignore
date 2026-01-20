@@ -49,6 +49,7 @@ next-env.d.ts
 /data/filmfy/films.json
 /data/filmfy/casts.json
 /data/filmfy/metadata-cast.json
+/data/filmfy/user-actions.json
 
 /command.txt
 /public/tmp_upload
