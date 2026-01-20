@@ -52,8 +52,8 @@ export default function FilmfyPage() {
         filterDeleted === "all"
           ? true
           : filterDeleted === "deleted"
-            ? film.isDeleted === true
-            : film.isDeleted === false;
+          ? film.isDeleted === true
+          : film.isDeleted === false;
 
       const matchesCensored =
         filterCensored === "all" ? true : film.cencored === filterCensored;
@@ -65,7 +65,7 @@ export default function FilmfyPage() {
   const totalPages = Math.ceil(sortedAndFilteredFilms.length / PAGE_SIZE);
   const paginatedFilms = sortedAndFilteredFilms.slice(
     (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
+    page * PAGE_SIZE
   );
 
   return (
@@ -101,13 +101,13 @@ export default function FilmfyPage() {
                 />
               </div>
 
-              <button
-                className="p-2 rounded-xl border border-gray-300 dark:border-gray-700
-                bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                title="Bookmark"
+              <Link
+                href="/filmfy/favorite"
+                aria-label="Favorite Movies"
+                className="p-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 <Bookmark className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-              </button>
+              </Link>
 
               <Link
                 href="/filmfy/upload"

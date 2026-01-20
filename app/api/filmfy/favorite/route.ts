@@ -23,17 +23,22 @@ export async function POST(req: Request) {
 
   const data = readData();
 
-  if (data.favorites.includes(filmId)) {
-    data.favorites = data.favorites.filter((id: number) => id !== filmId);
+  const index = data.favorites.findIndex((f: any) => f.filmId === filmId);
+
+  if (index >= 0) {
+    data.favorites.splice(index, 1);
   } else {
-    data.favorites.push(filmId);
+    data.favorites.push({
+      filmId,
+      addedAt: new Date().toISOString(),
+    });
   }
 
   writeData(data);
 
   return NextResponse.json({
     success: true,
-    isFavorite: data.favorites.includes(filmId),
+    isFavorite: index === -1,
   });
 }
 
