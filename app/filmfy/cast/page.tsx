@@ -11,12 +11,30 @@ interface Cast {
   updatedAt?: string;
   createdAt?: string;
   avatar?: string;
+  tags?: string[];
 }
 
 export default function CastPage() {
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [casts, setCasts] = useState<Cast[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+
+    casts.forEach((cast) => {
+      cast.tags?.forEach((tag) => tagSet.add(tag));
+    });
+
+    return Array.from(tagSet).sort();
+  }, [casts]);
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
 
   useEffect(() => {
     fetch("/api/filmfy/cast")
@@ -32,7 +50,13 @@ export default function CastPage() {
       const q = query.toLowerCase();
       result = result.filter(
         (c) =>
-          c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q),
+          c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
+      );
+    }
+
+    if (selectedTags.length > 0) {
+      result = result.filter((cast) =>
+        cast.tags?.some((tag) => selectedTags.includes(tag))
       );
     }
 
@@ -46,7 +70,7 @@ export default function CastPage() {
 
       return a.name.localeCompare(b.name);
     });
-  }, [casts, query]);
+  }, [casts, query, selectedTags]);
 
   if (loading) {
     return <p className="p-6">Loading cast...</p>;
@@ -106,6 +130,50 @@ export default function CastPage() {
             </div>
           </div>
         </header>
+
+        {allTags.length > 0 && (
+          <div className="px-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Filter by tags
+              </p>
+
+              {selectedTags.length > 0 && (
+                <button
+                  onClick={() => setSelectedTags([])}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {allTags.map((tag) => {
+                const active = selectedTags.includes(tag);
+
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`
+                      inline-flex items-center gap-1
+                      px-3 py-1.5 rounded-full text-xs font-medium
+                      border transition-all duration-200
+                      ${
+                        active
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm ring-2 ring-blue-500/30"
+                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }
+                    `}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="p-6">
           {filteredCasts.length === 0 ? (

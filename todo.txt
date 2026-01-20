@@ -12,6 +12,6 @@
 > Feature
   - setelah cover diupload, file asli akan dicut/dihapus
   - add favorite button on every movie
-  - halaman tags dan tags cast
+  - halaman tags
   - upload subtitle (+script konversi .srt to .vtt)
   - slideshow di halaman setiap cast
