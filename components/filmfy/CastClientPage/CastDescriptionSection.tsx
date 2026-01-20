@@ -89,7 +89,7 @@ function calculateAge(birthDate: string | undefined): string {
 
 function calculateDebutAge(
   birthDate: string | undefined,
-  debutDate: string | undefined,
+  debutDate: string | undefined
 ): string {
   if (!birthDate || !debutDate) return "-";
 
@@ -108,11 +108,95 @@ function calculateDebutAge(
   return ageAtDebut > 0 ? `${ageAtDebut} Tahun` : "-";
 }
 
+function calculateDebutDuration(startDate?: string, endDate?: string): string {
+  if (!startDate) return "-";
+
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date();
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return "-";
+  if (end < start) return "-";
+
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth();
+
+  if (end.getDate() < start.getDate()) {
+    months--;
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  if (years <= 0 && months <= 0) {
+    return "Kurang dari 1 bulan";
+  }
+
+  if (years <= 0) {
+    return `${months} Bulan`;
+  }
+
+  if (months <= 0) {
+    return `${years} Tahun`;
+  }
+
+  return `${years} Tahun ${months} Bulan`;
+}
+
+function getDebutStatus(debut?: {
+  start?: string;
+  end?: string;
+}): "active" | "graduated" | "unknown" {
+  if (!debut?.start) return "unknown";
+  if (debut.end) return "graduated";
+  return "active";
+}
+
+function DebutStatusBadge({ status }: { status: string }) {
+  if (status === "unknown") return null;
+
+  if (status === "active") {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5
+        px-3 py-1 rounded-full
+        text-[11px] font-bold uppercase tracking-wide
+        bg-green-100 dark:bg-green-900/30
+        text-green-700 dark:text-green-400
+        border border-green-200 dark:border-green-800"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+        Active
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5
+      px-3 py-1 rounded-full
+      text-[11px] font-bold uppercase tracking-wide
+      bg-gray-100 dark:bg-gray-800
+      text-gray-600 dark:text-gray-400
+      border border-gray-200 dark:border-gray-700"
+    >
+      Graduated
+    </span>
+  );
+}
+
 export default function CastDescriptionSection({
   profile,
 }: CastDescriptionSectionProps) {
   const currentAge = calculateAge(profile.birthDate);
   const debutAge = calculateDebutAge(profile.birthDate, profile.debut?.start);
+  const debutDuration = calculateDebutDuration(
+    profile.debut?.start,
+    profile.debut?.end
+  );
+  const debutStatus = getDebutStatus(profile.debut);
+
   return (
     <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 relative shadow-sm border border-gray-100 dark:border-gray-700">
       <Link
@@ -145,9 +229,13 @@ export default function CastDescriptionSection({
 
         <div className="flex-1 space-y-4 text-center md:text-left">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-              {profile.name}
-            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                {profile.name}
+              </h1>
+
+              <DebutStatusBadge status={debutStatus} />
+            </div>
             {profile.alias && (
               <p className="text-blue-500 font-medium text-sm mt-1">
                 aka {profile.alias}
@@ -189,6 +277,14 @@ export default function CastDescriptionSection({
             </div>
             <div className="text-center md:text-left border-l border-gray-100 dark:border-gray-700 px-6">
               <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                Debut Duration
+              </p>
+              <p className="text-sm font-semibold dark:text-gray-200">
+                {debutDuration}
+              </p>
+            </div>
+            <div className="text-center md:text-left border-l border-gray-100 dark:border-gray-700 px-6">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
                 Zodiac
               </p>
               <p className="text-sm font-semibold dark:text-gray-200">
@@ -221,7 +317,9 @@ export default function CastDescriptionSection({
               <InfoItem label="Shoe Size">
                 {profile.physical.shoeSize || "-"}
               </InfoItem>
-              <InfoItem label="Hair">{`${profile.physical.hairLength || "-"} (${profile.physical.hairColor || "-"})`}</InfoItem>
+              <InfoItem label="Hair">{`${profile.physical.hairLength || "-"} (${
+                profile.physical.hairColor || "-"
+              })`}</InfoItem>
               <InfoItem label="Blood Type">{profile.blood || "-"}</InfoItem>
             </div>
           </div>
