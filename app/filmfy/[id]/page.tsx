@@ -315,7 +315,7 @@ export default async function FilmDetailPage({ params }: PageProps) {
                         </div>
                       </div>
 
-                      {videos.length > 0 ? (
+                      {videos.length > 0 && (
                         <div className="grid grid-cols-1 gap-6 ml-0 md:ml-11">
                           {videos.map((file) => {
                             const src = `/filmfy/movie/${film.code}/${part.folder}/${file}`;
@@ -337,17 +337,10 @@ export default async function FilmDetailPage({ params }: PageProps) {
                                   key={`${film.id}-${part.order}-${file}`}
                                   src={src}
                                   filmId={film.id}
-                                  // subtitleSrc={`/filmfy/movie/${film.code}/${part.folder}/${file}.vtt`}
                                 />
                               </div>
                             );
                           })}
-                        </div>
-                      ) : (
-                        <div className="ml-11 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed dark:border-gray-700">
-                          <p className="text-xs text-gray-400 italic">
-                            Media tidak ditemukan di folder: {part.folder}
-                          </p>
                         </div>
                       )}
                     </li>
