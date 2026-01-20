@@ -14,4 +14,3 @@
   - add favorite button on every movie
   - halaman tags
   - upload subtitle (+script konversi .srt to .vtt)
-  - slideshow di halaman setiap cast

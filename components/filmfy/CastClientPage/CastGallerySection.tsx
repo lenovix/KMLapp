@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Plus, Trash2 } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 
 interface CastGallerySectionProps {
   slug: string;
@@ -15,6 +15,8 @@ export default function CastGallerySection({
   images: initialImages = [],
   onUploaded,
 }: CastGallerySectionProps) {
+  const [showSlider, setShowSlider] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -32,6 +34,33 @@ export default function CastGallerySection({
 
     setImages(sorted);
   }, [initialImages]);
+
+  useEffect(() => {
+    if (!showSlider) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowSlider(false);
+      if (e.key === "ArrowRight") nextSlide();
+      if (e.key === "ArrowLeft") prevSlide();
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [showSlider, images.length]);
+
+  const openSlider = (index: number) => {
+    if (isEditing) return;
+    setActiveIndex(index);
+    setShowSlider(true);
+  };
+
+  const nextSlide = () => {
+    setActiveIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevSlide = () => {
+    setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
 
   const uploadImages = async (files: File[]) => {
     try {
@@ -141,15 +170,31 @@ export default function CastGallerySection({
           </label>
         )}
 
-        {images.map((img) => (
-          <div key={img} className="relative group">
+        {images.map((img, index) => (
+          <div
+            key={img}
+            className="relative group cursor-pointer"
+            onClick={() => openSlider(index)}
+          >
             <div className="aspect-3/4 max-h-40 overflow-hidden rounded-xl">
-              <Image src={img} alt="Gallery" fill className="object-cover" />
+              <Image
+                src={img}
+                alt="Gallery"
+                fill
+                className="object-cover group-hover:scale-105 transition"
+              />
             </div>
+
+            {!isEditing && (
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-xl" />
+            )}
 
             {isEditing && (
               <button
-                onClick={() => removeImage(img)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeImage(img);
+                }}
                 className="absolute top-2 right-2
                   bg-red-600 text-white
                   p-1 rounded-lg"
@@ -161,6 +206,53 @@ export default function CastGallerySection({
           </div>
         ))}
       </div>
+      {showSlider && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
+          <button
+            onClick={() => setShowSlider(false)}
+            className="absolute top-4 right-4
+              p-2 rounded-full
+              text-white hover:bg-white/10 transition"
+            aria-label="Close"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={prevSlide}
+            className="absolute left-4
+              p-2 rounded-full
+              text-white hover:bg-white/10 transition"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+
+          {/* Image */}
+          <div className="relative w-[90vw] max-w-3xl aspect-3/4">
+            <Image
+              src={images[activeIndex]}
+              alt="Slide"
+              fill
+              className="object-contain rounded-xl"
+            />
+          </div>
+
+          <button
+            onClick={nextSlide}
+            className="absolute right-4
+              p-2 rounded-full
+              text-white hover:bg-white/10 transition"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+
+          <div className="absolute bottom-6 text-white text-sm">
+            {activeIndex + 1} / {images.length}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
