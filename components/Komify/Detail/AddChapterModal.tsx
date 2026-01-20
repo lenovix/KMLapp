@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import comicsData from "@/data/komify/comics.json";
-import { X } from "lucide-react";
+import comicsDataRaw from "@/data/komify/comics.json";
+const comicsData = comicsDataRaw as Comic[];
+import {
+  X,
+  Upload,
+  GripVertical,
+  Image as ImageIcon,
+  CheckCircle2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Comic, Chapter } from "@/types/komify";
 
 interface Props {
   slug: number;
@@ -20,14 +29,12 @@ export default function AddChapterModal({
 }: Props) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [cencoredList, setCencoredList] = useState<string[]>([]);
-  const [comic, setComic] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
     number: "001",
     title: "",
-    language: languages[0] || "",
-    cencored: cencoredList[0] || "",
+    language: "",
+    cencored: "",
   });
 
   const [previewPages, setPreviewPages] = useState<
@@ -35,63 +42,57 @@ export default function AddChapterModal({
   >([]);
 
   useEffect(() => {
-    fetch("/data/config/cencored.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setCencoredList(data);
+    const loadConfig = async () => {
+      try {
+        const [resCen, resLang] = await Promise.all([
+          fetch("/data/config/cencored.json").then((r) => r.json()),
+          fetch("/data/config/language.json").then((r) => r.json()),
+        ]);
+        setCencoredList(resCen);
+        setLanguages(resLang);
+
+        if (resLang.length > 0 || resCen.length > 0) {
+          setForm((prev) => ({
+            ...prev,
+            language: prev.language || resLang[0],
+            cencored: prev.cencored || resCen[0],
+          }));
         }
-      })
-      .catch(console.error);
-    fetch("/data/config/language.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setLanguages(data);
-        }
-      })
-      .catch(console.error);
+      } catch (e) {
+        console.error("Config load error", e);
+      }
+    };
 
-    if (!open) return;
+    if (open) {
+      loadConfig();
+      const found = comicsData.find((c: Comic) => c.slug === slug);
+      if (found) {
+        const nextNum =
+          found.chapters && found.chapters.length > 0
+            ? String(
+                Math.max(
+                  ...found.chapters.map(
+                    (ch: Chapter) => Number(ch.number) || 0,
+                  ),
+                ) + 1,
+              ).padStart(3, "0")
+            : "001";
 
-    const found = comicsData.find((c) => c.slug === slug);
-    if (!found) return;
-
-    setComic(found);
-
-    const nextNum =
-      found.chapters?.length > 0
-        ? String(
-            found.chapters
-              .map((ch: any) => Number(ch.number))
-              .filter((n: number) => !isNaN(n))
-              .reduce((max: number, n: number) => Math.max(max, n), 0) + 1
-          ).padStart(3, "0")
-        : "001";
-
-    setForm({
-      number: nextNum,
-      title: "",
-      language: languages[0],
-      cencored: cencoredList[0],
-    });
-    setPreviewPages([]);
+        setForm((prev) => ({ ...prev, number: nextNum }));
+      }
+    }
   }, [open, slug]);
 
   if (!open) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
-    setPreviewPages(
-      files.map((file, idx) => ({
-        id: `${Date.now()}-${idx}`,
-        file,
-        url: URL.createObjectURL(file),
-      }))
-    );
+    const newPreviews = files.map((file, idx) => ({
+      id: `file-${Date.now()}-${idx}`,
+      file,
+      url: URL.createObjectURL(file),
+    }));
+    setPreviewPages((prev) => [...prev, ...newPreviews]);
   };
 
   const onDragEnd = (result: any) => {
@@ -104,8 +105,7 @@ export default function AddChapterModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return;
-
+    if (loading || previewPages.length === 0) return;
     setLoading(true);
 
     try {
@@ -113,17 +113,15 @@ export default function AddChapterModal({
       fd.append("slug", String(slug));
       fd.append("number", form.number);
       fd.append("title", form.title);
-      fd.append("language", form.language);
-      fd.append("cencored", form.cencored);
-
+      fd.append("language", form.language || languages[0]);
+      fd.append("cencored", form.cencored || cencoredList[0]);
       previewPages.forEach((p) => fd.append("pages", p.file));
 
       const res = await fetch("/api/komify/addChapter", {
         method: "POST",
         body: fd,
       });
-
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error("Upload Failed");
 
       onSuccess?.();
       onClose();
@@ -135,184 +133,217 @@ export default function AddChapterModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
       />
 
-      <div className="relative z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-6 text-slate-200">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-white">
-            Chapter {form.number}
-          </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
-            <X />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative z-10 w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div className="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50 backdrop-blur-xl">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-500/10 p-2 rounded-lg text-blue-500">
+              <ImageIcon size={20} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-white uppercase tracking-tight">
+                Add Chapter {form.number}
+              </h2>
+              <p className="text-xs text-zinc-500 font-medium">
+                Upload and organize comic pages
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 transition-colors"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-3">
-              <label className="block text-sm font-medium text-slate-400 mb-1">
-                Judul Chapter
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                Chapter Title
               </label>
               <input
                 name="title"
                 value={form.title}
-                onChange={handleChange}
-                placeholder="Contoh: Zero to Hero"
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="Enter chapter title..."
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition-all"
                 required
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                  Language
+                </label>
+                <select
+                  value={form.language}
+                  onChange={(e) =>
+                    setForm({ ...form, language: e.target.value })
+                  }
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-3 text-white outline-none appearance-none cursor-pointer"
+                >
+                  {languages.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                  Censorship
+                </label>
+                <select
+                  value={form.cencored}
+                  onChange={(e) =>
+                    setForm({ ...form, cencored: e.target.value })
+                  }
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-3 text-white outline-none appearance-none cursor-pointer"
+                >
+                  {cencoredList.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">
-              Bahasa
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+              Chapter Content
             </label>
-            <select
-              name="language"
-              value={form.language}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, language: e.target.value }))
-              }
-              className="
-                w-full rounded-lg
-                border border-slate-700 bg-slate-800
-                px-3 py-2 text-white
-                focus:ring-2 focus:ring-blue-500 focus:outline-none
-              "
-              required
-            >
-              {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">
-              Cencored Status
-            </label>
-            <select
-              name="cencored"
-              value={form.cencored}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, cencored: e.target.value }))
-              }
-              className="
-                w-full rounded-lg
-                border border-slate-700 bg-slate-800
-                px-3 py-2 text-white
-                focus:ring-2 focus:ring-blue-500 focus:outline-none
-              "
-              required
-            >
-              {cencoredList.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">
-              File Gambar
-            </label>
-
-            <label
-              className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700
-                             rounded-xl p-6 cursor-pointer
-                             hover:border-blue-500 hover:bg-slate-800 transition"
-            >
-              <span className="text-sm text-slate-300">
-                Klik atau drag gambar ke sini
-              </span>
-              <span className="text-xs text-slate-500 mt-1">
-                Bisa diurutkan setelah upload
-              </span>
+            <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[24px] p-12 group hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer overflow-hidden">
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="bg-zinc-800 p-4 rounded-full text-zinc-400 group-hover:text-blue-500 group-hover:scale-110 transition-all duration-300 mb-4">
+                  <Upload size={32} />
+                </div>
+                <span className="text-sm font-bold text-zinc-300">
+                  Click to upload pages
+                </span>
+                <span className="text-xs text-zinc-500 mt-1">
+                  Multi-selection supported (JPG, PNG, WEBP)
+                </span>
+              </div>
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleFilesChange}
                 className="hidden"
-                required
               />
             </label>
           </div>
 
-          {previewPages.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-slate-400 mb-2">
-                Urutkan Halaman
-              </p>
+          <AnimatePresence>
+            {previewPages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
+                    Sort Pages ({previewPages.length})
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewPages([])}
+                    className="text-[10px] font-bold text-red-500 hover:underline"
+                  >
+                    Clear All
+                  </button>
+                </div>
 
-              <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="pages" direction="horizontal">
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="flex gap-4 overflow-x-auto pb-2"
-                    >
-                      {previewPages.map((item, idx) => (
-                        <Draggable
-                          key={item.id}
-                          draggableId={item.id}
-                          index={idx}
-                        >
-                          {(prov, snapshot) => (
-                            <div
-                              ref={prov.innerRef}
-                              {...prov.draggableProps}
-                              {...prov.dragHandleProps}
-                              className={`relative shrink-0 rounded-xl border border-slate-700
-                              bg-slate-800 p-2 w-[120px] transition
-                              ${
-                                snapshot.isDragging
-                                  ? "ring-2 ring-blue-500 shadow-xl"
-                                  : "hover:shadow"
-                              }`}
-                            >
-                              <img
-                                src={item.url}
-                                className="w-full h-36 object-contain rounded-md bg-slate-900"
-                              />
-                              <span
-                                className="absolute -top-2 -right-2
-                              bg-blue-600 text-white text-xs
-                              w-6 h-6 flex items-center justify-center rounded-full"
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="pages" direction="horizontal">
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar"
+                      >
+                        {previewPages.map((item, idx) => (
+                          <Draggable
+                            key={item.id}
+                            draggableId={item.id}
+                            index={idx}
+                          >
+                            {(prov, snap) => (
+                              <div
+                                ref={prov.innerRef}
+                                {...prov.draggableProps}
+                                {...prov.dragHandleProps}
+                                className={`relative group shrink-0 w-32 aspect-[3/4] rounded-2xl overflow-hidden border ${snap.isDragging ? "border-blue-500 shadow-2xl z-50" : "border-zinc-800"}`}
                               >
-                                {idx + 1}
-                              </span>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-blue-600 text-white py-3 font-semibold
-                     hover:bg-blue-700 transition disabled:opacity-60"
-          >
-            {loading ? "Mengupload Chapter..." : "Tambah Chapter"}
-          </button>
+                                <img
+                                  src={item.url}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <GripVertical className="text-white opacity-50" />
+                                </div>
+                                <div className="absolute top-2 left-2 bg-blue-600 text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-lg text-white">
+                                  {idx + 1}
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </form>
-      </div>
+
+        <div className="p-6 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-end gap-4">
+          <button
+            onClick={onClose}
+            className="px-6 py-3 text-xs font-black text-zinc-500 hover:text-white transition-colors uppercase tracking-widest"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || previewPages.length === 0}
+            className="bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-600 px-8 py-3 rounded-xl text-xs font-black text-white shadow-xl shadow-blue-900/20 transition-all flex items-center gap-2 uppercase tracking-widest"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                Uploading...
+              </span>
+            ) : (
+              <>
+                <CheckCircle2 size={16} />
+                Publish Chapter
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }

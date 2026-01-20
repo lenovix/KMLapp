@@ -11,8 +11,8 @@ export default function KomicfyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <main className="flex-1 w-full max-w-6xl">
+    <div className="min-h-screen flex flex-col items-center">
+      <main className="flex-1 w-full transition-all duration-500">
         {children}
       </main>
     </div>

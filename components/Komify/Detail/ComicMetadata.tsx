@@ -1,6 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import {
+  User,
+  Users,
+  Ghost,
+  BookOpen,
+  Layers,
+  Calendar,
+  Info,
+  Palette,
+} from "lucide-react";
 
 interface ComicMetaProps {
   comic: any;
@@ -8,13 +18,18 @@ interface ComicMetaProps {
 
 const toArray = (val: string | string[] | null | undefined): string[] => {
   if (!val) return [];
-  return Array.isArray(val) ? val : [val];
+  if (Array.isArray(val)) return val;
+  return val
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 };
 
 export default function ComicMetadata({ comic }: ComicMetaProps) {
   const renderList = (
     label: string,
-    value: string | string[] | null | undefined
+    value: string | string[] | null | undefined,
+    icon: React.ReactNode,
   ) => {
     const list = toArray(value);
     if (list.length === 0) return null;
@@ -31,59 +46,75 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
     const path = pathMap[label] || label.toLowerCase();
 
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-semibold text-slate-100">{label}:</span>
-
-        {list.map((item) => (
-          <Link
-            key={item}
-            href={`/komify/metadata/${path}/${encodeURIComponent(item)}`}
-            className="
-              inline-flex items-center
-              text-xs font-medium
-              bg-blue-800/20 
-              text-blue-300
-              border border-blue-700/60
-              px-3 py-1.5
-              rounded-md
-              shadow-sm
-              hover:bg-blue-800/40
-              hover:text-white
-              transition
-              duration-200
-            "
-          >
-            {item}
-          </Link>
-        ))}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+          {icon}
+          <span>{label}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {list.map((item) => (
+            <Link
+              key={item}
+              href={`/komify/metadata/${path}/${encodeURIComponent(item)}`}
+              className="text-xs font-bold text-zinc-300 hover:text-blue-400 bg-zinc-800/50 hover:bg-blue-500/10 border border-zinc-800 hover:border-blue-500/30 px-3 py-1.5 rounded-xl transition-all duration-200"
+            >
+              {item}
+            </Link>
+          ))}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="grid grid-cols-1 gap-x-10 gap-y-2 text-sm text-slate-300 mb-6">
-      {renderList("Parodies", comic.parodies)}
-      {renderList("Characters", comic.characters)}
-      {renderList("Author", comic.authors)}
-      {renderList("Artist", comic.artists)}
-      {renderList("Groups", comic.groups)}
-      {renderList("Categories", comic.categories)}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-5">
+          {renderList(
+            "Author",
+            comic.authors,
+            <User size={12} className="text-blue-500" />,
+          )}
+          {renderList(
+            "Artist",
+            comic.artists,
+            <Palette size={12} className="text-purple-500" />,
+          )}
+          {renderList(
+            "Groups",
+            comic.groups,
+            <Users size={12} className="text-emerald-500" />,
+          )}
+        </div>
+        <div className="space-y-5">
+          {renderList(
+            "Parodies",
+            comic.parodies,
+            <Ghost size={12} className="text-orange-500" />,
+          )}
+          {renderList(
+            "Characters",
+            comic.characters,
+            <Layers size={12} className="text-pink-500" />,
+          )}
+          {renderList(
+            "Categories",
+            comic.categories,
+            <BookOpen size={12} className="text-cyan-500" />,
+          )}
+        </div>
+      </div>
 
-      <div className="flex items-center gap-3 text-sm">
-        <span className="font-medium text-slate-300">Uploaded:</span>
-        <span className="text-slate-100">{comic.uploaded}</span>
-
-        {comic.status === "Ongoing" && (
-          <span className="px-2 py-0.5 text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-md">
-            Ongoing
+      <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-zinc-800/50">
+        <div className="flex items-center gap-2 text-zinc-500">
+          <Calendar size={14} />
+          <span className="text-xs font-medium uppercase tracking-tighter">
+            Uploaded:
           </span>
-        )}
-
-        {comic.status === "Complete" && (
-          <span className="px-2 py-0.5 text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30 rounded-md">
-            Complete
+          <span className="text-xs font-bold text-zinc-300">
+            {comic.uploaded || "Recently"}
           </span>
-        )}
+        </div>
       </div>
     </div>
   );

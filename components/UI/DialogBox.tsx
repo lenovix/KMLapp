@@ -1,5 +1,7 @@
+"use client";
+
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, CheckCircle, TriangleAlert } from "lucide-react";
+import { CheckCircle, TriangleAlert, Info } from "lucide-react";
 
 interface DialogBoxProps {
   open: boolean;
@@ -24,77 +26,86 @@ export default function DialogBox({
   onConfirm,
   onCancel,
 }: DialogBoxProps) {
-  const icons = {
-    info: <AlertCircle className="w-6 h-6 text-blue-600" />,
-    warning: <TriangleAlert className="w-6 h-6 text-yellow-600" />,
-    danger: <TriangleAlert className="w-6 h-6 text-red-600" />,
-    success: <CheckCircle className="w-6 h-6 text-green-600" />,
-  };
-
-  const colors = {
-    info: "text-blue-700",
-    warning: "text-yellow-700",
-    danger: "text-red-700",
-    success: "text-green-700",
+  const config = {
+    info: {
+      icon: <Info className="w-6 h-6 text-blue-400" />,
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      button: "bg-blue-600 hover:bg-blue-500 shadow-blue-900/20",
+    },
+    warning: {
+      icon: <TriangleAlert className="w-6 h-6 text-amber-400" />,
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+      button: "bg-amber-600 hover:bg-amber-500 shadow-amber-900/20",
+    },
+    danger: {
+      icon: <TriangleAlert className="w-6 h-6 text-rose-400" />,
+      bg: "bg-rose-500/10",
+      border: "border-rose-500/20",
+      button: "bg-rose-600 hover:bg-rose-500 shadow-rose-900/20",
+    },
+    success: {
+      icon: <CheckCircle className="w-6 h-6 text-emerald-400" />,
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+      button: "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20",
+    },
   };
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.92, opacity: 0 }}
+            className="bg-zinc-900 border border-zinc-800 rounded-[32px] shadow-2xl w-full max-w-sm overflow-hidden"
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: "spring", duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="shrink-0">{icons[type]}</div>
-              <h2 className={`text-xl font-semibold ${colors[type]}`}>
+            <div className={`p-8 pb-4 flex flex-col items-center text-center`}>
+              <div
+                className={`mb-4 p-4 rounded-2xl ${config[type].bg} border ${config[type].border}`}
+              >
+                {config[type].icon}
+              </div>
+
+              <h2 className="text-xl font-black text-white uppercase tracking-tight mb-2">
                 {title}
               </h2>
+              <p className="text-sm text-zinc-400 font-medium leading-relaxed">
+                {desc}
+              </p>
             </div>
 
-            <p className="text-gray-600 mb-8 leading-relaxed">{desc}</p>
+            <div className="p-6 bg-zinc-950/50 flex flex-col gap-2">
+              <button
+                className={`
+                  w-full py-3.5 rounded-2xl text-white font-black text-xs uppercase tracking-[0.15em]
+                  transition-all shadow-lg ${config[type].button}
+                `}
+                onClick={onConfirm}
+              >
+                {confirmText}
+              </button>
 
-            <div className="flex justify-end gap-3">
               {!hideCancel && (
                 <button
                   className="
-                  px-4 py-2 rounded-lg 
-                  border border-gray-300 
-                  text-gray-600 
-                  hover:bg-gray-100 
-                  transition
-                "
+                    w-full py-3 rounded-2xl text-zinc-500 font-bold text-xs uppercase tracking-widest
+                    hover:text-zinc-200 hover:bg-zinc-800 transition-all
+                  "
                   onClick={onCancel}
                 >
                   {cancelText}
                 </button>
               )}
-
-              <button
-                className={`
-                px-4 py-2 rounded-lg text-white transition font-medium
-                ${
-                  type === "danger"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : type === "warning"
-                    ? "bg-yellow-600 hover:bg-yellow-700"
-                    : type === "success"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }
-              `}
-                onClick={onConfirm}
-              >
-                {confirmText}
-              </button>
             </div>
           </motion.div>
         </motion.div>

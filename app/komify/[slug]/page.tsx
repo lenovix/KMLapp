@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash, Flag, Download } from "lucide-react";
+import { Maximize2 } from "lucide-react";
+import { Download, Flag, Edit, Trash } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { motion } from "framer-motion";
 
 import Header from "@/components/Komify/Detail/header";
 import CommentSection from "@/components/Komify/Detail/CommentSection";
@@ -55,7 +57,7 @@ export default function ComicDetail() {
 
   const comic = useMemo(
     () => comics.find((c: ComicData) => String(c.slug) === String(slug)),
-    [slug]
+    [slug],
   );
 
   if (!comic) return <p className="p-6">Loading...</p>;
@@ -67,10 +69,10 @@ export default function ComicDetail() {
     }));
 
   const [chapters, setChapters] = useState(
-    normalizeChapters(comic.chapters ?? [])
+    normalizeChapters(comic.chapters ?? []),
   );
   const [originalChapters, setOriginalChapters] = useState(
-    normalizeChapters(comic.chapters ?? [])
+    normalizeChapters(comic.chapters ?? []),
   );
   const [isOrdering, setIsOrdering] = useState(false);
 
@@ -134,7 +136,7 @@ export default function ComicDetail() {
         setAvgRating(rating);
       }
     },
-    [comic]
+    [comic],
   );
 
   const handleDeleteComic = useCallback(async () => {
@@ -239,117 +241,170 @@ export default function ComicDetail() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Header defaultSlug={comic.title} />
 
-      <main className="p-6 max-w-6xl mx-auto">
-        <div className="relative mb-10 rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-          <div className="flex flex-col gap-6 md:flex-row">
-            <img
-              src={comic.cover}
-              alt={comic.title}
-              onClick={() => setCoverOpen(true)}
-              className="
-                w-full
-                max-w-[220px]
-                mx-auto
-                md:mx-0
-                aspect-3/4
-                object-cover
-                object-top
-                rounded-xl
-                cursor-zoom-in
-                shadow-lg
-              "
-            />
+      <div className="absolute top-0 w-full h-[400px] bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
 
-            <div className="flex-1 space-y-4">
-              <ComicMetadata comic={comic} />
-              <ComicTags tags={comic.tags} />
-              <ComicActions
-                bookmarked={bookmarked}
-                onBookmark={handleBookmark}
-                userRating={userRating}
-                onRate={handleRating}
-                avgRating={avgRating}
-              />
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                <PrimaryButton
-                  size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                  icon={<Download />}
-                  onClick={() => setDownloadOpen(true)}
+      <main className="relative z-10 p-4 md:p-8 max-w-[1400px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12 rounded-[32px] border border-zinc-800 bg-zinc-900/50 backdrop-blur-md overflow-hidden shadow-2xl"
+        >
+          <div className="flex flex-col lg:flex-row gap-8 p-6 md:p-10">
+            <div className="relative group shrink-0 h-fit mx-auto lg:mx-0 w-full max-w-[280px]">
+              <div className="absolute -inset-1 bg-gradient-to-b from-blue-500 to-purple-600 rounded-[22px] blur opacity-20 group-hover:opacity-60 transition duration-500" />
+
+              <div
+                className="relative w-full h-fit rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-zoom-in group shadow-2xl"
+                onClick={() => setCoverOpen(true)}
+              >
+                <img
+                  src={comic.cover}
+                  alt={comic.title}
+                  className="w-full h-auto object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                  <div className="bg-white/10 p-3 rounded-full border border-white/20">
+                    <Maximize2 className="text-white w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute -top-2 -right-2 z-20">
+                <span
+                  className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${
+                    comic.status === "Ongoing"
+                      ? "bg-blue-600 text-white border-blue-400"
+                      : "bg-emerald-600 text-white border-emerald-400"
+                  }`}
                 >
-                  Download
-                </PrimaryButton>
+                  {comic.status}
+                </span>
+              </div>
+            </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <PrimaryButton
-                    size="sm"
-                    className="bg-yellow-600"
-                    icon={<Flag />}
-                    onClick={() => setReportOpen(true)}
+            <div className="flex-1 flex flex-col min-w-0">
+              <div className="space-y-6">
+                <div className="max-w-full overflow-hidden">
+                  <h1
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-3 uppercase leading-[0.9] line-clamp-3 break-words"
+                    title={comic.title}
                   >
-                    Report
-                  </PrimaryButton>
+                    {comic.title}
+                  </h1>
+                </div>
 
-                  <PrimaryButton
-                    size="sm"
-                    icon={<Edit />}
-                    onClick={() =>
-                      router.push(`/komify/edit-comic?slug=${comic.slug}`)
-                    }
-                  >
-                    Edit
-                  </PrimaryButton>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 border-y border-zinc-800/50 py-8">
+                  <ComicMetadata comic={comic} />
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block mb-2">
+                      Tags & Genres
+                    </label>
+                    <ComicTags tags={comic.tags} />
+                  </div>
+                </div>
+              </div>
 
-                  <PrimaryButton
-                    size="sm"
-                    className="bg-red-600"
-                    icon={<Trash />}
-                    onClick={() => setDeleteComicOpen(true)}
-                  >
-                    {deleting ? "Menghapus..." : "Delete"}
-                  </PrimaryButton>
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-6">
+                <ComicActions
+                  bookmarked={bookmarked}
+                  onBookmark={handleBookmark}
+                  userRating={userRating}
+                  onRate={handleRating}
+                  avgRating={avgRating}
+                />
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <PrimaryButton
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-900/20 px-6 py-5 rounded-2xl group shrink-0"
+                      icon={
+                        <Download
+                          size={18}
+                          className="group-hover:translate-y-0.5 transition-transform"
+                        />
+                      }
+                      onClick={() => setDownloadOpen(true)}
+                    >
+                      DOWNLOAD
+                    </PrimaryButton>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-zinc-950/50 p-1.5 rounded-2xl border border-zinc-800/50">
+                    <button
+                      onClick={() => setReportOpen(true)}
+                      className="p-2.5 rounded-xl text-zinc-500 hover:text-yellow-500 hover:bg-yellow-500/10 transition-all"
+                      title="Report"
+                    >
+                      <Flag size={16} />
+                    </button>
+
+                    <div className="h-6 w-[1px] bg-zinc-800 mx-1" />
+
+                    <button
+                      onClick={() =>
+                        router.push(`/komify/edit-comic?slug=${comic.slug}`)
+                      }
+                      className="p-2.5 rounded-xl text-zinc-500 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
+                      title="Edit"
+                    >
+                      <Edit size={16} />
+                    </button>
+
+                    <button
+                      onClick={() => setDeleteComicOpen(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-all font-bold text-[10px] uppercase tracking-widest"
+                    >
+                      <Trash size={16} />
+                      <span>{deleting ? "Wait..." : "Delete"}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </motion.div>
+
+        <div className="space-y-6">
+          <ChaptersHeader
+            slug={Number(comic.slug)}
+            isOrdering={isOrdering}
+            onToggleOrder={handleToggleOrder}
+            onSaveOrder={handleSaveOrder}
+            onCancelOrder={handleCancelOrder}
+          />
+          <div className="bg-zinc-900/30 border border-zinc-800 rounded-[24px] p-2">
+            <ChaptersList
+              slug={Number(comic.slug)}
+              chapters={comic.chapters ?? []}
+              setChapters={setChapters}
+              isOrdering={isOrdering}
+              onDeleteChapter={(n) => {
+                setChapterToDelete(n);
+                setDeleteChapterOpen(true);
+              }}
+            />
+          </div>
         </div>
 
-        <ChaptersHeader
-          slug={Number(comic.slug)}
-          isOrdering={isOrdering}
-          onToggleOrder={handleToggleOrder}
-          onSaveOrder={handleSaveOrder}
-          onCancelOrder={handleCancelOrder}
-        />
-        <ChaptersList
-          slug={Number(comic.slug)}
-          chapters={comic.chapters ?? []}
-          setChapters={setChapters}
-          isOrdering={isOrdering}
-          onDeleteChapter={(n) => {
-            setChapterToDelete(n);
-            setDeleteChapterOpen(true);
-          }}
-        />
-
-        <CommentSection slug={String(comic.slug)} />
+        <div className="mt-12">
+          <CommentSection slug={String(comic.slug)} />
+        </div>
       </main>
 
-      {
-        <DialogBox
-          open={deleteComicOpen}
-          title="Hapus Komik?"
-          desc="Komik ini akan dihapus permanen."
-          type="danger"
-          confirmText="Hapus"
-          cancelText="Batal"
-          onConfirm={handleDeleteComic}
-          onCancel={() => setDeleteComicOpen(false)}
-        />
-      }
+      <DialogBox
+        open={deleteComicOpen}
+        title="Delete Comic?"
+        desc="This action cannot be undone. All chapters and data will be permanently removed."
+        type="danger"
+        confirmText="Delete Permanently"
+        onConfirm={handleDeleteComic}
+        onCancel={() => setDeleteComicOpen(false)}
+      />
       {
         <DialogBox
           open={deleteChapterOpen}
@@ -389,7 +444,7 @@ export default function ComicDetail() {
       {reportOpen && (
         <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
       )}
-      
+
       <DownloadComicModal
         open={downloadOpen}
         onClose={() => setDownloadOpen(false)}
@@ -397,6 +452,6 @@ export default function ComicDetail() {
         onDownloadBatch={handleBatchDownload}
         onDownloadChapters={handleDownloadSelectedChapters}
       />
-    </>
+    </div>
   );
 }

@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { ArrowLeft } from "lucide-react";
+import { Calendar, Globe2, BookOpen } from "lucide-react";
+
 dayjs.extend(relativeTime);
 
 interface HeaderReadProps {
   comic: {
-    slug: Number;
+    slug: string | number;
     title: string;
   };
   chapter: {
@@ -21,46 +21,40 @@ interface HeaderReadProps {
 
 export default function HeaderRead({ comic, chapter }: HeaderReadProps) {
   return (
-    <header className="mb-8 space-y-4">
-      <div className="flex items-center justify-between">
-        <Link
-          href={`/komify/${comic.slug}`}
-          className="
-            inline-flex items-center gap-2
-            px-3 py-2
-            text-sm font-medium
-            rounded-lg
-            bg-slate-200 text-slate-700
-            dark:bg-slate-700 dark:text-slate-200
-            hover:bg-slate-300 dark:hover:bg-slate-600
-            transition-all duration-200
-          "
-        >
-          <span className="text-lg">
-            <ArrowLeft className="w-6 h-6" />
-          </span>
-          Back to Detail
-        </Link>
+    <header className="sticky top-0 z-[60] w-full border-b border-white/5 bg-zinc-950/70 backdrop-blur-xl">
+      <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 text-center min-w-0">
+            <h1 className="text-sm font-black text-white uppercase tracking-tight truncate">
+              {comic.title}
+            </h1>
+            <div className="flex items-center justify-center gap-2 mt-0.5">
+              <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-500/10 px-2 py-0.5 rounded">
+                CH {chapter.number}
+              </span>
+              <span className="text-[10px] font-medium text-zinc-500 truncate max-w-[150px] sm:max-w-xs">
+                {chapter.title}
+              </span>
+            </div>
+          </div>
 
-        <div className="text-right">
-          <h1 className="text-xl font-bold leading-tight">{comic.title}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Chapter {chapter.number} —{" "}
-            <span className="font-medium">{chapter.title}</span>
-          </p>
+          <div className="hidden md:flex items-center gap-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+            <div className="flex items-center gap-1.5">
+              <Globe2 size={14} className="text-zinc-600" />
+              {chapter.language || "EN"}
+            </div>
+            {chapter.uploadChapter && (
+              <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-4">
+                <Calendar size={14} className="text-zinc-600" />
+                {dayjs(chapter.uploadChapter).fromNow()}
+              </div>
+            )}
+          </div>
+
+          <div className="md:hidden p-2 text-zinc-600">
+            <BookOpen size={18} />
+          </div>
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-        <span className="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full">
-          {chapter.language || "Unknown Language"}
-        </span>
-
-        {chapter.uploadChapter && (
-          <span className="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full">
-            Uploaded {dayjs(chapter.uploadChapter).fromNow()}
-          </span>
-        )}
       </div>
     </header>
   );

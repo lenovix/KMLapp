@@ -25,7 +25,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   const getVisiblePages = () => {
-    const delta = 2;
+    const delta = 1;
     const range = [];
     for (
       let i = Math.max(2, currentPage - delta);
@@ -44,81 +44,78 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   const btnBase =
-    "flex items-center justify-center min-w-[40px] h-10 px-3 rounded-xl border transition-all duration-200 font-medium text-sm";
+    "flex items-center justify-center min-w-[38px] h-[38px] sm:min-w-[42px] sm:h-[42px] rounded-xl border transition-all duration-300 font-bold text-xs sm:text-sm active:scale-90";
+
   const btnActive =
-    "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30";
+    "bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] z-10";
+
   const btnInactive =
-    "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700";
+    "border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-700 backdrop-blur-sm";
+
   const btnDisabled =
-    "opacity-30 cursor-not-allowed border-slate-200 dark:border-slate-700";
+    "opacity-20 cursor-not-allowed border-zinc-800 bg-zinc-900/30 text-zinc-600";
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 mt-4 mb-6">
-      <button
-        onClick={() => goToPage(1)}
-        disabled={currentPage === 1}
-        className={`${btnBase} ${
-          currentPage === 1 ? btnDisabled : btnInactive
-        }`}
-        title="First Page"
-      >
-        <ChevronsLeft size={18} />
-      </button>
+    <div className="flex flex-col items-center gap-4 mt-10 mb-10">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <button
+          onClick={() => goToPage(1)}
+          disabled={currentPage === 1}
+          className={`${btnBase} ${currentPage === 1 ? btnDisabled : btnInactive}`}
+        >
+          <ChevronsLeft size={16} />
+        </button>
 
-      <button
-        onClick={() => goToPage(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`${btnBase} ${
-          currentPage === 1 ? btnDisabled : btnInactive
-        }`}
-      >
-        <ChevronLeft size={18} />
-      </button>
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`${btnBase} ${currentPage === 1 ? btnDisabled : btnInactive}`}
+        >
+          <ChevronLeft size={16} />
+        </button>
 
-      <div className="flex items-center gap-1.5">
-        {getVisiblePages().map((page, index) => {
-          if (page === "...") {
+        <div className="flex items-center gap-2">
+          {getVisiblePages().map((page, index) => {
+            if (page === "...") {
+              return (
+                <span
+                  key={`dots-${index}`}
+                  className="w-8 text-center text-zinc-600 font-bold"
+                >
+                  ...
+                </span>
+              );
+            }
+
+            const active = currentPage === page;
             return (
-              <span key={`dots-${index}`} className="px-2 text-slate-400">
-                ...
-              </span>
+              <button
+                key={`page-${page}`}
+                onClick={() => goToPage(page as number)}
+                className={`${btnBase} ${active ? btnActive : btnInactive}`}
+              >
+                {page}
+              </button>
             );
-          }
+          })}
+        </div>
 
-          return (
-            <button
-              key={`page-${page}`}
-              onClick={() => goToPage(page as number)}
-              className={`${btnBase} ${
-                currentPage === page ? btnActive : btnInactive
-              }`}
-            >
-              {page}
-            </button>
-          );
-        })}
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`${btnBase} ${currentPage === totalPages ? btnDisabled : btnInactive}`}
+        >
+          <ChevronRight size={16} />
+        </button>
+
+        <button
+          onClick={() => goToPage(totalPages)}
+          disabled={currentPage === totalPages}
+          className={`${btnBase} ${currentPage === totalPages ? btnDisabled : btnInactive}`}
+        >
+          <ChevronsRight size={16} />
+        </button>
       </div>
-
-      <button
-        onClick={() => goToPage(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`${btnBase} ${
-          currentPage === totalPages ? btnDisabled : btnInactive
-        }`}
-      >
-        <ChevronRight size={18} />
-      </button>
-
-      <button
-        onClick={() => goToPage(totalPages)}
-        disabled={currentPage === totalPages}
-        className={`${btnBase} ${
-          currentPage === totalPages ? btnDisabled : btnInactive
-        }`}
-        title="Last Page"
-      >
-        <ChevronsRight size={18} />
-      </button>
     </div>
   );
 };

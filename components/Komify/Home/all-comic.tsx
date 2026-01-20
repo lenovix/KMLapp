@@ -48,8 +48,8 @@ export default function AllComic() {
         typeof comic.title === "string"
           ? comic.title
           : Array.isArray(comic.title)
-          ? comic.title[0]
-          : "";
+            ? comic.title[0]
+            : "";
 
       const matchesSearch = title
         .toLowerCase()
@@ -58,8 +58,8 @@ export default function AllComic() {
       const comicTags = Array.isArray(comic.tags)
         ? comic.tags
         : comic.tags
-        ? [comic.tags]
-        : [];
+          ? [comic.tags]
+          : [];
 
       const matchesTags =
         selectedTags.length === 0 ||
@@ -70,8 +70,8 @@ export default function AllComic() {
       const comicCategories = Array.isArray(comic.categories)
         ? comic.categories
         : comic.categories
-        ? [comic.categories]
-        : [];
+          ? [comic.categories]
+          : [];
 
       const matchesCategories =
         selectedCategories.length === 0 ||
@@ -94,15 +94,14 @@ export default function AllComic() {
     () =>
       filteredComics.slice(
         (currentPage - 1) * COMICS_PER_PAGE,
-        currentPage * COMICS_PER_PAGE
+        currentPage * COMICS_PER_PAGE,
       ),
-    [filteredComics, currentPage]
+    [filteredComics, currentPage],
   );
 
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const allTags = useMemo(() => {
@@ -119,95 +118,122 @@ export default function AllComic() {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
   return (
-    <main className="flex flex-col gap-6">
-      <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    <main className="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-8">
+      <section className="space-y-4">
+        <AllComicHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      </section>
 
-      <FilterGroup
-        label="Status"
-        options={allStatuses}
-        selectedValue={selectedStatus}
-        onChangeValue={setSelectedStatus}
-        withAll
-        activeColor="blue"
-      />
+      <div className="flex flex-col lg:flex-row gap-8">
+        <aside className="lg:w-64 flex-none space-y-8">
+          <FilterGroup
+            label="Status"
+            options={allStatuses}
+            selectedValue={selectedStatus}
+            onChangeValue={setSelectedStatus}
+            withAll
+            activeColor="blue"
+          />
 
-      <FilterGroup
-        label="Categories"
-        options={allCategories}
-        selectedValues={selectedCategories}
-        onToggleValue={toggleCategory}
-        activeColor="emerald"
-      />
+          <FilterGroup
+            label="Categories"
+            options={allCategories}
+            selectedValues={selectedCategories}
+            onToggleValue={toggleCategory}
+            activeColor="emerald"
+          />
 
-      <div className="w-full">
-        {filteredComics.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-300">
-            Tidak ditemukan komik dengan judul tersebut.
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {paginatedComics.map((comic: ComicData) => {
-              const title =
-                typeof comic.title === "string"
-                  ? comic.title
-                  : comic.title?.[0] ?? "Comic";
+          <FilterGroup
+            label="Popular Tags"
+            options={allTags.slice(0, 20)}
+            selectedValues={selectedTags}
+            onToggleValue={toggleTag}
+            activeColor="blue"
+          />
+        </aside>
 
-              return (
-                <Link
-                  key={comic.slug}
-                  href={`/komify/${comic.slug}`}
-                  className="group bg-white dark:bg-slate-900 border
-                             border-gray-200 dark:border-slate-700
-                             rounded-xl overflow-hidden shadow-sm
-                             hover:shadow-md transition flex flex-col"
-                >
-                  <Image
-                    key={`comic-cover-${comic.slug}`}
-                    src={comic.cover}
-                    alt={title}
-                    width={300}
-                    height={420}
-                    loading="lazy"
-                    unoptimized
-                    className="flex-none w-[300px] h-[420px] object-cover object-top"
-                  />
+        <section className="flex-1">
+          {filteredComics.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-xl font-medium text-gray-400">
+                Oops! Komik tidak ditemukan.
+              </p>
+              <p className="text-sm text-gray-500">
+                Coba ubah filter atau kata kunci pencarianmu.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {paginatedComics.map((comic: ComicData) => {
+                  const title =
+                    typeof comic.title === "string"
+                      ? comic.title
+                      : (comic.title?.[0] ?? "Comic");
 
-                  <div className="p-3">
-                    <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
-                      {title}
-                    </h2>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                  return (
+                    <Link
+                      key={comic.slug}
+                      href={`/komify/${comic.slug}`}
+                      className="group relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden 
+                                 border border-gray-100 dark:border-slate-800
+                                 hover:border-blue-500 dark:hover:border-blue-400
+                                 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                    >
+                      <div className="aspect-[3/4] overflow-hidden relative">
+                        <Image
+                          src={comic.cover}
+                          alt={title}
+                          fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                          loading="lazy"
+                          unoptimized
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm 
+                              ${comic.status === "Completed" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}`}
+                          >
+                            {comic.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3">
+                        <h2
+                          className="text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2 
+                                       group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                        >
+                          {title}
+                        </h2>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="mt-12">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={goToPage}
+                />
+              </div>
+            </>
+          )}
+        </section>
       </div>
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={goToPage}
-      />
-
-      <FilterGroup
-        label="Tags"
-        options={allTags}
-        selectedValues={selectedTags}
-        onToggleValue={toggleTag}
-        activeColor="blue"
-      />
     </main>
   );
 }

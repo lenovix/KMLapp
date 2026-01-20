@@ -23,4 +23,8 @@ export const metadataLinks = [
     label: "Tags",
     href: "/komify/metadata/tags",
   },
+  {
+    label: "Categories",
+    href: "/komify/metadata/categories",
+  },
 ];

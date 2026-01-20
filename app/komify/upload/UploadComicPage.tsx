@@ -72,11 +72,11 @@ export default function UploadComicPage({
     },
   ]);
   const [previewChapterIndex, setPreviewChapterIndex] = useState<number | null>(
-    null
+    null,
   );
 
   const handleComicChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -88,7 +88,7 @@ export default function UploadComicPage({
 
   const handleChapterChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const updated = [...chapters];
     const key = e.target.name as keyof (typeof updated)[number];
@@ -208,8 +208,8 @@ export default function UploadComicPage({
           language: ch.language,
           cencored: ch.cencored,
           uploadChapter: comicData.uploaded,
-        }))
-      )
+        })),
+      ),
     );
 
     chapters.forEach((ch) => {
@@ -237,7 +237,7 @@ export default function UploadComicPage({
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
           setAlertData((prev) =>
-            prev ? { ...prev, progress: percent } : null
+            prev ? { ...prev, progress: percent } : null,
           );
         }
       };
@@ -317,8 +317,8 @@ export default function UploadComicPage({
 
     setChapters((prev) =>
       prev.map((ch, idx) =>
-        idx === previewChapterIndex ? { ...ch, files: originalFiles } : ch
-      )
+        idx === previewChapterIndex ? { ...ch, files: originalFiles } : ch,
+      ),
     );
 
     closePreview();
@@ -349,14 +349,15 @@ export default function UploadComicPage({
 
     setChapters((prev) =>
       prev.map((ch, idx) =>
-        idx === previewChapterIndex ? { ...ch, files: reorderedFiles } : ch
-      )
+        idx === previewChapterIndex ? { ...ch, files: reorderedFiles } : ch,
+      ),
     );
   };
   return (
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
-      <main className="max-w-4xl mx-auto p-6 space-y-6">
+
+      <main className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 space-y-6">
         <ComicForm
           comicData={comicData}
           setComicData={setComicData}
@@ -371,6 +372,7 @@ export default function UploadComicPage({
           handleComicChange={handleComicChange}
         />
       </main>
+
       {alertData && (
         <Alert
           type={alertData.type}
@@ -381,26 +383,25 @@ export default function UploadComicPage({
           onClose={() => setAlertData(null)}
         />
       )}
-      {
-        <DialogBox
-          open={dialogOpen}
-          title={dialogData.title}
-          desc={dialogData.desc}
-          onConfirm={dialogData.onConfirm}
-          onCancel={dialogData.onCancel}
-        />
-      }
-      {
-        <DialogBoxCover
-          open={coverDialogOpen}
-          onClose={() => setCoverDialogOpen(false)}
-          onSave={(file) => {
-            setCoverDialogOpen(false);
-            setCoverFile(file);
-            setComicData({ ...comicData, cover: URL.createObjectURL(file) });
-          }}
-        />
-      }
+
+      <DialogBox
+        open={dialogOpen}
+        title={dialogData.title}
+        desc={dialogData.desc}
+        onConfirm={dialogData.onConfirm}
+        onCancel={dialogData.onCancel}
+      />
+
+      <DialogBoxCover
+        open={coverDialogOpen}
+        onClose={() => setCoverDialogOpen(false)}
+        onSave={(file) => {
+          setCoverDialogOpen(false);
+          setCoverFile(file);
+          setComicData({ ...comicData, cover: URL.createObjectURL(file) });
+        }}
+      />
+
       {previewChapterIndex !== null && (
         <ChapterPreviewModal
           visible={true}

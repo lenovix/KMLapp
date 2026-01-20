@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload } from "lucide-react";
+import { Upload, LayoutGrid, BookOpen, Layers } from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -38,7 +38,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -46,12 +46,12 @@ interface ComicFormProps {
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 }
 
@@ -76,122 +76,177 @@ export default function ComicForm({
     fetch("/data/komify/categories.json")
       .then((res) => res.json())
       .then((data: string[]) => {
-        setCategories((prev) => {
-          const merged = new Set([...prev, ...data]);
-          return Array.from(merged);
-        });
+        setCategories((prev) => Array.from(new Set([...prev, ...data])));
       })
       .catch(console.error);
   }, []);
 
   const applyFixResult = (value: string) => {
     if (!activeField) return;
-
-    setComicData((prev) => ({
-      ...prev,
-      [activeField]: value,
-    }));
-
+    setComicData((prev) => ({ ...prev, [activeField]: value }));
     setFixOpen(false);
     setActiveField(null);
   };
+
   return (
     <>
-      <form onSubmit={handleOpenDialog} className="space-y-6 overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4">
-            <div className="grid gap-4">
-              {[
-                { name: "title", placeholder: "Title", fix: false },
-                { name: "parodies", placeholder: "Parodies", fix: true },
-                { name: "characters", placeholder: "Characters", fix: true },
-                { name: "tags", placeholder: "Tags", fix: true },
-                { name: "artist", placeholder: "Artist", fix: true },
-                { name: "groups", placeholder: "Groups", fix: true },
-                { name: "authors", placeholder: "Authors", fix: true },
-              ].map((field) => (
-                <div key={field.name} className="flex items-start gap-2">
-                  <input
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    value={(comicData as any)[field.name]}
-                    onChange={handleComicChange}
-                    className="flex-1 border p-2 rounded bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+      <form
+        onSubmit={handleOpenDialog}
+        className="space-y-8 max-w-[1600px] mx-auto"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-6">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <Upload size={18} />
+                <h3 className="text-xs font-bold uppercase tracking-widest">
+                  Publishing
+                </h3>
+              </div>
 
-                  {field.fix && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveField(field.name);
-                        setFixOpen(true);
-                      }}
-                      title="Fix format"
-                      className="
-                        px-3
-                        py-2
-                        rounded-lg
-                        text-xs
-                        border
-                        border-slate-600
-                        bg-slate-800
-                        text-slate-300
-                        hover:bg-slate-700
-                        hover:text-white
-                        transition
-                      "
-                    >
-                      Fix
-                    </button>
-                  )}
+              <ComicCover
+                cover={comicData.cover}
+                onClick={() => setCoverDialogOpen(true)}
+                onDelete={() => setComicData({ ...comicData, cover: "" })}
+              />
+
+              <div className="pt-2">
+                <PrimaryButton
+                  type="submit"
+                  onClick={handleOpenDialog}
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-900/20"
+                  icon={<Upload size={20} />}
+                  iconPosition="left"
+                >
+                  PUBLISH
+                </PrimaryButton>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6">
+            <div className="flex items-center gap-2 text-zinc-200">
+              <LayoutGrid size={18} className="text-blue-500" />
+              <h3 className="text-sm font-bold uppercase tracking-wider">
+                Comic Info
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  name: "title",
+                  label: "Title",
+                  placeholder: "Main title",
+                  fix: false,
+                },
+                {
+                  name: "artist",
+                  label: "Artist",
+                  placeholder: "Artist name",
+                  fix: true,
+                },
+                {
+                  name: "authors",
+                  label: "Author",
+                  placeholder: "Author name",
+                  fix: true,
+                },
+                {
+                  name: "tags",
+                  label: "Tags",
+                  placeholder: "Action, Drama...",
+                  fix: true,
+                },
+                {
+                  name: "characters",
+                  label: "Characters",
+                  placeholder: "MC, Side characters",
+                  fix: true,
+                },
+                {
+                  name: "parodies",
+                  label: "Parodies",
+                  placeholder: "Original / Fanfic",
+                  fix: true,
+                },
+                {
+                  name: "groups",
+                  label: "Groups",
+                  placeholder: "Scanlation name",
+                  fix: true,
+                },
+              ].map((field) => (
+                <div key={field.name} className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                    {field.label}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      name={field.name}
+                      placeholder={field.placeholder}
+                      value={(comicData as any)[field.name]}
+                      onChange={handleComicChange}
+                      className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none"
+                    />
+                    {field.fix && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveField(field.name);
+                          setFixOpen(true);
+                        }}
+                        className="px-3 py-2 rounded-xl bg-zinc-800 text-[10px] font-bold text-zinc-400 hover:bg-zinc-700 hover:text-white border border-zinc-700 transition-all"
+                      >
+                        FIX
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
 
-              <select
-                name="categories"
-                value={comicData.categories}
-                onChange={handleComicChange}
-                className="w-full rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-white"
-                required
-              >
-                {categories.map((cat) => (
-                  <option
-                    key={cat}
-                    value={cat}
-                    className="bg-slate-800 text-white"
-                  >
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Category
+                </label>
+                <select
+                  name="categories"
+                  value={comicData.categories}
+                  onChange={handleComicChange}
+                  className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl p-2.5 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/30"
+                  required
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat} className="bg-zinc-900">
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm backdrop-blur-sm space-y-4 flex flex-col">
-            <PrimaryButton
-              type="submit"
-              onClick={handleOpenDialog}
-              icon={<Upload size={18} />}
-              iconPosition="left"
-            >
-              Upload Comic
-            </PrimaryButton>
-            <ComicCover
-              cover={comicData.cover}
-              onClick={() => setCoverDialogOpen(true)}
-              onDelete={() => setComicData({ ...comicData, cover: "" })}
+
+          <div className="lg:col-span-5 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl">
+            <div className="flex items-center gap-2 mb-6 text-zinc-200">
+              <Layers size={18} className="text-blue-500" />
+              <h3 className="text-sm font-bold uppercase tracking-wider">
+                Chapters List
+              </h3>
+            </div>
+
+            <ChapterSection
+              chapters={chapters}
+              addChapter={addChapter}
+              removeChapter={removeChapter}
+              handleChapterChange={handleChapterChange}
+              handleChapterFile={handleChapterFile}
+              openPreview={openPreview}
             />
           </div>
         </div>
-        <ChapterSection
-          chapters={chapters}
-          addChapter={addChapter}
-          removeChapter={removeChapter}
-          handleChapterChange={handleChapterChange}
-          handleChapterFile={handleChapterFile}
-          openPreview={openPreview}
-        />
       </form>
-      {
+
+      {fixOpen && (
         <FixParagraphModal
           open={fixOpen}
           value={activeField ? (comicData as any)[activeField] : ""}
@@ -201,7 +256,7 @@ export default function ComicForm({
             setActiveField(null);
           }}
         />
-      }
+      )}
     </>
   );
 }

@@ -2,8 +2,14 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import comics from "@/data/komify/comics.json";
+import { Search, Tag, Filter, Hash } from "lucide-react";
+import comicsData from "@/data/komify/comics.json";
 import Header from "@/components/Komify/metadata/MetadataHeader";
+
+interface Comic {
+  slug: string | number;
+  [key: string]: any;
+}
 
 type MetadataListPageProps = {
   field: string;
@@ -20,17 +26,18 @@ export default function MetadataListPage({
 
   const allValues = useMemo(() => {
     const set = new Set<string>();
+    const comics = comicsData as unknown as Comic[];
 
-    for (const comic of comics as any[]) {
+    for (const comic of comics) {
       const value = comic[field];
       if (!value) continue;
 
       if (Array.isArray(value)) {
-        for (const v of value) {
-          if (v) set.add(v);
-        }
+        value.forEach((v) => {
+          if (v && typeof v === "string") set.add(v.trim());
+        });
       } else if (typeof value === "string") {
-        set.add(value);
+        set.add(value.trim());
       }
     }
 
@@ -38,49 +45,60 @@ export default function MetadataListPage({
   }, [field]);
 
   const filteredValues = useMemo(() => {
-    if (!searchTerm) return allValues;
-
-    const keyword = searchTerm.toLowerCase();
+    const keyword = searchTerm.toLowerCase().trim();
+    if (!keyword) return allValues;
     return allValues.filter((v) => v.toLowerCase().includes(keyword));
   }, [allValues, searchTerm]);
 
   return (
-    <main className="min-h-screen text-slate-200">
+    <main className="min-h-screen text-zinc-200 pb-20">
       <Header
         title={title}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-between mb-8 px-2">
+          <div className="flex items-center gap-2">
+            <Hash size={16} className="text-blue-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+              Total {title}: {filteredValues.length}
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-zinc-600">
+            <Filter size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              A-Z Sorted
+            </span>
+          </div>
+        </div>
+
         {filteredValues.length === 0 ? (
-          <div className="py-20 text-center text-slate-400">
-            Tidak ada data yang cocok.
+          <div className="py-40 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-[3rem] bg-zinc-900/20">
+            <Search size={48} className="text-zinc-800 mb-4" />
+            <p className="text-zinc-500 font-medium tracking-wide">
+              Data tidak ditemukan
+            </p>
           </div>
         ) : (
-          <div
-            className="
-              grid grid-cols-2 sm:grid-cols-3
-              md:grid-cols-4 lg:grid-cols-6
-              gap-4
-            "
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredValues.map((value) => (
               <Link
                 key={value}
                 href={`${basePath}/${encodeURIComponent(value)}`}
-                className="
-                  group flex items-center justify-center
-                  rounded-2xl border border-slate-700
-                  bg-slate-900/80 px-4 py-3
-                  text-sm font-medium text-center
-                  hover:border-blue-500/60
-                  hover:bg-slate-800
-                  hover:text-blue-400
-                  transition
-                "
+                className="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] bg-zinc-900/40 border border-white/5 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-300"
               >
-                <span className="capitalize line-clamp-2">{value}</span>
+                <Tag
+                  size={12}
+                  className="absolute top-4 right-4 text-zinc-800 group-hover:text-blue-500/50 transition-colors"
+                />
+
+                <span className="text-sm font-bold text-center text-zinc-400 group-hover:text-white transition-colors capitalize break-words">
+                  {value}
+                </span>
+
+                <div className="absolute bottom-3 w-1 h-1 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
               </Link>
             ))}
           </div>

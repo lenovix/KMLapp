@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Artists :: Komify",
+  title: "Categories :: Komify",
   description: "Komify is Comics Collection",
 };
 
@@ -11,10 +11,8 @@ export default function KomicfyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center">
-      <main className="flex-1 w-full transition-all duration-500">
-        {children}
-      </main>
+    <div className="min-h-screen flex flex-col">
+      <main className="">{children}</main>
     </div>
   );
 }

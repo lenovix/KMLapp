@@ -8,6 +8,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface AlertProps {
   type?: "success" | "warning" | "error" | "onprogress";
@@ -27,9 +28,8 @@ export default function Alert({
   onClose,
 }: AlertProps) {
   const [countdown, setCountdown] = useState(
-    duration && duration > 0 ? Math.ceil(duration / 1000) : 0
+    duration && duration > 0 ? Math.ceil(duration / 1000) : 0,
   );
-
   const calledCloseRef = useRef(false);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function Alert({
     setCountdown(countdownSeconds);
 
     const timer = setInterval(() => {
-      setCountdown((prev) => prev - 1);
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     const timeout = setTimeout(() => {
@@ -55,71 +55,101 @@ export default function Alert({
     };
   }, [duration, type, onClose]);
 
-  const icons = {
-    success: <CheckCircle className="w-6 h-6 text-green-600 mt-1" />,
-    warning: <TriangleAlert className="w-6 h-6 text-yellow-600 mt-1" />,
-    error: <AlertCircle className="w-6 h-6 text-red-600 mt-1" />,
-    onprogress: <Loader2 className="w-6 h-6 text-blue-600 mt-1 animate-spin" />,
-  };
-
-  const styles = {
+  const themes = {
     success: {
-      border: "border-green-300",
-      bg: "bg-green-50",
-      title: "text-green-800",
+      icon: <CheckCircle className="w-5 h-5 text-emerald-400" />,
+      border: "border-emerald-500/20",
+      bg: "bg-zinc-900/90",
+      accent: "bg-emerald-500",
+      text: "text-emerald-400",
     },
     warning: {
-      border: "border-yellow-300",
-      bg: "bg-yellow-50",
-      title: "text-yellow-800",
+      icon: <TriangleAlert className="w-5 h-5 text-yellow-400" />,
+      border: "border-yellow-500/20",
+      bg: "bg-zinc-900/90",
+      accent: "bg-yellow-500",
+      text: "text-yellow-400",
     },
     error: {
-      border: "border-red-300",
-      bg: "bg-red-50",
-      title: "text-red-800",
+      icon: <AlertCircle className="w-5 h-5 text-red-400" />,
+      border: "border-red-500/20",
+      bg: "bg-zinc-900/90",
+      accent: "bg-red-500",
+      text: "text-red-400",
     },
     onprogress: {
-      border: "border-blue-300",
-      bg: "bg-blue-50",
-      title: "text-blue-800",
+      icon: <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />,
+      border: "border-blue-500/20",
+      bg: "bg-zinc-900/90",
+      accent: "bg-blue-500",
+      text: "text-blue-400",
     },
   };
 
-  const style = styles[type];
+  const theme = themes[type];
 
   return (
     <div
       className={`
-        fixed bottom-6 right-6
-        w-[90%] max-w-md
-        p-4 rounded-xl border shadow-md 
-        flex flex-col gap-3 z-50
-        transition-all duration-300
-        ${style.bg} ${style.border}
+        fixed bottom-8 right-8 z-[200]
+        w-[calc(100%-4rem)] max-w-sm
+        p-5 rounded-2xl border backdrop-blur-xl shadow-2xl
+        flex flex-col gap-4 animate-in slide-in-from-right-10 duration-300
+        ${theme.bg} ${theme.border}
       `}
-      onClick={type !== "onprogress" ? onClose : undefined}
     >
-      <div className="flex items-start gap-3">
-        {icons[type]}
+      <div className="flex items-start gap-4">
+        <div className={`p-2 rounded-xl bg-white/5 border border-white/10`}>
+          {theme.icon}
+        </div>
 
         <div className="flex-1">
-          <h4 className={`font-bold text-lg ${style.title}`}>{title}</h4>
-          {message && <p className="text-sm text-gray-700">{message}</p>}
+          <div className="flex items-center justify-between">
+            <h4
+              className={`font-black text-xs uppercase tracking-widest ${theme.text}`}
+            >
+              {title}
+            </h4>
+            {type !== "onprogress" && (
+              <button
+                onClick={onClose}
+                className="text-zinc-500 hover:text-white transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
 
-          {type == "success" && duration > 0 && (
-            <p className="text-xs text-gray-500 mt-1">
-              Redirecting in {countdown}s...
+          {message && (
+            <p className="text-sm text-zinc-300 mt-1 font-medium leading-relaxed">
+              {message}
             </p>
+          )}
+
+          {type === "success" && duration > 0 && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
+                Auto-closing in {countdown}s
+              </p>
+            </div>
           )}
         </div>
       </div>
 
       {type === "onprogress" && (
-        <div className="w-full h-2 bg-white rounded-full border border-blue-200 overflow-hidden mt-2">
-          <div
-            className="h-full bg-blue-500 transition-all duration-200"
-            style={{ width: `${progress}%` }}
-          ></div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tighter text-zinc-500">
+            <span>Progress Upload</span>
+            <span className={theme.text}>{progress}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              className={`h-full ${theme.accent} transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
+            />
+          </div>
         </div>
       )}
     </div>

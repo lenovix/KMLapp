@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Upload, Bookmark } from "lucide-react";
+import { Upload, Bookmark, Home, ChevronRight, LayoutGrid } from "lucide-react";
 
 interface UploadComicHeaderProps {
   defaultSlug: string;
@@ -11,35 +11,51 @@ export default function UploadComicHeader({
   defaultSlug,
 }: UploadComicHeaderProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-2xl font-bold text-gray-900 dark:text-white">
-          <p>
-            <Link href="/komify" className="hover:opacity-80">
-              Komify
-            </Link>
-            <span> :: {defaultSlug}</span>
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-[40] w-full border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-xl">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <nav className="flex items-center gap-2 md:gap-4 text-sm font-medium">
+          <Link
+            href="/komify"
+            className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors group"
+          >
+            <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 group-hover:border-blue-500/50 transition-all">
+              <Home size={14} />
+            </div>
+            <span className="hidden sm:inline">Komify</span>
+          </Link>
+
+          <ChevronRight size={14} className="text-zinc-700" />
+
+          <div className="flex items-center gap-2 text-white max-w-[150px] md:max-w-[300px]">
+            <LayoutGrid size={14} className="text-blue-500 shrink-0" />
+            <span className="font-bold truncate tracking-tight uppercase text-xs md:text-sm">
+              {defaultSlug}
+            </span>
+          </div>
+        </nav>
+
+        <div className="flex items-center gap-2 md:gap-3">
           <Link
             href="/komify/bookmarks"
-            className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
-            title="Bookmark"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition-all"
+            title="My Bookmarks"
           >
-            <Bookmark className="w-5 h-5" />
-            <span>My Bookmarks</span>
+            <Bookmark className="w-4 h-4 text-yellow-500" />
+            <span className="hidden md:inline">BOOKMARKS</span>
           </Link>
+
+          <div className="h-4 w-[1px] bg-zinc-800 mx-1 hidden sm:block" />
+
           <Link
             href="/komify/upload"
-            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            title="Upload"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+            title="Upload New Comic"
           >
-            <Upload size={20} />
-            <span>Upload</span>
+            <Upload size={16} />
+            <span className="hidden sm:inline">UPLOAD NEW</span>
           </Link>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

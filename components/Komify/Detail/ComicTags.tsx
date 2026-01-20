@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Hash } from "lucide-react";
 
 type TagValue = string | string[] | null | undefined;
 
@@ -19,6 +20,13 @@ export default function ComicTags({ tags }: ComicTagsProps) {
     const trimmed = value.trim();
     if (!trimmed) return [];
 
+    if (trimmed.includes(",")) {
+      return trimmed
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+
     return [trimmed];
   };
 
@@ -27,28 +35,32 @@ export default function ComicTags({ tags }: ComicTagsProps) {
   if (cleanedTags.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mb-5">
-      {cleanedTags.map((tag, i) => (
-        <Link
-          key={`${tag}-${i}`}
-          href={`/komify/metadata/tags/${encodeURIComponent(tag)}`}
-          className="
-            inline-flex items-center
-            text-xs font-medium
-            bg-blue-800/20 text-blue-400
-            border border-blue-600
-            px-3 py-1
-            rounded-full
-            shadow-sm
-            hover:bg-blue-800/40
-            hover:text-white
-            transition
-            duration-200
-          "
-        >
-          {tag}
-        </Link>
-      ))}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2 mb-2">
+        {cleanedTags.map((tag, i) => (
+          <Link
+            key={`${tag}-${i}`}
+            href={`/komify/metadata/tags/${encodeURIComponent(tag)}`}
+            className="
+              group inline-flex items-center gap-1.5
+              text-[11px] font-bold
+              bg-zinc-900 text-zinc-400
+              border border-zinc-800
+              pl-2 pr-3 py-1.5
+              rounded-xl
+              transition-all duration-300
+              hover:bg-blue-600/10 hover:text-blue-400 hover:border-blue-500/30
+              hover:shadow-[0_0_15px_rgba(59,130,246,0.1)]
+            "
+          >
+            <Hash
+              size={12}
+              className="text-zinc-600 group-hover:text-blue-500 transition-colors"
+            />
+            <span className="tracking-tight">{tag}</span>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

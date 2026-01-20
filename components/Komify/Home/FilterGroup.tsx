@@ -21,46 +21,55 @@ export default function FilterGroup({
   withAll = false,
   activeColor = "blue",
 }: FilterGroupProps) {
-  const activeClass =
-    activeColor === "emerald"
-      ? "bg-emerald-600 text-white border-emerald-600"
-      : "bg-blue-600 text-white border-blue-600";
+  const activeStyles = {
+    blue: "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.3)]",
+    emerald:
+      "bg-emerald-600 text-white border-emerald-500 shadow-[0_0_15px_rgba(5,150,105,0.3)]",
+  };
 
-  const inactiveClass = "border-slate-600 text-slate-300 hover:bg-slate-700";
+  const inactiveClass =
+    "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 hover:border-zinc-700";
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-gray-400 mr-2">{label}:</span>
+    <div className="flex flex-col gap-3 py-2">
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">
+          {label}
+        </span>
+        <div className="h-[1px] flex-1 bg-zinc-800/50"></div>
+      </div>
 
-      {withAll && onChangeValue && (
-        <button
-          onClick={() => onChangeValue(null)}
-          className={`px-3 py-1 rounded-lg text-sm border transition
-            ${selectedValue === null ? activeClass : inactiveClass}`}
-        >
-          All
-        </button>
-      )}
-
-      {options.map((opt) => {
-        const isMulti = !!onToggleValue;
-        const active = isMulti
-          ? selectedValues.includes(opt)
-          : selectedValue === opt;
-
-        return (
+      <div className="flex flex-wrap items-center gap-2">
+        {withAll && onChangeValue && (
           <button
-            key={opt}
-            onClick={() =>
-              isMulti ? onToggleValue?.(opt) : onChangeValue?.(opt)
-            }
-            className={`px-3 py-1 rounded-lg text-sm border transition
-              ${active ? activeClass : inactiveClass}`}
+            onClick={() => onChangeValue(null)}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 active:scale-95
+              ${selectedValue === null ? activeStyles[activeColor] : inactiveClass}`}
           >
-            {opt}
+            All
           </button>
-        );
-      })}
+        )}
+
+        {options.map((opt) => {
+          const isMulti = !!onToggleValue;
+          const active = isMulti
+            ? selectedValues.includes(opt)
+            : selectedValue === opt;
+
+          return (
+            <button
+              key={opt}
+              onClick={() =>
+                isMulti ? onToggleValue?.(opt) : onChangeValue?.(opt)
+              }
+              className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 active:scale-95
+                ${active ? activeStyles[activeColor] : inactiveClass}`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

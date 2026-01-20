@@ -1,449 +1,398 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Upload, Trash2, Trash } from "lucide-react";
+import { useEffect, useState, Suspense } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import {
+  Upload,
+  Trash2,
+  GripVertical,
+  Languages,
+  ShieldCheck,
+  FileText,
+} from "lucide-react";
 import FileUploadInput from "@/components/UI/FileUploadInput";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 
-export default function EditChapterPage() {
+interface Chapter {
+  number: string | number;
+  title: string;
+  language?: string;
+  cencored?: string;
+}
+
+interface Comic {
+  slug: string | number;
+  title: string;
+  chapters: Chapter[];
+}
+
+interface PageItem {
+  id: string;
+  file?: File;
+  url?: string;
+  filename?: string;
+}
+
+function EditChapterContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const slugParam = searchParams.get("slug");
+  const chapterParam = searchParams.get("chapter");
+
   const [languages, setLanguages] = useState<string[]>([]);
   const [cencoredList, setCencoredList] = useState<string[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const slug = Number(searchParams.get("slug"));
-  const chapter = searchParams.get("chapter");
-
-  const [chapterData, setChapterData] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", language: "", cencored: "" });
-  const [pages, setPages] = useState<
-    Array<{ id: string; file?: File; url?: string; filename?: string }>
-  >([]);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [chapterData, setChapterData] = useState<Chapter | null>(null);
+  const [form, setForm] = useState({ title: "", language: "", cencored: "" });
+  const [pages, setPages] = useState<PageItem[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+
   useEffect(() => {
-    if (!slug || !chapter) return;
+    if (!slugParam || !chapterParam) return;
 
-    const comic = (comicsData as any[]).find(
-      (c) => String(c.slug) === String(slug)
-    );
-    if (!comic) return;
+    const comics = comicsData as unknown as Comic[];
+    const comic = comics.find((c) => String(c.slug) === slugParam);
+    const ch = comic?.chapters?.find((c) => String(c.number) === chapterParam);
 
-    const ch = comic.chapters?.find(
-      (c: any) => String(c.number) === String(chapter)
-    );
     if (!ch) return;
 
     setChapterData(ch);
     setForm({
       title: ch.title || "",
-      language: ch.language || "",
-      cencored: ch.cencored || "",
+      language: ch.language || "Indonesian",
+      cencored: ch.cencored || "Uncensored",
     });
 
-    fetch(`/api/komify/read?slug=${slug}&chapter=${chapter}`)
+    fetch(`/api/komify/read?slug=${slugParam}&chapter=${chapterParam}`)
       .then((res) => res.json())
       .then((data) => {
-        if (!Array.isArray(data.pages)) return;
-
-        setPages(
-          data.pages.map((filename: string, idx: number) => ({
-            id: `${idx}-${filename}`,
-            filename,
-            url: `/komify/${slug}/chapters/${chapter}/${filename}`,
-          }))
-        );
+        if (Array.isArray(data.pages)) {
+          setPages(
+            data.pages.map((filename: string, idx: number) => ({
+              id: `old-${idx}-${filename}`,
+              filename,
+              url: `/komify/${slugParam}/chapters/${chapterParam}/${filename}`,
+            })),
+          );
+        }
       });
-    fetch("/data/config/language.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setLanguages(data);
-        }
-      })
-      .catch(console.error);
-    fetch("/data/config/cencored.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setCencoredList(data);
-        }
-      })
-      .catch(console.error);
-  }, [slug, chapter]);
+
+    const fetchConfig = (url: string, setter: (d: string[]) => void) => {
+      fetch(url)
+        .then((res) => res.json())
+        .then(setter)
+        .catch(console.error);
+    };
+    fetchConfig("/data/config/language.json", setLanguages);
+    fetchConfig("/data/config/cencored.json", setCencoredList);
+  }, [slugParam, chapterParam]);
 
   useEffect(() => {
     return () => {
       pages.forEach((p) => {
-        if (p.url?.startsWith("blob:")) {
-          URL.revokeObjectURL(p.url);
-        }
+        if (p.url?.startsWith("blob:")) URL.revokeObjectURL(p.url);
       });
     };
   }, [pages]);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
-  };
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
-
     const fileArray = Array.from(files);
+    const timestamp = Date.now();
 
-    setNewFiles((prev) => {
-      const existingNames = new Set(prev.map((f) => f.name));
-      const filtered = fileArray.filter((f) => !existingNames.has(f.name));
-      return [...prev, ...filtered];
-    });
+    const newItems = fileArray.map((file, index) => ({
+      id: `new-${timestamp}-${index}`,
+      file,
+      url: URL.createObjectURL(file),
+      filename: file.name,
+    }));
 
-    setPages((prev) => {
-      const existingNames = new Set(prev.map((p) => p.filename));
-      const timestamp = Date.now();
-
-      const newPages = fileArray
-        .filter((f) => !existingNames.has(f.name))
-        .map((file, index) => ({
-          id: `new-${timestamp}-${index}-${file.name}`,
-          file,
-          url: URL.createObjectURL(file),
-          filename: file.name,
-        }));
-
-      return [...prev, ...newPages];
-    });
+    setNewFiles((prev) => [...prev, ...fileArray]);
+    setPages((prev) => [...prev, ...newItems]);
   };
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-
-    const reordered = Array.from(pages);
-    const [moved] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, moved);
-
-    setPages(reordered);
+    const items = Array.from(pages);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setPages(items);
   };
 
-  const saveChapterChanges = async (options?: { onlyOrder?: boolean }) => {
-    if (!slug || !chapter || loading) return;
-
+  const saveChapterChanges = async (onlyOrder = false) => {
+    if (!slugParam || !chapterParam || loading) return;
     setLoading(true);
 
     try {
-      const order = pages
-        .map((p) => p.filename ?? p.file?.name)
-        .filter((v): v is string => typeof v === "string" && v.length > 0);
+      const order = pages.map((p) => p.filename).filter(Boolean) as string[];
 
-      const orderRes = await fetch("/api/komify/updatePageOrder", {
+      await fetch("/api/komify/updatePageOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: String(slug),
-          chapter: String(chapter),
-          order,
-        }),
+        body: JSON.stringify({ slug: slugParam, chapter: chapterParam, order }),
       });
 
-      if (!orderRes.ok) {
-        const err = await orderRes.json();
-        throw new Error(err?.message || "Gagal update posisi halaman");
-      }
-
-      if (options?.onlyOrder) {
-        alert("Posisi halaman berhasil diperbarui");
+      if (onlyOrder) {
+        alert("Urutan berhasil disimpan!");
         return;
       }
 
       const fd = new FormData();
-      fd.append("slug", String(slug));
-      fd.append("chapter", String(chapter));
-      fd.append("title", form.title.trim());
+      fd.append("slug", slugParam);
+      fd.append("chapter", chapterParam);
+      fd.append("title", form.title);
       fd.append("language", form.language);
       fd.append("cencored", form.cencored);
-      fd.append("order", JSON.stringify(order));
+      newFiles.forEach((f) => fd.append("files", f));
 
-      newFiles.forEach((file) => {
-        fd.append("files", file);
-      });
-
-      const chapterRes = await fetch("/api/komify/editChapter", {
+      const res = await fetch("/api/komify/editChapter", {
         method: "POST",
         body: fd,
       });
-
-      const data = await chapterRes.json();
-
-      if (!chapterRes.ok) {
-        throw new Error(data?.message || "Gagal update chapter");
-      }
-
-      router.push(`/komify/${slug}`);
-    } catch (err: any) {
+      if (res.ok) router.push(`/komify/${slugParam}`);
+    } catch (err) {
       console.error(err);
-      alert(err.message || "Terjadi kesalahan");
     } finally {
       setLoading(false);
+      setConfirmOpen(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setConfirmOpen(true);
-  };
+  if (!chapterData)
+    return (
+      <div className="p-20 text-center animate-pulse text-zinc-500 font-black uppercase tracking-widest">
+        Loading Chapter Data...
+      </div>
+    );
 
-  const handleDeletePage = (id: string) => {
-    setPages((prev) => prev.filter((p) => p.id !== id));
-    setNewFiles((prev) => prev.filter((f) => !id.includes(f.name)));
-  };
-
-  if (!chapterData) {
-    return <p className="p-6 text-gray-400">Loading...</p>;
-  }
   return (
-    <>
-      <main className="w-full px-6 space-y-6 text-white">
-        <header>
-          <h1 className="text-3xl font-bold">
-            Edit Chapter {chapterData.number}
+    <main className="max-w-7xl mx-auto p-4 sm:p-8 space-y-8">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-6">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">
+            Edit Chapter{" "}
+            <span className="text-blue-500">{chapterData.number}</span>
           </h1>
-          <p className="text-sm text-gray-400">
-            Atur metadata & urutan halaman chapter
+          <p className="text-zinc-500 text-sm">
+            Kelola urutan halaman dan informasi chapter.
           </p>
-        </header>
-        <section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-white">
-                Chapter Pages
-              </h3>
+        </div>
+        <div className="flex gap-3">
+          <PrimaryButton variant="outline" onClick={() => router.back()}>
+            Batal
+          </PrimaryButton>
+          <PrimaryButton
+            onClick={() => setConfirmOpen(true)}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Simpan Chapter"}
+          </PrimaryButton>
+        </div>
+      </header>
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">
-                  {pages.length} pages
-                </span>
-
-                <PrimaryButton
-                  size="sm"
-                  variant="outline"
-                  disabled={loading}
-                  onClick={() => saveChapterChanges({ onlyOrder: true })}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="lg:col-span-3 space-y-6">
+          <div className="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-6 space-y-6 shadow-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <FileUploadInput
+                  multiple
+                  onChange={handleFileUpload}
+                  icon={<Upload size={16} />}
+                  text="Tambah Halaman"
+                  countFile={pages.length}
+                />
+                <button
+                  onClick={() => setPages([])}
+                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-400 transition-colors"
                 >
-                  {loading ? "Updating..." : "Update Posisi"}
-                </PrimaryButton>
+                  Clear All
+                </button>
               </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <FileUploadInput
-                multiple
-                accept="image/*"
-                icon={<Upload size={16} />}
-                text="Upload Pages"
-                countFile={pages.length}
-                onChange={handleFileUpload}
-              />
-
-              <PrimaryButton
-                variant="outline"
-                size="sm"
-                icon={<Trash2 size={14} />}
-                onClick={() => setPages([])}
-              >
-                Clear
-              </PrimaryButton>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                {pages.length} Total Pages
+              </p>
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="pages" direction="vertical">
-                {(p) => (
+              <Droppable droppableId="pages-grid" direction="horizontal">
+                {(provided) => (
                   <div
-                    ref={p.innerRef}
-                    {...p.droppableProps}
-                    className="
-                      grid
-                      grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
-                      gap-4
-                      max-h-[70vh]
-                      overflow-y-auto
-                      pr-2
-                    "
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"
                   >
-                    {pages.map((page, i) => (
-                      <Draggable key={page.id} draggableId={page.id} index={i}>
-                        {(d, s) => (
+                    {pages.map((page, index) => (
+                      <Draggable
+                        key={page.id}
+                        draggableId={page.id}
+                        index={index}
+                      >
+                        {(dragProvided, snapshot) => (
                           <div
-                            ref={d.innerRef}
-                            {...d.draggableProps}
-                            style={d.draggableProps.style}
-                            className={`
-                              relative group
-                              bg-white/5 border border-white/10
-                              rounded-xl p-2
-                              transition
-                              hover:border-blue-500/40
-                              ${s.isDragging ? "ring-2 ring-blue-500" : ""}
-                            `}
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            className={`relative group bg-zinc-950 border rounded-2xl p-2 transition-all ${
+                              snapshot.isDragging
+                                ? "border-blue-500 shadow-2xl z-50 scale-105"
+                                : "border-zinc-800"
+                            }`}
                           >
-                            <div
-                              {...d.dragHandleProps}
-                              className="
-                                absolute top-2 left-2
-                                z-10
-                                flex items-center justify-center
-                                w-7 h-7
-                                text-gray-300
-                                bg-black/50
-                                rounded-md
-                                cursor-grab
-                                opacity-0 group-hover:opacity-100
-                                transition
-                              "
-                              title="Drag to reorder"
-                            >
-                              ☰
+                            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-zinc-900">
+                              <img
+                                src={page.url}
+                                alt="page"
+                                className="w-full h-full object-cover"
+                              />
+
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <div
+                                  {...dragProvided.dragHandleProps}
+                                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg cursor-grab"
+                                >
+                                  <GripVertical size={16} />
+                                </div>
+                                <button
+                                  onClick={() =>
+                                    setPages((p) =>
+                                      p.filter((item) => item.id !== page.id),
+                                    )
+                                  }
+                                  className="p-2 bg-rose-500/20 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg transition-colors"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+
+                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold">
+                                #{index + 1}
+                              </div>
                             </div>
-
-                            <button
-                              type="button"
-                              onClick={() => handleDeletePage(page.id)}
-                              className="
-                                absolute top-2 right-2
-                                z-10
-                                flex items-center justify-center
-                                w-7 h-7
-                                bg-red-600/90 hover:bg-red-600
-                                text-white
-                                rounded-md
-                                opacity-0 group-hover:opacity-100
-                                transition
-                              "
-                              title="Hapus halaman"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-
-                            <img
-                              src={page.url}
-                              draggable={false}
-                              className="
-                                w-full h-40
-                                object-contain
-                                rounded-md
-                                bg-black/20
-                              "
-                            />
-
-                            <p className="text-xs text-gray-400 truncate mt-2 text-center">
-                              {page.filename || page.file?.name}
+                            <p className="text-[9px] text-zinc-500 truncate mt-2 px-1 uppercase tracking-tighter">
+                              {page.filename}
                             </p>
                           </div>
                         )}
                       </Draggable>
                     ))}
-                    {p.placeholder}
+                    {provided.placeholder}
                   </div>
                 )}
               </Droppable>
             </DragDropContext>
           </div>
+        </div>
 
-          <aside className="lg:col-span-1 bg-white/5 border border-white/10 rounded-xl p-4 space-y-4 h-fit sticky top-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-300">Judul Chapter</label>
+        <aside className="space-y-6">
+          <div className="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-6 shadow-2xl space-y-6 sticky top-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-blue-500 mb-2">
+                <FileText size={18} />
+                <h3 className="text-[10px] font-black uppercase tracking-widest">
+                  Chapter Info
+                </h3>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                  Judul Chapter
+                </label>
                 <input
-                  name="title"
                   value={form.title}
-                  onChange={handleChange}
-                  className="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2"
-                  required
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:border-blue-500 outline-none"
                 />
               </div>
 
-              <div>
-                <label className="text-sm text-gray-300">Cencored Status</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <Languages size={14} />
+                  <label className="text-[10px] font-black uppercase tracking-widest">
+                    Bahasa
+                  </label>
+                </div>
                 <select
-                  name="cencored"
-                  value={form.cencored}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, cencored: e.target.value }))
-                  }
-                  className="
-                    w-full mt-1
-                    bg-white/10 border border-white/10
-                    rounded px-3 py-2
-                    text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
-                  "
-                >
-                  {cencoredList.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                      className="bg-slate-800 text-white"
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm text-gray-300">Bahasa</label>
-                <select
-                  name="language"
                   value={form.language}
                   onChange={(e) =>
-                    setForm((p) => ({ ...p, language: e.target.value }))
+                    setForm({ ...form, language: e.target.value })
                   }
-                  className="
-                    w-full mt-1
-                    bg-white/10 border border-white/10
-                    rounded px-3 py-2
-                    text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none"
                 >
-                  {languages.map((lang) => (
-                    <option
-                      key={lang}
-                      value={lang}
-                      className="bg-slate-800 text-white"
-                    >
-                      {lang}
+                  {languages.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded disabled:opacity-50"
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <ShieldCheck size={14} />
+                  <label className="text-[10px] font-black uppercase tracking-widest">
+                    Sensor
+                  </label>
+                </div>
+                <select
+                  value={form.cencored}
+                  onChange={(e) =>
+                    setForm({ ...form, cencored: e.target.value })
+                  }
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none"
+                >
+                  {cencoredList.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/5">
+              <PrimaryButton
+                variant="outline"
+                className="w-full text-[10px]"
+                onClick={() => saveChapterChanges(true)}
               >
-                {loading ? "Menyimpan..." : "Simpan Perubahan"}
-              </button>
-            </form>
-          </aside>
-        </section>
-      </main>
-      {
-        <DialogBox
-          open={confirmOpen}
-          title="Simpan Perubahan Chapter?"
-          desc="Perubahan judul, bahasa, dan urutan halaman akan disimpan dan tidak bisa dibatalkan."
-          type="warning"
-          confirmText="Ya, Simpan"
-          cancelText="Batal"
-          onCancel={() => setConfirmOpen(false)}
-          onConfirm={() => {
-            setConfirmOpen(false);
-            saveChapterChanges();
-          }}
-        />
+                Hanya Update Urutan
+              </PrimaryButton>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <DialogBox
+        open={confirmOpen}
+        title="Simpan Chapter?"
+        desc="Urutan halaman dan metadata akan diperbarui secara permanen."
+        onConfirm={() => saveChapterChanges()}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </main>
+  );
+}
+
+export default function EditChapterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-20 text-center text-zinc-500 uppercase font-black tracking-widest">
+          Loading...
+        </div>
       }
-    </>
+    >
+      <EditChapterContent />
+    </Suspense>
   );
 }

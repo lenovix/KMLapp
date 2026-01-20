@@ -1,3 +1,8 @@
+"use client";
+
+import Image from "next/image";
+import { ImageIcon, X, UploadCloud } from "lucide-react";
+
 interface ComicCoverProps {
   cover: string | null;
   onClick: () => void;
@@ -11,28 +16,62 @@ export default function ComicCover({
 }: ComicCoverProps) {
   return (
     <div
-      className="w-full h-[390] border-2 border-gray-300 rounded-xl bg-gray-50 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition relative"
+      className={`
+        relative w-full aspect-[3/4] rounded-2xl border-2 border-dashed 
+        transition-all duration-300 group overflow-hidden cursor-pointer
+        ${
+          cover
+            ? "border-zinc-800 bg-zinc-900"
+            : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
+        }
+      `}
       onClick={onClick}
     >
       {cover ? (
         <>
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex flex-col items-center justify-center gap-2">
+            <div className="p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <UploadCloud className="text-white" size={24} />
+            </div>
+            <p className="text-white text-[10px] font-bold uppercase tracking-widest">
+              Change Cover
+            </p>
+          </div>
+
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
-            className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-md shadow hover:bg-red-600 z-20"
+            className="absolute top-3 right-3 p-2 bg-red-500/90 hover:bg-red-600 text-white rounded-xl shadow-lg transition-transform hover:scale-110 active:scale-90 z-30"
+            title="Delete Cover"
           >
-            Delete
+            <X size={16} />
           </button>
 
-          <img
+          <Image
             src={cover}
-            className="object-cover w-full h-full rounded-xl z-10"
+            alt="Comic Cover Preview"
+            fill
+            unoptimized
+            className="object-cover z-10"
           />
         </>
       ) : (
-        <p className="text-gray-500 text-sm">Klik di sini untuk upload cover</p>
+        <div className="flex flex-col items-center justify-center h-full p-6 text-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <ImageIcon
+              className="text-zinc-600 group-hover:text-blue-500"
+              size={32}
+            />
+          </div>
+          <div>
+            <p className="text-zinc-400 text-sm font-semibold">Upload Cover</p>
+            <p className="text-zinc-600 text-[10px] mt-1">
+              Recommended 3:4 ratio
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

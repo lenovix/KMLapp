@@ -2,7 +2,6 @@
 > Bug
   - Fix bug Page/image chapter order
 > Feature
-  - add metadata page category
 
 
 # Note for Filmfy:
