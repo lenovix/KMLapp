@@ -1,3 +1,7 @@
+# Note for K-Platform:
+> Bug
+> Feature
+
 # Note for Kamify:
 > Bug
   - Fix bug Page/image chapter order
