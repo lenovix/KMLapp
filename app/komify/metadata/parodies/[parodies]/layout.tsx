@@ -11,7 +11,7 @@ export default function KomicfyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <main className="">
         {children}
       </main>

@@ -16,7 +16,7 @@ export default function MetadataHeader({
   title,
   searchTerm,
   setSearchTerm,
-  searchPlaceholder = "Cari data...",
+  searchPlaceholder = "Search in this metadata...",
   showBookmark = true,
   showUpload = true,
 }: MetadataHeaderProps) {
@@ -32,7 +32,7 @@ export default function MetadataHeader({
               Komify
             </Link>
             <ChevronRight size={14} className="text-zinc-700" />
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent capitalize">
+            <span className="bg-linear-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent capitalize">
               {title}
             </span>
           </div>

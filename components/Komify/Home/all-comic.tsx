@@ -43,7 +43,10 @@ export default function AllComic() {
   }, [debouncedSearch, selectedStatus, selectedCategories, selectedTags]);
 
   const filteredComics = useMemo(() => {
-    const filtered = (comics as ComicData[]).filter((comic) => {
+    const filtered = (comics as unknown as ComicData[]).map((comic) => ({
+      ...comic,
+      artist: comic.artist || [],
+    })).filter((comic) => {
       const title =
         typeof comic.title === "string"
           ? comic.title
@@ -106,7 +109,7 @@ export default function AllComic() {
 
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>();
-    (comics as ComicData[]).forEach((c) => {
+    (comics as unknown as ComicData[]).forEach((c) => {
       if (Array.isArray(c.tags)) {
         c.tags.forEach((t: string) => tagsSet.add(t.trim()));
       }
@@ -190,7 +193,7 @@ export default function AllComic() {
                                  hover:border-blue-500 dark:hover:border-blue-400
                                  transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                     >
-                      <div className="aspect-[3/4] overflow-hidden relative">
+                      <div className="aspect-3/4 overflow-hidden relative">
                         <Image
                           src={comic.cover}
                           alt={title}

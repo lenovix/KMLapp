@@ -70,12 +70,12 @@ export default function MetadataDetailPage({
   };
 
   return (
-    <main className="min-h-screen text-zinc-200">
+    <main className=" text-zinc-200">
       <MetadataHeader
         title={label}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        searchPlaceholder={`Cari di dalam ${value}...`}
+        searchPlaceholder={`Cari komik di ${value}...`}
       />
 
       <section className="max-w-7xl mx-auto px-6 py-12 space-y-10">
@@ -127,13 +127,13 @@ export default function MetadataDetailPage({
                   href={`/komify/${comic.slug}`}
                   className="group flex flex-col space-y-3"
                 >
-                  <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden bg-zinc-900 border border-white/5 shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
+                  <div className="relative aspect-3/4 rounded-4xl overflow-hidden bg-zinc-900 border border-white/5 shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
                     <img
                       src={comic.cover || "/placeholder-cover.jpg"}
                       alt={comic.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                     <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                       <div className="flex items-center gap-1.5 text-[9px] font-black text-white uppercase tracking-widest bg-blue-600/90 backdrop-blur-md w-fit px-3 py-1.5 rounded-full">

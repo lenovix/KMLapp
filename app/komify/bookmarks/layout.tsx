@@ -11,7 +11,7 @@ export default function KomicfyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen text-zinc-100">
+    <div className=" text-zinc-100">
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[30%] h-[30%] rounded-full bg-amber-500/5 blur-[100px]" />
       </div>

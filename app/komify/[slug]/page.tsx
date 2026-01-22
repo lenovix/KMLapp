@@ -241,21 +241,21 @@ export default function ComicDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className=" bg-zinc-950 text-zinc-100">
       <Header defaultSlug={comic.title} />
 
-      <div className="absolute top-0 w-full h-[400px] bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
+      <div className="absolute top-0 w-full h-100 bg-linear-to-b from-blue-600/10 to-transparent pointer-events-none" />
 
-      <main className="relative z-10 p-4 md:p-8 max-w-[1400px] mx-auto">
+      <main className="relative z-10 p-4 md:p-8 max-w-350 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-12 rounded-[32px] border border-zinc-800 bg-zinc-900/50 backdrop-blur-md overflow-hidden shadow-2xl"
+          className="mb-12 rounded-4xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-md overflow-hidden shadow-2xl"
         >
           <div className="flex flex-col lg:flex-row gap-8 p-6 md:p-10">
-            <div className="relative group shrink-0 h-fit mx-auto lg:mx-0 w-full max-w-[280px]">
-              <div className="absolute -inset-1 bg-gradient-to-b from-blue-500 to-purple-600 rounded-[22px] blur opacity-20 group-hover:opacity-60 transition duration-500" />
+            <div className="relative group shrink-0 h-fit mx-auto lg:mx-0 w-full max-w-70">
+              <div className="absolute -inset-1 bg-linear-to-b from-blue-500 to-purple-600 rounded-[22px] blur opacity-20 group-hover:opacity-60 transition duration-500" />
 
               <div
                 className="relative w-full h-fit rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-zoom-in group shadow-2xl"
@@ -290,7 +290,7 @@ export default function ComicDetail() {
               <div className="space-y-6">
                 <div className="max-w-full overflow-hidden">
                   <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-3 uppercase leading-[0.9] line-clamp-3 break-words"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-3 uppercase leading-[0.9] line-clamp-3 wrap-break-word"
                     title={comic.title}
                   >
                     {comic.title}
@@ -343,7 +343,7 @@ export default function ComicDetail() {
                       <Flag size={16} />
                     </button>
 
-                    <div className="h-6 w-[1px] bg-zinc-800 mx-1" />
+                    <div className="h-6 w-px bg-zinc-800 mx-1" />
 
                     <button
                       onClick={() =>
@@ -377,7 +377,7 @@ export default function ComicDetail() {
             onSaveOrder={handleSaveOrder}
             onCancelOrder={handleCancelOrder}
           />
-          <div className="bg-zinc-900/30 border border-zinc-800 rounded-[24px] p-2">
+          <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-2">
             <ChaptersList
               slug={Number(comic.slug)}
               chapters={comic.chapters ?? []}

@@ -2,7 +2,7 @@
 > Bug
 > Feature
 
-# Note for Kamify:
+# Note for Komify:
 > Bug
   - Fix bug Page/image chapter order
 > Feature

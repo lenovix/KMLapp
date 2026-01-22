@@ -98,9 +98,9 @@ export default function ReaderPage() {
   const nextChapter = comic.chapters[chapterIndex + 1] ?? null;
 
   return (
-    <main className="min-h-screen text-zinc-100">
+    <main className=" text-zinc-100">
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-[100]"
+        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-100"
         style={{ scaleX }}
       />
       <div className="sticky top-0 z-50 transition-transform duration-300">

@@ -202,7 +202,7 @@ function EditChapterContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-6 space-y-6 shadow-2xl">
+          <div className="bg-zinc-900/50 border border-white/5 rounded-4xl p-6 space-y-6 shadow-2xl">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <FileUploadInput
@@ -248,7 +248,7 @@ function EditChapterContent() {
                                 : "border-zinc-800"
                             }`}
                           >
-                            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-zinc-900">
+                            <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-zinc-900">
                               <img
                                 src={page.url}
                                 alt="page"
@@ -265,7 +265,7 @@ function EditChapterContent() {
                                 <button
                                   onClick={() =>
                                     setPages((p) =>
-                                      p.filter((item) => item.id !== page.id),
+                                      p.filter((item) => item.id !== page.id)
                                     )
                                   }
                                   className="p-2 bg-rose-500/20 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg transition-colors"
@@ -294,7 +294,7 @@ function EditChapterContent() {
         </div>
 
         <aside className="space-y-6">
-          <div className="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-6 shadow-2xl space-y-6 sticky top-8">
+          <div className="bg-zinc-900/50 border border-white/5 rounded-4xl p-6 shadow-2xl space-y-6 sticky top-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-blue-500 mb-2">
                 <FileText size={18} />

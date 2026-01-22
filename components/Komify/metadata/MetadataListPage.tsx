@@ -51,11 +51,12 @@ export default function MetadataListPage({
   }, [allValues, searchTerm]);
 
   return (
-    <main className="min-h-screen text-zinc-200 pb-20">
+    <main className=" text-zinc-200 pb-20">
       <Header
         title={title}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        searchPlaceholder={`Cari ${title}...`}
       />
 
       <section className="max-w-7xl mx-auto px-6 py-12">
@@ -87,14 +88,14 @@ export default function MetadataListPage({
               <Link
                 key={value}
                 href={`${basePath}/${encodeURIComponent(value)}`}
-                className="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] bg-zinc-900/40 border border-white/5 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-300"
+                className="group relative flex flex-col items-center justify-center p-6 rounded-4xl bg-zinc-900/40 border border-white/5 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-300"
               >
                 <Tag
                   size={12}
                   className="absolute top-4 right-4 text-zinc-800 group-hover:text-blue-500/50 transition-colors"
                 />
 
-                <span className="text-sm font-bold text-center text-zinc-400 group-hover:text-white transition-colors capitalize break-words">
+                <span className="text-sm font-bold text-center text-zinc-400 group-hover:text-white transition-colors capitalize wrap-break-word">
                   {value}
                 </span>
 

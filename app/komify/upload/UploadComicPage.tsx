@@ -357,7 +357,7 @@ export default function UploadComicPage({
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
 
-      <main className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 space-y-6">
+      <main className="w-full p-4  space-y-6">
         <ComicForm
           comicData={comicData}
           setComicData={setComicData}

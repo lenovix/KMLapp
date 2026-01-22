@@ -129,7 +129,7 @@ function EditComicContent() {
   if (!slug) return null;
 
   return (
-    <main className="max-w-5xl mx-auto p-4 sm:p-8 space-y-8 min-h-screen pb-20">
+    <main className="max-w-5xl mx-auto p-4 sm:p-8 space-y-8 pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div className="space-y-1">
           <button
@@ -200,7 +200,7 @@ function EditComicContent() {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, tags: e.target.value }))
                 }
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-sm text-white min-h-[100px] outline-none focus:border-blue-500/50"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-sm text-white min-h-25 outline-none focus:border-blue-500/50"
               />
             </div>
           </div>

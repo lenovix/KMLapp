@@ -11,7 +11,7 @@ export default function ParodiesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center">
+    <div className="flex flex-col items-center">
       <main className="flex-1 w-full transition-all duration-500">
         {children}
       </main>

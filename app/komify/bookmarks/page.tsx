@@ -94,7 +94,7 @@ export default function BookmarksPage() {
   );
 
   return (
-    <div className="min-h-screen">
+    <>
       <Header />
       <main className="max-w-7xl mx-auto px-6 py-10">
         {loading ? (
@@ -134,7 +134,7 @@ export default function BookmarksPage() {
                     href={`/komify/${comic.slug}`}
                     className="group flex flex-col transition-all duration-300"
                   >
-                    <div className="aspect-[3/4] relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl group-hover:border-amber-500/50">
+                    <div className="aspect-3/4 relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl group-hover:border-amber-500/50">
                       <Image
                         src={comic.cover || "/placeholder-cover.jpg"}
                         alt={displayTitle}
@@ -142,7 +142,7 @@ export default function BookmarksPage() {
                         unoptimized
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                     </div>
 
                     <div className="mt-4 flex flex-col gap-2 px-1">
@@ -173,6 +173,6 @@ export default function BookmarksPage() {
           </>
         )}
       </main>
-    </div>
+    </>
   );
 }
