@@ -11,6 +11,41 @@ interface CardWebHomeProps {
   endDate?: string;
 }
 
+function calculateDuration(start: string, end: string) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return null;
+  }
+
+  let years = endDate.getFullYear() - startDate.getFullYear();
+  let months = endDate.getMonth() - startDate.getMonth();
+  let days = endDate.getDate() - startDate.getDate();
+
+  if (days < 0) {
+    months -= 1;
+    const prevMonth = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      0
+    ).getDate();
+    days += prevMonth;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  const parts = [];
+  if (years > 0) parts.push(`${years} tahun`);
+  if (months > 0) parts.push(`${months} bulan`);
+  if (days > 0) parts.push(`${days} hari`);
+
+  return parts.join(" ");
+}
+
 export default function CardWebHome({
   logo,
   name,
@@ -37,6 +72,10 @@ export default function CardWebHome({
       : status === "not-started"
       ? "bg-gray-200 text-gray-700 border-gray-300"
       : "";
+
+  const duration = startDate
+    ? calculateDuration(startDate, endDate ?? new Date().toISOString())
+    : null;
 
   return (
     <Link
@@ -73,10 +112,11 @@ export default function CardWebHome({
       )}
 
       {startDate && endDate && (
-        <div className="mt-3 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-3 flex flex-col items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
           <span>
             {startDate} — {endDate}
           </span>
+          {duration && <span className="italic">({duration})</span>}
         </div>
       )}
     </Link>
