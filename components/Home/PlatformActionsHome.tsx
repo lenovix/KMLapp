@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/solid";
+import { TrashIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import Alert from "@/components/UI/Alert";
 import DialogBox from "@/components/UI/DialogBox";
 
@@ -22,31 +22,27 @@ export default function PlatformActions({
 }: PlatformActionsProps) {
   const [open, setOpen] = useState(false);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
-
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
   const [alert, setAlert] = useState<AlertState | null>(null);
 
   const resolveEndpoint = (action: string) => {
     if (platform === "Komify") {
-      if (action === "Delete Comic") {
+      if (action === "Delete Comic")
         return "/api/komify/settings/delete-comics";
-      }
-
-      if (action === "Delete Tmp_Folder" || action === "Delete Comic Cache") {
+      if (action === "Delete Tmp_Folder" || action === "Delete Comic Cache")
         return "/api/komify/settings/clear-cache";
-      }
     }
     return null;
   };
 
   const executeAction = async () => {
     if (!confirmAction) return;
-
     const endpoint = resolveEndpoint(confirmAction);
+
     if (!endpoint) {
       setAlert({
         type: "error",
-        title: "Action tidak tersedia",
+        title: "Action not available",
         message: confirmAction,
       });
       setConfirmAction(null);
@@ -56,31 +52,27 @@ export default function PlatformActions({
     try {
       setLoadingAction(confirmAction);
       setConfirmAction(null);
-
       setAlert({
         type: "onprogress",
-        title: "Memproses...",
+        title: "Processing...",
         message: confirmAction,
       });
 
       const res = await fetch(endpoint, { method: "POST" });
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Gagal menjalankan aksi");
-      }
+      if (!res.ok) throw new Error(data?.error || "Action failed");
 
       setAlert({
         type: "success",
-        title: "Berhasil",
+        title: "Success",
         message: data.message || confirmAction,
       });
     } catch (err: any) {
-      console.error(err);
       setAlert({
         type: "error",
-        title: "Terjadi Kesalahan",
-        message: err.message || "Request gagal",
+        title: "System Error",
+        message: err.message || "Request failed",
       });
     } finally {
       setLoadingAction(null);
@@ -88,70 +80,78 @@ export default function PlatformActions({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full mb-4 last:mb-0">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center px-4 py-3
-        bg-gray-100 dark:bg-gray-700 rounded-lg
-        hover:bg-gray-200 dark:hover:bg-gray-600
-        transition-colors font-medium text-gray-900 dark:text-white"
+        className={`w-full flex justify-between items-center px-5 py-4 rounded-2xl transition-all duration-300 border ${
+          open
+            ? "bg-white/10 border-white/20 shadow-lg"
+            : "bg-white/3 border-white/5 hover:bg-white/5"
+        }`}
       >
-        {platform}
-        <span
-          className={`transition-transform duration-200 ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
-        >
-          ▼
+        <span className="text-sm font-bold tracking-tight text-white uppercase">
+          {platform}
         </span>
+        <ChevronDownIcon
+          className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${
+            open ? "rotate-180 text-blue-400" : ""
+          }`}
+        />
       </button>
 
-      {open && (
-        <div
-          className="mt-2 flex flex-col gap-3 bg-white dark:bg-gray-800
-          rounded-lg shadow-md p-3 border border-gray-200 dark:border-gray-700"
-        >
+      <div
+        className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+          open
+            ? "grid-rows-[1fr] opacity-100 mt-3"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden space-y-2 px-1">
           {actions.map((action) => (
             <div
               key={action}
-              className="flex items-center justify-between px-3 py-2"
+              className="group flex items-center justify-between pl-5 pr-2 py-2.5 bg-white/2 border border-white/5 rounded-xl hover:border-red-500/30 hover:bg-red-500/2 transition-all"
             >
-              <span className="text-gray-900 dark:text-white">{action}</span>
+              <span className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors">
+                {action}
+              </span>
 
               <button
                 onClick={() => setConfirmAction(action)}
                 disabled={loadingAction === action}
-                className={`w-9 h-9 rounded-md flex items-center justify-center
-                ${
-                  loadingAction === action
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700"
-                }
-                text-white transition`}
+                className="relative w-10 h-10 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-30"
               >
-                <TrashIcon className="w-5 h-5" />
+                {loadingAction === action ? (
+                  <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <TrashIcon className="w-5 h-5" />
+                )}
               </button>
             </div>
           ))}
         </div>
-      )}
+      </div>
+
       <DialogBox
         open={!!confirmAction}
         type="danger"
-        title="Konfirmasi Aksi"
-        desc={`Yakin ingin melakukan "${confirmAction}" pada ${platform}? Aksi ini tidak bisa dibatalkan.`}
-        confirmText="Ya, Lanjutkan"
-        cancelText="Batal"
+        title="Critical Action"
+        desc={`Are you sure you want to perform "${confirmAction}" on ${platform}? This process is irreversible.`}
+        confirmText="Confirm Delete"
+        cancelText="Cancel"
         onConfirm={executeAction}
         onCancel={() => setConfirmAction(null)}
       />
+
       {alert && (
-        <Alert
-          type={alert.type}
-          title={alert.title}
-          message={alert.message}
-          onClose={() => setAlert(null)}
-        />
+        <div className="fixed bottom-6 right-6 z-100 animate-in slide-in-from-right-10">
+          <Alert
+            type={alert.type}
+            title={alert.title}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        </div>
       )}
     </div>
   );

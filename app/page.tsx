@@ -3,49 +3,67 @@ import CardWebHome from "@/components/Home/cardWebHome";
 
 export default function Home() {
   return (
-    <>
+    <div className="bg-[#0a0a0a] text-white selection:bg-blue-500/30">
       <HeaderHome />
-      <div className="w-full px-6 py-12 flex flex-col items-center">
-        <h1 className="text-4xl sm:text-5xl font-bold text-center mb-6">
-          Welcome to K-Platforms
-        </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl justify-center w-full">
-          <CardWebHome
-            logo="/img/logo/Komify2.png"
-            name="Komify"
-            status="release"
-            version="1.0"
-            startDate="17 Juli 2025"
-            endDate="20 Januari 2026"
-            link="/komify"
-          />
-          <CardWebHome
-            logo="/Filmfy.png"
-            name="Filmfy"
-            status="development"
-            startDate="17 December 2025"
-            endDate="Present"
-            link="/filmfy"
-          />
-          <CardWebHome
-            logo="/Peoplefy.png"
-            name="Peoplefy"
-            startDate="05 Januari 2026"
-            endDate="Present"
-            status="development"
-            link="/peoplefy"
-          />
-          <CardWebHome
-            logo="/Sportfy.png"
-            name="Sportfy"
-            startDate="06 Januari 2026"
-            endDate="Present"
-            status="development"
-            link="/sportfy"
-          />
+      <main className="relative pt-20  px-6 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-indigo-900/20 blur-[120px] rounded-full" />
+
+        <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
+          <div className="text-center mb-20">
+            <span className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-medium tracking-widest uppercase text-blue-400 mb-6 inline-block">
+              Digital Ecosystem
+            </span>
+            <h1 className="text-5xl sm:text-7xl font-black tracking-tighter mb-6 bg-clip-text text-transparent bg-linear-to-b from-white to-white/40">
+              K-Platforms
+            </h1>
+            <p className="text-slate-400 text-lg sm:text-xl max-w-xl mx-auto leading-relaxed font-light">
+              Elevating digital experiences through a suite of
+              <span className="text-white font-normal">
+                {" "}
+                premium interconnected platforms.
+              </span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-4 gap-8 w-full">
+            <CardWebHome
+              logo="/img/logo/Komify2.png"
+              name="Komify"
+              status="release"
+              version="1.0"
+              startDate="17 Juli 2025"
+              endDate="20 Januari 2026"
+              link="/komify"
+            />
+            <CardWebHome
+              logo="/Filmfy.png"
+              name="Filmfy"
+              status="development"
+              startDate="17 December 2025"
+              endDate="Present"
+              link="/filmfy"
+            />
+            <CardWebHome
+              logo="/Peoplefy.png"
+              name="Peoplefy"
+              startDate="05 Januari 2026"
+              endDate="Present"
+              status="development"
+              link="/peoplefy"
+            />
+            <CardWebHome
+              logo="/Sportfy.png"
+              name="Sportfy"
+              startDate="06 Januari 2026"
+              endDate="Present"
+              status="development"
+              link="/sportfy"
+            />
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

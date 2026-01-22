@@ -13,7 +13,7 @@ export default function ProfileLayout({
   return (
     <>
       <HeaderHome />
-      <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-8">
+      <main className="flex-1 w-full mx-auto px-6 py-8">
         {children}
       </main>
     </>
