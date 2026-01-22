@@ -38,7 +38,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -46,12 +46,12 @@ interface ComicFormProps {
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 }
 
@@ -90,12 +90,9 @@ export default function ComicForm({
 
   return (
     <>
-      <form
-        onSubmit={handleOpenDialog}
-        className="space-y-8 max-w-[1600px] mx-auto"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-6">
+      <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
             <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
               <div className="flex items-center gap-2 text-zinc-400">
                 <Upload size={18} />
@@ -124,7 +121,7 @@ export default function ComicForm({
             </div>
           </div>
 
-          <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6">
+          <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
             <div className="flex items-center gap-2 text-zinc-200">
               <LayoutGrid size={18} className="text-blue-500" />
               <h3 className="text-sm font-bold uppercase tracking-wider">
