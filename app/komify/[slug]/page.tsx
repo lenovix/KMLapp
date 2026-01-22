@@ -57,7 +57,7 @@ export default function ComicDetail() {
 
   const comic = useMemo(
     () => comics.find((c: ComicData) => String(c.slug) === String(slug)),
-    [slug],
+    [slug]
   );
 
   if (!comic) return <p className="p-6">Loading...</p>;
@@ -69,10 +69,10 @@ export default function ComicDetail() {
     }));
 
   const [chapters, setChapters] = useState(
-    normalizeChapters(comic.chapters ?? []),
+    normalizeChapters(comic.chapters ?? [])
   );
   const [originalChapters, setOriginalChapters] = useState(
-    normalizeChapters(comic.chapters ?? []),
+    normalizeChapters(comic.chapters ?? [])
   );
   const [isOrdering, setIsOrdering] = useState(false);
 
@@ -136,23 +136,31 @@ export default function ComicDetail() {
         setAvgRating(rating);
       }
     },
-    [comic],
+    [comic]
   );
 
   const handleDeleteComic = useCallback(async () => {
     if (!comic) return;
 
-    setDeleting(true);
-    const res = await fetch("/api/komify/deleteComic", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: comic.slug }),
-    });
+    try {
+      setDeleting(true);
 
-    if (res.ok) router.push("/komify");
-    else setAlert("Gagal menghapus komik");
+      const res = await fetch("/api/komify/deleteComic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: comic.slug }),
+      });
 
-    setDeleting(false);
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+
+      router.push("/komify");
+    } catch (err) {
+      setAlert("Gagal menghapus komik");
+    } finally {
+      setDeleting(false);
+    }
   }, [comic, router]);
 
   const confirmDeleteChapter = useCallback(async () => {
