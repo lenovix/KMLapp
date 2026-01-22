@@ -248,6 +248,10 @@ export default function ComicDetail() {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleSetChapters = (newChapters: any[]) => {
+    setChapters(newChapters);
+  };
+
   return (
     <div className=" bg-zinc-950 text-zinc-100">
       <Header defaultSlug={comic.title} />
@@ -389,7 +393,7 @@ export default function ComicDetail() {
             <ChaptersList
               slug={Number(comic.slug)}
               chapters={comic.chapters ?? []}
-              setChapters={setChapters}
+              setChapters={handleSetChapters}
               isOrdering={isOrdering}
               onDeleteChapter={(n) => {
                 setChapterToDelete(n);

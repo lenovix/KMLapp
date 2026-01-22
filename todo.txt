@@ -4,7 +4,8 @@
 
 # Note for Komify:
 > Bug
-  - Fix bug Page/image chapter order
+  - image per-chapter order
+  - state order chapter
 > Feature
 
 

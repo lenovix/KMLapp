@@ -77,7 +77,7 @@ export default function ChaptersHeader({
             )}
           </AnimatePresence>
 
-          <div className="h-8 w-[1px] bg-zinc-800 mx-1" />
+          <div className="h-8 w-px bg-zinc-800 mx-1" />
 
           <button
             onClick={() => setOpen(true)}

@@ -60,11 +60,11 @@ export default function ChaptersList({
   isOrdering: boolean;
 }) {
   const getDragId = (ch: any, index: number) =>
-    ch._id ?? `chapter-${ch.number}-${index}`;
+    ch.id || ch._id || `stable-id-${ch.number}`;
 
   if (!chapters || chapters.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 border-2 border-dashed border-zinc-800 rounded-[32px] text-zinc-500">
+      <div className="flex flex-col items-center justify-center p-20 border-2 border-dashed border-zinc-800 rounded-4xl text-zinc-500">
         <ImageIcon size={48} className="mb-4 opacity-20" />
         <p className="font-bold uppercase tracking-widest text-xs">
           No chapters found
@@ -75,9 +75,13 @@ export default function ChaptersList({
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
+
+    if (result.destination.index === result.source.index) return;
+
     const items = Array.from(chapters);
     const [moved] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, moved);
+
     setChapters(items);
   };
 
@@ -119,7 +123,11 @@ export default function ChaptersList({
                         {...provided.dragHandleProps}
                         className={`
                           flex items-center justify-center w-12 shrink-0 border-r border-zinc-800/50
-                          ${isOrdering ? "bg-blue-500/5 text-blue-500 cursor-grab active:cursor-grabbing" : "text-zinc-700 opacity-0 group-hover:opacity-100"}
+                          ${
+                            isOrdering
+                              ? "bg-blue-500/5 text-blue-500 cursor-grab active:cursor-grabbing"
+                              : "text-zinc-700 opacity-0 group-hover:opacity-100"
+                          }
                           transition-all duration-300
                         `}
                       >
@@ -135,13 +143,13 @@ export default function ChaptersList({
                             <span className="text-xl font-black text-white tracking-tighter">
                               CH {ch.number}
                             </span>
-                            <div className="h-4 w-[1px] bg-zinc-800" />
+                            <div className="h-4 w-px bg-zinc-800" />
                             <h4 className="text-sm font-bold text-zinc-400 truncate group-hover:text-zinc-200 transition-colors">
                               {ch.title || "Untitled Chapter"}
                             </h4>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-[0.1em] text-zinc-500">
+                          <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">
                             <span className="flex items-center gap-1.5">
                               <Calendar
                                 size={12}
@@ -172,7 +180,7 @@ export default function ChaptersList({
                             </span>
                           </div>
 
-                          <div className="h-8 w-[1px] bg-zinc-800 hidden md:block mx-2" />
+                          <div className="h-8 w-px bg-zinc-800 hidden md:block mx-2" />
 
                           <div className="flex items-center gap-1">
                             <Link
