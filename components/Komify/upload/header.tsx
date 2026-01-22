@@ -11,8 +11,8 @@ export default function UploadComicHeader({
   defaulftSlug,
 }: UploadComicHeaderProps) {
   return (
-    <header className="sticky top-0 z-[40] w-full border-b border-zinc-800 backdrop-blur-xl">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-10 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-800 backdrop-blur-xl">
+      <div className="mx-auto px-4 md:px-6 lg:px-10 h-16 flex items-center justify-between">
         <Link
           href="/komify"
           className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-white transition-all bg-zinc-900/50 px-4 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700"
