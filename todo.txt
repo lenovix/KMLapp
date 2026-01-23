@@ -4,7 +4,6 @@
 
 # Note for Komify:
 > Bug
-  - image per-chapter order
 > Feature
 
 
@@ -16,3 +15,4 @@
   - setelah cover diupload, file asli akan dicut/dihapus
   - halaman tags
   - upload subtitle (+script konversi .srt to .vtt)
+  - pindahkan data bookmark dan rating ke films.json
