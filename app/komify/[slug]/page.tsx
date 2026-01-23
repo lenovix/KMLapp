@@ -401,7 +401,7 @@ export default function ComicDetail() {
               chapters={chapters}
               setChapters={handleSetChapters}
               isOrdering={isOrdering}
-              onDeleteChapter={(n) => {
+              onDeleteChapter={(n:any) => {
                 setChapterToDelete(n);
                 setDeleteChapterOpen(true);
               }}
