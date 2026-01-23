@@ -252,6 +252,12 @@ export default function ComicDetail() {
     setChapters(newChapters);
   };
 
+  useEffect(() => {
+    if (comic?.chapters) {
+      setChapters(normalizeChapters(comic.chapters));
+    }
+  }, [comic]);
+
   return (
     <div className=" bg-zinc-950 text-zinc-100">
       <Header defaultSlug={comic.title} />
@@ -392,7 +398,7 @@ export default function ComicDetail() {
           <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-2">
             <ChaptersList
               slug={Number(comic.slug)}
-              chapters={comic.chapters ?? []}
+              chapters={chapters} // UBAH INI: gunakan state 'chapters', bukan 'comic.chapters'
               setChapters={handleSetChapters}
               isOrdering={isOrdering}
               onDeleteChapter={(n) => {
