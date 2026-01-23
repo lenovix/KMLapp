@@ -5,7 +5,6 @@
 # Note for Komify:
 > Bug
   - image per-chapter order
-  - state order chapter
 > Feature
 
 

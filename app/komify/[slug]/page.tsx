@@ -398,7 +398,7 @@ export default function ComicDetail() {
           <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-2">
             <ChaptersList
               slug={Number(comic.slug)}
-              chapters={chapters} // UBAH INI: gunakan state 'chapters', bukan 'comic.chapters'
+              chapters={chapters}
               setChapters={handleSetChapters}
               isOrdering={isOrdering}
               onDeleteChapter={(n) => {
