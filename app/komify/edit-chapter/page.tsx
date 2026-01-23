@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 import {
   DragDropContext,
   Droppable,
@@ -9,14 +9,13 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import {
-  Upload,
+  Plus,
   Trash2,
   GripVertical,
   Languages,
   ShieldCheck,
   FileText,
 } from "lucide-react";
-import FileUploadInput from "@/components/UI/FileUploadInput";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -46,6 +45,7 @@ function EditChapterContent() {
   const searchParams = useSearchParams();
   const slugParam = searchParams.get("slug");
   const chapterParam = searchParams.get("chapter");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [languages, setLanguages] = useState<string[]>([]);
   const [cencoredList, setCencoredList] = useState<string[]>([]);
@@ -82,7 +82,7 @@ function EditChapterContent() {
               id: `old-${idx}-${filename}`,
               filename,
               url: `/komify/${slugParam}/chapters/${chapterParam}/${filename}`,
-            })),
+            }))
           );
         }
       });
@@ -105,7 +105,8 @@ function EditChapterContent() {
     };
   }, [pages]);
 
-  const handleFileUpload = (files: FileList | null) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
     if (!files) return;
     const fileArray = Array.from(files);
     const timestamp = Date.now();
@@ -119,6 +120,8 @@ function EditChapterContent() {
 
     setNewFiles((prev) => [...prev, ...fileArray]);
     setPages((prev) => [...prev, ...newItems]);
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -184,7 +187,7 @@ function EditChapterContent() {
             <span className="text-blue-500">{chapterData.number}</span>
           </h1>
           <p className="text-zinc-500 text-sm">
-            Kelola urutan halaman dan informasi chapter.
+            Tarik dan lepas gambar untuk mengatur urutan halaman.
           </p>
         </div>
         <div className="flex gap-3">
@@ -203,25 +206,21 @@ function EditChapterContent() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-zinc-900/50 border border-white/5 rounded-4xl p-6 space-y-6 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <FileUploadInput
-                  multiple
-                  onChange={handleFileUpload}
-                  icon={<Upload size={16} />}
-                  text="Tambah Halaman"
-                  countFile={pages.length}
-                />
-                <button
-                  onClick={() => setPages([])}
-                  className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-400 transition-colors"
-                >
-                  Clear All
-                </button>
-              </div>
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
                 {pages.length} Total Pages
-              </p>
+              </h3>
+              <button
+                onClick={() => {
+                  if (confirm("Hapus semua halaman?")) {
+                    setPages([]);
+                    setNewFiles([]);
+                  }
+                }}
+                className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-400 transition-colors"
+              >
+                Clear All
+              </button>
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
@@ -230,7 +229,7 @@ function EditChapterContent() {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar"
                   >
                     {pages.map((page, index) => (
                       <Draggable
@@ -263,11 +262,16 @@ function EditChapterContent() {
                                   <GripVertical size={16} />
                                 </div>
                                 <button
-                                  onClick={() =>
+                                  onClick={() => {
                                     setPages((p) =>
                                       p.filter((item) => item.id !== page.id)
-                                    )
-                                  }
+                                    );
+                                    if (page.file) {
+                                      setNewFiles((prev) =>
+                                        prev.filter((f) => f !== page.file)
+                                      );
+                                    }
+                                  }}
                                   className="p-2 bg-rose-500/20 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg transition-colors"
                                 >
                                   <Trash2 size={16} />
@@ -285,6 +289,29 @@ function EditChapterContent() {
                         )}
                       </Draggable>
                     ))}
+
+                    <div className="relative aspect-3/4">
+                      <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/5 rounded-2xl cursor-pointer transition-all group">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileUpload}
+                          accept="image/*"
+                        />
+                        <div className="p-4 bg-zinc-900 rounded-full group-hover:scale-110 transition-transform mb-3">
+                          <Plus
+                            className="text-zinc-500 group-hover:text-blue-500"
+                            size={24}
+                          />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300">
+                          Add Pages
+                        </span>
+                      </label>
+                    </div>
+
                     {provided.placeholder}
                   </div>
                 )}

@@ -19,7 +19,6 @@ export async function GET(req: Request) {
     "chapters",
     String(chapter)
   );
-
   const comicsPath = path.join(process.cwd(), "data", "komify", "comics.json");
 
   try {
@@ -29,7 +28,7 @@ export async function GET(req: Request) {
 
     const physicalFiles = fs
       .readdirSync(chapterDir)
-      .filter((f) => /^page\d+\.(jpg|jpeg|png|webp)$/i.test(f));
+      .filter((f) => /\.(jpg|jpeg|png|webp|avif)$/i.test(f));
 
     const comics = JSON.parse(fs.readFileSync(comicsPath, "utf-8"));
     const comic = comics.find((c: any) => String(c.slug) === String(slug));
@@ -42,23 +41,30 @@ export async function GET(req: Request) {
       : [];
 
     const orderMap = new Map(
-      pagesFromJson.map((p: any) => [p.filename, p.order ?? 0])
+      pagesFromJson.map((p: any) => [p.filename, p.order ?? 999])
     );
 
     const sortedFiles = physicalFiles.sort((a, b) => {
-      const oa = Number(orderMap.get(a) ?? 9999);
-      const ob = Number(orderMap.get(b) ?? 9999);
+      const orderA = orderMap.get(a) ?? 999;
+      const orderB = orderMap.get(b) ?? 999;
 
-      if (oa !== ob) return oa - ob;
-
-      const na = Number(a.replace(/\D/g, ""));
-      const nb = Number(b.replace(/\D/g, ""));
-      return na - nb;
+      if (orderA !== orderB) return Number(orderA) - Number(orderB);
+      return a.localeCompare(b, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
     });
 
-    return NextResponse.json({ pages: sortedFiles });
+    return NextResponse.json({
+      pages: sortedFiles,
+      info: {
+        title: chapterData?.title,
+        language: chapterData?.language,
+        cencored: chapterData?.cencored,
+      },
+    });
   } catch (err) {
-    console.error("Failed to read chapter directory", err);
+    console.error("Failed to read chapter", err);
     return NextResponse.json({ pages: [] });
   }
 }

@@ -52,6 +52,9 @@ export async function POST(req: NextRequest) {
     chapterData.uploadChapter = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace("T", " ");
+    chapterData.updatedAt = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace("T", " ");
 
     const uploadDir = path.join(
       process.cwd(),
