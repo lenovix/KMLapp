@@ -3,7 +3,7 @@ import CardWebHome from "@/components/Home/cardWebHome";
 
 export default function Home() {
   return (
-    <div className="bg-[#0a0a0a] text-white selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500/30">
       <HeaderHome />
 
       <main className="relative pt-20  px-6 overflow-hidden">
