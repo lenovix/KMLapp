@@ -7,6 +7,7 @@
 > Bug
   - check feature ordering on preview chapter (upload page)
   - fix bug on page of chapter the progress bar not working correctly and add feature last position read on chapter page
+  - re design add chapter modal
 > Feature
   - add ordering chapter on upload page
   - add checklist for comic upload (cover, title, parody, characters, artist, groups, tags, authors, title chapter, chapter file)
