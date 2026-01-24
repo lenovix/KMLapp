@@ -122,7 +122,7 @@ export default function ChapterSection({
                     placeholder="Enter chapter specific title (optional)"
                     value={ch.title}
                     onChange={(e) => handleChapterChange(index, e)}
-                    className="w-full bg-zinc-950/50 border-zinc-800 text-sm focus:ring-blue-500/30"
+                    className="w-full bg-zinc-950/50 border-zinc-800 text-sm focus:ring-blue-500/30 placeholder:text-zinc-700"
                   />
                 </div>
 

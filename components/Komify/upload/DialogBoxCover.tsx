@@ -45,7 +45,7 @@ export default function DialogBoxCover({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4"
+          className="fixed inset-0 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center z-100 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

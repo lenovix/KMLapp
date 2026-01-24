@@ -1,10 +1,21 @@
 # Note for K-Platform:
 > Bug
 > Feature
+  - add page for bug/feature/report
 
 # Note for Komify:
 > Bug
+  - check feature ordering on preview chapter (upload page)
+  - fix bug on page of chapter the progress bar not working correctly and add feature last position read on chapter page
 > Feature
+  - add ordering chapter on upload page
+  - add checklist for comic upload (cover, title, parody, characters, artist, groups, tags, authors, title chapter, chapter file)
+  - add status chapter not completed
+  - add switch between manga and manhwa
+  - add field update comic on detail comic page and on logic update comic
+  - add tool fix paragraf on update comic page
+  - add button add/delete all pages on pages modal
+  - add checkbox dummy cover on cover upload page
 
 
 # Note for Filmfy:
@@ -12,6 +23,7 @@
   - bug calendar picker (clear tidak bekerja dengan baik)
 
 > Feature
+  - add quick add film by code
   - setelah cover diupload, file asli akan dicut/dihapus
   - halaman tags
   - upload subtitle (+script konversi .srt to .vtt)

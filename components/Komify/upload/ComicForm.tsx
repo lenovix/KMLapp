@@ -38,7 +38,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -46,12 +46,12 @@ interface ComicFormProps {
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 }
 
@@ -92,35 +92,6 @@ export default function ComicForm({
     <>
       <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
-          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Upload size={18} />
-                <h3 className="text-xs font-bold uppercase tracking-widest">
-                  Publishing
-                </h3>
-              </div>
-
-              <ComicCover
-                cover={comicData.cover}
-                onClick={() => setCoverDialogOpen(true)}
-                onDelete={() => setComicData({ ...comicData, cover: "" })}
-              />
-
-              <div className="pt-2">
-                <PrimaryButton
-                  type="submit"
-                  onClick={handleOpenDialog}
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-900/20"
-                  icon={<Upload size={20} />}
-                  iconPosition="left"
-                >
-                  PUBLISH
-                </PrimaryButton>
-              </div>
-            </div>
-          </div>
-
           <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
             <div className="flex items-center gap-2 text-zinc-200">
               <LayoutGrid size={18} className="text-blue-500" />
@@ -138,21 +109,9 @@ export default function ComicForm({
                   fix: false,
                 },
                 {
-                  name: "artist",
-                  label: "Artist",
-                  placeholder: "Artist name",
-                  fix: true,
-                },
-                {
-                  name: "authors",
-                  label: "Author",
-                  placeholder: "Author name",
-                  fix: true,
-                },
-                {
-                  name: "tags",
-                  label: "Tags",
-                  placeholder: "Action, Drama...",
+                  name: "parodies",
+                  label: "Parodies",
+                  placeholder: "Original / Fanfic",
                   fix: true,
                 },
                 {
@@ -162,15 +121,27 @@ export default function ComicForm({
                   fix: true,
                 },
                 {
-                  name: "parodies",
-                  label: "Parodies",
-                  placeholder: "Original / Fanfic",
+                  name: "tags",
+                  label: "Tags",
+                  placeholder: "Action, Drama...",
+                  fix: true,
+                },
+                {
+                  name: "artist",
+                  label: "Artist",
+                  placeholder: "Artist name",
                   fix: true,
                 },
                 {
                   name: "groups",
                   label: "Groups",
                   placeholder: "Scanlation name",
+                  fix: true,
+                },
+                {
+                  name: "authors",
+                  label: "Author",
+                  placeholder: "Author name",
                   fix: true,
                 },
               ].map((field) => (
@@ -239,6 +210,27 @@ export default function ComicForm({
               handleChapterFile={handleChapterFile}
               openPreview={openPreview}
             />
+          </div>
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
+              <div className="pt-2">
+                <PrimaryButton
+                  type="submit"
+                  onClick={handleOpenDialog}
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-900/20"
+                  icon={<Upload size={20} />}
+                  iconPosition="left"
+                >
+                  PUBLISH
+                </PrimaryButton>
+              </div>
+
+              <ComicCover
+                cover={comicData.cover}
+                onClick={() => setCoverDialogOpen(true)}
+                onDelete={() => setComicData({ ...comicData, cover: "" })}
+              />
+            </div>
           </div>
         </div>
       </form>

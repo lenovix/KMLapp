@@ -133,7 +133,7 @@ export default function AddChapterModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -292,7 +292,7 @@ export default function AddChapterModal({
                                 ref={prov.innerRef}
                                 {...prov.draggableProps}
                                 {...prov.dragHandleProps}
-                                className={`relative group shrink-0 w-32 aspect-[3/4] rounded-2xl overflow-hidden border ${snap.isDragging ? "border-blue-500 shadow-2xl z-50" : "border-zinc-800"}`}
+                                className={`relative group shrink-0 w-32 aspect-3/4 rounded-2xl overflow-hidden border ${snap.isDragging ? "border-blue-500 shadow-2xl z-50" : "border-zinc-800"}`}
                               >
                                 <img
                                   src={item.url}

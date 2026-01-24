@@ -177,7 +177,7 @@ export default function CommentSection({ slug }: { slug: string }) {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center text-zinc-400 border border-zinc-700">
+                      <div className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-700 flex items-center justify-center text-zinc-400 border border-zinc-700">
                         <User size={18} />
                       </div>
                       <div>

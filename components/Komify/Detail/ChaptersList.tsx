@@ -145,7 +145,7 @@ function SortableChapter({
         className={`flex items-center justify-center w-12 shrink-0 border-r border-zinc-800/50 ${
           isOrdering
             ? "bg-blue-500/10 text-blue-500 cursor-grab"
-            : "text-zinc-700 opacity-0 group-hover:opacity-100"
+            : "text-zinc-700 opacity-0"
         }`}
       >
         <GripVertical size={20} />
@@ -239,6 +239,7 @@ export default function ChaptersList({
   setChapters,
   isOrdering,
 }: any) {
+  const [mounted, setMounted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
@@ -254,10 +255,13 @@ export default function ChaptersList({
     useSensor(TouchSensor, {
       activationConstraint: { delay: 250, tolerance: 5 },
     }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   useEffect(() => {
+    setMounted(true);
     fetch("/data/config/language.json")
       .then((res) => res.json())
       .then(setLanguages);
@@ -266,14 +270,18 @@ export default function ChaptersList({
       .then(setCensoredList);
   }, []);
 
+  if (!mounted) {
+    return <div className="w-full space-y-3 opacity-0">Loading...</div>;
+  }
+
   const handleDragEndChapters = (event: any) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
       const oldIndex = chapters.findIndex(
-        (c: any) => `ch-${c.number}` === active.id
+        (c: any) => `ch-${c.number}` === active.id,
       );
       const newIndex = chapters.findIndex(
-        (c: any) => `ch-${c.number}` === over.id
+        (c: any) => `ch-${c.number}` === over.id,
       );
       setChapters(arrayMove(chapters, oldIndex, newIndex));
     }
@@ -296,7 +304,7 @@ export default function ChaptersList({
     setIsPagesModalOpen(true);
     try {
       const res = await fetch(
-        `/api/komify/orderingPages?slug=${slug}&chapter=${ch.number}`
+        `/api/komify/orderingPages?slug=${slug}&chapter=${ch.number}`,
       );
       const data = await res.json();
       setEditingPages(data.pages || []);
@@ -325,8 +333,8 @@ export default function ChaptersList({
         chapters.map((c: any) =>
           c.number === editingChapter.number
             ? { ...editingChapter, updatedAt: new Date().toISOString() }
-            : c
-        )
+            : c,
+        ),
       );
       setIsModalOpen(false);
     } catch (err) {
@@ -352,8 +360,8 @@ export default function ChaptersList({
         chapters.map((ch: any) =>
           ch.number === editingChapter.number
             ? { ...ch, pages: editingPages }
-            : ch
-        )
+            : ch,
+        ),
       );
       setIsPagesModalOpen(false);
     } catch (error) {
@@ -368,7 +376,7 @@ export default function ChaptersList({
     try {
       const res = await fetch(
         `/api/komify/orderingPages?slug=${slug}&chapter=${editingChapter.number}&filename=${filename}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
       if (res.ok)
         setEditingPages((prev) => prev.filter((p) => p.filename !== filename));

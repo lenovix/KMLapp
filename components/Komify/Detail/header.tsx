@@ -11,7 +11,7 @@ export default function UploadComicHeader({
   defaultSlug,
 }: UploadComicHeaderProps) {
   return (
-    <header className="sticky top-0 z-[40] w-full border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-xl">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         <nav className="flex items-center gap-2 md:gap-4 text-sm font-medium">
           <Link
@@ -44,7 +44,7 @@ export default function UploadComicHeader({
             <span className="hidden md:inline">BOOKMARKS</span>
           </Link>
 
-          <div className="h-4 w-[1px] bg-zinc-800 mx-1 hidden sm:block" />
+          <div className="h-4 w-px bg-zinc-800 mx-1 hidden sm:block" />
 
           <Link
             href="/komify/upload"
