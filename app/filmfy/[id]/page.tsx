@@ -89,9 +89,6 @@ export default async function FilmDetailPage({
       <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-12">
         {film.isDeleted ? null : (
           <section>
-            <div className="flex items-center gap-4 mb-10">
-            </div>
-
             {film.parts.length === 0 ? (
               <EmptyState />
             ) : (
@@ -110,19 +107,16 @@ export default async function FilmDetailPage({
                     const videos = getVideoFiles(folderPath);
 
                     return (
-                      <div
-                        key={part.order}
-                        className=""
-                      >
+                      <div key={part.order} className="">
                         {videos.map((file) => (
-                            <VideoCard
-                              key={file}
-                              file={file}
-                              filmId={film.id}
-                              src={`/filmfy/movie/${film.code}/${part.folder}/${file}`}
-                              partOrder={part.order}
-                            />
-                          ))}
+                          <VideoCard
+                            key={file}
+                            file={file}
+                            filmId={film.id}
+                            src={`/filmfy/movie/${film.code}/${part.folder}/${file}`}
+                            partOrder={part.order}
+                          />
+                        ))}
                       </div>
                     );
                   })}
