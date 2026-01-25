@@ -1,0 +1,166 @@
+[
+  {
+    "id": "1769363044583",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "add page for bug/feature/report",
+    "description": "",
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:44:04.583Z",
+    "updatedAt": "2026-01-25T17:52:09.824Z"
+  },
+  {
+    "id": "1769363054833",
+    "type": "bug",
+    "project": "Komify",
+    "title": "check feature ordering on preview chapter (upload page)",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:44:14.833Z"
+  },
+  {
+    "id": "1769363063565",
+    "type": "bug",
+    "project": "Komify",
+    "title": "fix bug on page of chapter the progress bar not working correctly and add feature last position read on chapter page",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:44:23.565Z"
+  },
+  {
+    "id": "1769363075955",
+    "type": "bug",
+    "project": "Komify",
+    "title": "re-design add chapter modal",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:44:35.955Z"
+  },
+  {
+    "id": "1769363093971",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add ordering chapter on upload page",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:44:53.971Z"
+  },
+  {
+    "id": "1769363102946",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add checklist for comic upload page",
+    "description": "cover, title, parody, characters, artist, groups, tags, authors, title chapter, chapter file",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:02.946Z",
+    "updatedAt": "2026-01-25T17:50:25.436Z"
+  },
+  {
+    "id": "1769363123368",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add status chapter not completed",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:23.368Z"
+  },
+  {
+    "id": "1769363132285",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add switch between manga and manhwa",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:32.285Z"
+  },
+  {
+    "id": "1769363140807",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add field update comic on detail comic page and on logic update comic",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:40.807Z"
+  },
+  {
+    "id": "1769363147823",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add tool fix paragraf on update comic page",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:47.823Z"
+  },
+  {
+    "id": "1769363155382",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add button add/delete all pages on pages modal",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:45:55.382Z"
+  },
+  {
+    "id": "1769363162890",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add checkbox dummy cover on cover upload page",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:02.890Z"
+  },
+  {
+    "id": "1769363172898",
+    "type": "bug",
+    "project": "Filmfy",
+    "title": "bug calendar picker (clear tidak bekerja dengan baik)",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:12.898Z"
+  },
+  {
+    "id": "1769363180784",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "add quick add film by code",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:20.784Z"
+  },
+  {
+    "id": "1769363188319",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "setelah cover diupload, file asli akan dicut/dihapus",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:28.320Z"
+  },
+  {
+    "id": "1769363199384",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "halaman tags",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:39.384Z"
+  },
+  {
+    "id": "1769363207251",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "upload subtitle (+script konversi .srt to .vtt)",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:47.251Z"
+  },
+  {
+    "id": "1769363216529",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "pindahkan data bookmark dan rating ke films.json",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T17:46:56.529Z"
+  }
+]
