@@ -162,5 +162,14 @@
     "description": "",
     "status": "OPEN",
     "createdAt": "2026-01-25T17:46:56.529Z"
+  },
+  {
+    "id": "1769364073453",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "cover upload can crop",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-25T18:01:13.453Z"
   }
 ]

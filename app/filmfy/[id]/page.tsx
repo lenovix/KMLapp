@@ -31,7 +31,7 @@ function getVideoFiles(folderPath: string) {
   return fs
     .readdirSync(folderPath)
     .filter((file) =>
-      [".mp4", ".webm", ".mov"].includes(path.extname(file).toLowerCase())
+      [".mp4", ".webm", ".mov"].includes(path.extname(file).toLowerCase()),
     );
 }
 
@@ -87,6 +87,49 @@ export default async function FilmDetailPage({
       </header>
 
       <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-12">
+        {film.isDeleted ? null : (
+          <section>
+            <div className="flex items-center gap-4 mb-10">
+            </div>
+
+            {film.parts.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="space-y-12">
+                {film.parts
+                  .sort((a, b) => a.order - b.order)
+                  .map((part) => {
+                    const folderPath = path.join(
+                      process.cwd(),
+                      "public",
+                      "filmfy",
+                      "movie",
+                      film.code,
+                      part.folder,
+                    );
+                    const videos = getVideoFiles(folderPath);
+
+                    return (
+                      <div
+                        key={part.order}
+                        className=""
+                      >
+                        {videos.map((file) => (
+                            <VideoCard
+                              key={file}
+                              file={file}
+                              filmId={film.id}
+                              src={`/filmfy/movie/${film.code}/${part.folder}/${file}`}
+                              partOrder={part.order}
+                            />
+                          ))}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </section>
+        )}
         <section className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12 items-start">
           <div className="mx-auto md:mx-0 w-full max-w-75">
             <div className="aspect-2/3 relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 dark:ring-gray-800">
@@ -177,69 +220,6 @@ export default async function FilmDetailPage({
               </div>
             </div>
           </div>
-        </section>
-
-        <section className="pt-12">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="h-10 w-1.5 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]" />
-            <h2 className="text-2xl font-black tracking-tight">
-              Video Playlist
-            </h2>
-          </div>
-
-          {film.parts.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="space-y-12">
-              {film.parts
-                .sort((a, b) => a.order - b.order)
-                .map((part) => {
-                  const folderPath = path.join(
-                    process.cwd(),
-                    "public",
-                    "filmfy",
-                    "movie",
-                    film.code,
-                    part.folder
-                  );
-                  const videos = getVideoFiles(folderPath);
-
-                  return (
-                    <div
-                      key={part.order}
-                      className="relative pl-8 md:pl-14 border-l-2 border-gray-200 dark:border-gray-800 ml-4"
-                    >
-                      <div className="absolute -left-2.75 top-0 w-5 h-5 rounded-full bg-blue-600 border-4 border-gray-50 dark:border-gray-900 shadow-sm" />
-
-                      <div className="mb-6">
-                        <h3 className="text-xl font-black text-gray-900 dark:text-white leading-none">
-                          Part {part.order}{" "}
-                          <span className="text-blue-600 mx-2">—</span>{" "}
-                          {part.title}
-                        </h3>
-                        {part.note && (
-                          <p className="text-sm text-gray-500 mt-2 font-medium italic opacity-80">
-                            {part.note}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-8">
-                        {videos.map((file) => (
-                          <VideoCard
-                            key={file}
-                            file={file}
-                            filmId={film.id}
-                            src={`/filmfy/movie/${film.code}/${part.folder}/${file}`}
-                            partOrder={part.order}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          )}
         </section>
       </div>
     </main>
