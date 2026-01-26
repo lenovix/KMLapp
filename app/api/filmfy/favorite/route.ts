@@ -2,47 +2,39 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const FILE = path.join(process.cwd(), "data", "filmfy", "user-actions.json");
-
-function readData() {
-  if (!fs.existsSync(FILE)) {
-    return { favorites: [], ratings: {} };
-  }
-  return JSON.parse(fs.readFileSync(FILE, "utf-8"));
-}
-
-function writeData(data: any) {
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
-}
+const FILMS_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
 
 export async function POST(req: Request) {
   const { filmId } = await req.json();
+
   if (!filmId) {
     return NextResponse.json({ error: "filmId required" }, { status: 400 });
   }
 
-  const data = readData();
-
-  const index = data.favorites.findIndex((f: any) => f.filmId === filmId);
-
-  if (index >= 0) {
-    data.favorites.splice(index, 1);
-  } else {
-    data.favorites.push({
-      filmId,
-      addedAt: new Date().toISOString(),
-    });
+  if (!fs.existsSync(FILMS_FILE)) {
+    return NextResponse.json({ error: "Database not found" }, { status: 404 });
   }
 
-  writeData(data);
+  const films = JSON.parse(fs.readFileSync(FILMS_FILE, "utf-8"));
+  const index = films.findIndex((f: any) => f.id === Number(filmId));
+
+  if (index === -1) {
+    return NextResponse.json({ error: "Film not found" }, { status: 404 });
+  }
+
+  const currentStatus = films[index].isFavorite || false;
+  films[index].isFavorite = !currentStatus;
+
+  if (films[index].isFavorite) {
+    films[index].favoriteAddedAt = new Date().toISOString();
+  } else {
+    delete films[index].favoriteAddedAt;
+  }
+
+  fs.writeFileSync(FILMS_FILE, JSON.stringify(films, null, 2));
 
   return NextResponse.json({
     success: true,
-    isFavorite: index === -1,
+    isFavorite: films[index].isFavorite,
   });
-}
-
-export async function GET() {
-  const data = readData();
-  return NextResponse.json(data);
 }

@@ -9,37 +9,40 @@ interface Film {
   cover?: string | null;
   genre: string[];
   createdAt: string;
-  favoritedAt: string;
+  isFavorite?: boolean;
+  favoriteAddedAt?: string;
 }
 
 const FILM_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
-const USER_FILE = path.join(
-  process.cwd(),
-  "data",
-  "filmfy",
-  "user-actions.json"
-);
 
-function getFavoriteFilms() {
-  if (!fs.existsSync(USER_FILE) || !fs.existsSync(FILM_FILE)) return [];
+export const revalidate = 0;
 
-  const user = JSON.parse(fs.readFileSync(USER_FILE, "utf-8"));
-  const films = JSON.parse(fs.readFileSync(FILM_FILE, "utf-8"));
+function getFavoriteFilms(): Film[] {
+  if (!fs.existsSync(FILM_FILE)) return [];
 
-  return user.favorites
-    .map((fav: any) => {
-      const film = films.find((f: any) => f.id === fav.filmId);
-      if (!film) return null;
-      return {
-        ...film,
-        favoritedAt: fav.addedAt,
-      };
-    })
-    .filter(Boolean);
+  try {
+    const fileContent = fs.readFileSync(FILM_FILE, "utf-8");
+    const films: Film[] = JSON.parse(fileContent || "[]");
+
+    return films
+      .filter((film) => film.isFavorite === true)
+      .sort((a, b) => {
+        const dateA = new Date(a.favoriteAddedAt || 0).getTime();
+        const dateB = new Date(b.favoriteAddedAt || 0).getTime();
+        return dateB - dateA;
+      });
+  } catch (error) {
+    console.error("Error reading favorite films:", error);
+    return [];
+  }
 }
 
 export default function FavoritePage() {
   const favoriteFilms = getFavoriteFilms();
 
-  return <FavoriteClient films={favoriteFilms} />;
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <FavoriteClient films={favoriteFilms} />
+    </div>
+  );
 }

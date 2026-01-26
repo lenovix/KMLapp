@@ -3,19 +3,18 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Search,
-  Heart,
-  SortAsc,
-  Calendar,
-  X,
-  Plus,
-} from "lucide-react";
-import { Film } from "@/types/filmfy";
+import { ArrowLeft, Search, Heart, Plus, Star } from "lucide-react";
 
-interface FavoriteFilm extends Film {
-  favoritedAt: string;
+interface FavoriteFilm {
+  id: number;
+  title: string;
+  code: string;
+  cover?: string | null;
+  genre: string[];
+  createdAt: string;
+  isFavorite?: boolean;
+  rating?: number | null;
+  favoriteAddedAt?: string;
 }
 
 export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
@@ -34,15 +33,15 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
         if (sort === "az") {
           return a.title.localeCompare(b.title);
         }
-        return (
-          new Date(b.favoritedAt).getTime() - new Date(a.favoritedAt).getTime()
-        );
+        const dateA = new Date(a.favoriteAddedAt || 0).getTime();
+        const dateB = new Date(b.favoriteAddedAt || 0).getTime();
+        return dateB - dateA;
       });
   }, [films, query, sort]);
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      <header className="sticky top-0 z-30 w-full bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-md">
+      <header className="sticky top-0 z-30 w-full bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link
@@ -56,7 +55,7 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
                 Favorites
               </h1>
               <p className="text-[10px] font-bold text-pink-600 uppercase tracking-widest mt-1">
-                Your Collection
+                {films.length} Movies Saved
               </p>
             </div>
           </div>
@@ -65,7 +64,7 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari di favorit..."
+              placeholder="Search in favorites..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-2.5 rounded-2xl border-none bg-white dark:bg-gray-800 shadow-sm focus:ring-2 focus:ring-pink-500 text-sm outline-none transition-all"
@@ -78,8 +77,8 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
               onChange={(e) => setSort(e.target.value)}
               className="hidden sm:block px-4 py-2.5 rounded-xl bg-white dark:bg-gray-800 border-none shadow-sm text-xs font-bold outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
-              <option value="newest">Terbaru Disimpan</option>
-              <option value="az">Nama A - Z</option>
+              <option value="newest">Recently Saved</option>
+              <option value="az">Name A - Z</option>
             </select>
 
             <Link
@@ -87,7 +86,7 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 active:scale-95"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Tambah</span>
+              <span className="hidden sm:inline">Add Movie</span>
             </Link>
           </div>
         </div>
@@ -99,7 +98,7 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari film..."
+              placeholder="Search movies..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-11 py-3 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border-none text-sm"
@@ -110,7 +109,7 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
             onChange={(e) => setSort(e.target.value)}
             className="w-full px-4 py-3 rounded-2xl bg-white dark:bg-gray-800 border-none shadow-sm text-sm font-bold"
           >
-            <option value="newest">Recently Favorited</option>
+            <option value="newest">Recently Saved</option>
             <option value="az">A - Z</option>
           </select>
         </div>
@@ -122,18 +121,29 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
               href={`/filmfy/${film.id}`}
               className="group relative flex flex-col bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700"
             >
-              <div className="relative aspect-3/4 overflow-hidden">
+              <div className="relative aspect-[3/4.5] overflow-hidden">
                 <Image
-                  src={film.cover ?? "/img/placeholder.png"}
+                  src={
+                    film.cover
+                      ? `${film.cover}?t=${new Date(film.createdAt).getTime()}`
+                      : "/img/placeholder.png"
+                  }
                   alt={film.title}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  unoptimized
                 />
 
-                <div className="absolute top-3 left-3">
+                <div className="absolute top-3 left-3 flex gap-1">
                   <div className="p-1.5 bg-pink-600 rounded-lg shadow-lg">
                     <Heart className="w-3 h-3 text-white fill-current" />
                   </div>
+                  {film.rating && (
+                    <div className="flex items-center gap-1 px-2 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[10px] font-black text-yellow-400">
+                      <Star className="w-2.5 h-2.5 fill-current" />
+                      {film.rating}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -141,20 +151,9 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
                 <span className="text-[10px] font-black text-pink-600 dark:text-pink-400 uppercase tracking-widest block mb-1">
                   {film.code}
                 </span>
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-pink-600 transition-colors">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-pink-600 transition-colors min-h-10">
                   {film.title}
                 </h3>
-
-                <div className="mt-3 pt-3 border-t border-gray-50 dark:border-gray-700 flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-tight">
-                  <Calendar className="w-3 h-3" />
-                  <span>
-                    Added{" "}
-                    {new Date(film.favoritedAt).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
-                </div>
               </div>
             </Link>
           ))}
@@ -167,10 +166,11 @@ export default function FavoriteClient({ films }: { films: FavoriteFilm[] }) {
               <Search className="absolute -bottom-1 -right-1 w-6 h-6 text-pink-500 bg-white dark:bg-gray-900 rounded-full p-1" />
             </div>
             <p className="text-gray-900 dark:text-white font-black text-xl">
-              Koleksi tidak ditemukan
+              Empty Collection
             </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Coba cari judul lain atau reset filter kamu.
+            <p className="text-gray-500 text-sm mt-2 px-6">
+              You haven't added any movies to your favorites yet or no matches
+              found.
             </p>
           </div>
         )}

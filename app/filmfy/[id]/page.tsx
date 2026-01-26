@@ -137,7 +137,11 @@ export default async function FilmDetailPage({
             />
 
             <div className="mt-6 space-y-3">
-              <FavoriteRatingButtons filmId={film.id} />
+              <FavoriteRatingButtons
+                filmId={film.id}
+                initialFavorite={film.isFavorite || false}
+                initialRating={film.rating || null}
+              />
               <MovieActionButtons filmId={film.id} />
             </div>
           </div>

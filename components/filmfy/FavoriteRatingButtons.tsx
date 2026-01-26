@@ -1,30 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Heart, Star, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Heart, Star } from "lucide-react";
 
-interface FavoriteItem {
+interface Props {
   filmId: number;
-  addedAt: string;
+  initialFavorite: boolean;
+  initialRating: number | null;
 }
 
-export default function FavoriteRatingButtons({ filmId }: { filmId: number }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [rating, setRating] = useState<number | null>(null);
+export default function FavoriteRatingButtons({
+  filmId,
+  initialFavorite,
+  initialRating,
+}: Props) {
+  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const [rating, setRating] = useState<number | null>(initialRating);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(true);
-    fetch("/api/filmfy/favorite")
-      .then((r) => r.json())
-      .then((data) => {
-        const favorites: FavoriteItem[] = data.favorites ?? [];
-        setIsFavorite(favorites.some((fav) => fav.filmId === filmId));
-        setRating(data.ratings?.[filmId] ?? null);
-      })
-      .finally(() => setIsLoading(false));
-  }, [filmId]);
 
   const toggleFavorite = async () => {
     const previousState = isFavorite;
@@ -44,22 +36,20 @@ export default function FavoriteRatingButtons({ filmId }: { filmId: number }) {
   };
 
   const submitRating = async (value: number) => {
+    const previousRating = rating;
     setRating(value);
-    await fetch("/api/filmfy/rating", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filmId, rating: value }),
-    });
-  };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center gap-4 h-10 animate-pulse">
-        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-xl" />
-        <div className="w-32 h-6 bg-gray-200 dark:bg-gray-800 rounded-lg" />
-      </div>
-    );
-  }
+    try {
+      const res = await fetch("/api/filmfy/rating", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filmId, rating: value }),
+      });
+      if (!res.ok) throw new Error();
+    } catch (error) {
+      setRating(previousRating);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border dark:border-gray-800">
@@ -67,10 +57,9 @@ export default function FavoriteRatingButtons({ filmId }: { filmId: number }) {
         <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
           Actions
         </span>
-
         <button
           onClick={toggleFavorite}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all active:scale-95 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all active:scale-95 group ${
             isFavorite
               ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
               : "bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-red-400"
@@ -78,11 +67,13 @@ export default function FavoriteRatingButtons({ filmId }: { filmId: number }) {
         >
           <Heart
             className={`w-5 h-5 transition-transform ${
-              isFavorite ? "fill-current scale-110" : "group-hover:scale-110"
+              isFavorite
+                ? "fill-current scale-110"
+                : "group-hover:scale-110 text-red-400"
             }`}
           />
           <span className="text-sm font-semibold">
-            {isFavorite ? "Saved" : "Save"}
+            {isFavorite ? "Favorited" : "Favorite"}
           </span>
         </button>
       </div>

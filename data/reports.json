@@ -158,10 +158,11 @@
     "id": "1769363216529",
     "type": "feature",
     "project": "Filmfy",
-    "title": "pindahkan data bookmark dan rating ke films.json",
+    "title": "move bookmark and rating data to films.json",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:46:56.529Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:46:56.529Z",
+    "updatedAt": "2026-01-26T07:11:12.119Z"
   },
   {
     "id": "1769364073453",

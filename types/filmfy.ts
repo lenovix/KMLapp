@@ -6,6 +6,8 @@ export interface FilmPart {
 }
 
 export interface Film {
+  isFavorite: boolean;
+  rating: null;
   id: number;
   title: string;
   code: string;
