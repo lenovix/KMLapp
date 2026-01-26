@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
-const DATA_PATH = path.join("D:", "KMLapp", "data", "reports.json");
-
+const DATA_PATH = path.join(process.cwd(), "data/reports.json");
 async function readData() {
   try {
     const fileData = await fs.readFile(DATA_PATH, "utf-8");
