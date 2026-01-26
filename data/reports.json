@@ -22,10 +22,11 @@
     "id": "1769363063565",
     "type": "bug",
     "project": "Komify",
-    "title": "fix bug on page of chapter the progress bar not working correctly and add feature last position read on chapter page",
+    "title": "fix bug on page of chapter the progress bar not working correctly",
     "description": "",
     "status": "OPEN",
-    "createdAt": "2026-01-25T17:44:23.565Z"
+    "createdAt": "2026-01-25T17:44:23.565Z",
+    "updatedAt": "2026-01-26T09:21:58.769Z"
   },
   {
     "id": "1769363075955",
@@ -33,8 +34,9 @@
     "project": "Komify",
     "title": "re-design add chapter modal",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:44:35.955Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:44:35.955Z",
+    "updatedAt": "2026-01-26T07:48:41.613Z"
   },
   {
     "id": "1769363093971",
@@ -173,5 +175,14 @@
     "status": "RESOLVED",
     "createdAt": "2026-01-25T18:01:13.453Z",
     "updatedAt": "2026-01-26T06:49:09.604Z"
+  },
+  {
+    "id": "1769419331771",
+    "type": "feature",
+    "project": "Komify",
+    "title": "add feature last position read on chapter page",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-26T09:22:11.771Z"
   }
 ]
