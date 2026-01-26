@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Upload,
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Cropper from "react-easy-crop";
 
 interface Part {
   id: number;
@@ -23,13 +24,58 @@ interface Part {
   note?: string;
 }
 
+const getCroppedImg = async (
+  imageSrc: string,
+  pixelCrop: any
+): Promise<Blob> => {
+  const image = new window.Image();
+  image.src = imageSrc;
+  await new Promise((resolve) => (image.onload = resolve));
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("No 2d context");
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+      },
+      "image/jpeg",
+      0.9
+    );
+  });
+};
+
 export default function FilmfyUploadPage() {
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
   const [isDeleted, setIsDeleted] = useState<"no" | "yes">("no");
   const [cencoredOptions, setCencoredOptions] = useState<string[]>([]);
   const [cencored, setCencored] = useState("Cencored");
   const [nextId, setNextId] = useState<number | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -101,7 +147,10 @@ export default function FilmfyUploadPage() {
     formData.append("genre", genre);
     formData.append("cast", cast);
     formData.append("series", series);
-    formData.append("cover", coverFile ? coverFile : "");
+    if (coverFile) formData.append("cover", coverFile);
+    if (croppedBlob) {
+      formData.append("croppedCover", croppedBlob, "cover.jpg");
+    }
     formData.append("parts", JSON.stringify(parts));
     formData.append("cencored", cencored);
     formData.append("isDeleted", isDeleted);
@@ -132,6 +181,20 @@ export default function FilmfyUploadPage() {
       alert("Terjadi kesalahan!");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const onCropComplete = useCallback((_area: any, pixels: any) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleApplyCrop = async () => {
+    if (coverPreview && croppedAreaPixels) {
+      const blob = await getCroppedImg(coverPreview, croppedAreaPixels);
+      setCroppedBlob(blob);
+      const previewUrl = URL.createObjectURL(blob);
+      setCoverPreview(previewUrl);
+      setShowCropModal(false);
     }
   };
 
@@ -410,9 +473,21 @@ export default function FilmfyUploadPage() {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setCoverFile(file);
-                    setCoverPreview(URL.createObjectURL(file));
+                    setCroppedBlob(null);
+                    const url = URL.createObjectURL(file);
+                    setCoverPreview(url);
+                    setShowCropModal(true);
                   }}
                 />
+
+                {coverPreview && !showCropModal && (
+                  <button
+                    onClick={() => setShowCropModal(true)}
+                    className="mt-2 text-[10px] font-black text-blue-500 uppercase tracking-tighter"
+                  >
+                    Adjust Crop
+                  </button>
+                )}
               </label>
             </section>
 
@@ -464,6 +539,35 @@ export default function FilmfyUploadPage() {
           </div>
         </div>
       </div>
+      {showCropModal && coverPreview && (
+        <div className="fixed inset-0 z-100 bg-black/90 flex flex-col items-center justify-center p-4">
+          <div className="relative w-full max-w-2xl aspect-3/4 bg-gray-900 rounded-3xl overflow-hidden">
+            <Cropper
+              image={coverPreview}
+              crop={crop}
+              zoom={zoom}
+              aspect={3 / 4.5}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </div>
+          <div className="mt-6 flex gap-4 w-full max-w-2xl">
+            <button
+              onClick={() => setShowCropModal(false)}
+              className="flex-1 px-6 py-4 rounded-2xl bg-white/10 text-white font-bold"
+            >
+              Batal
+            </button>
+            <button
+              onClick={handleApplyCrop}
+              className="flex-1 px-6 py-4 rounded-2xl bg-blue-600 text-white font-black"
+            >
+              Terapkan Crop
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

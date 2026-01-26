@@ -116,10 +116,22 @@ export async function POST(req: NextRequest) {
     fs.mkdirSync(filmPublicDir, { recursive: true });
 
     let coverPath: string | null = null;
+    const croppedFile = form.get("croppedCover") as File | null;
+
     if (coverFile) {
-      const buffer = Buffer.from(await coverFile.arrayBuffer());
-      fs.writeFileSync(path.join(filmPublicDir, "cover.jpg"), buffer);
-      coverPath = `/filmfy/movie/${normalizedCode}/cover.jpg`;
+      const originalBuffer = Buffer.from(await coverFile.arrayBuffer());
+      fs.writeFileSync(
+        path.join(filmPublicDir, "cover_original.jpg"),
+        originalBuffer
+      );
+
+      coverPath = `/filmfy/movie/${normalizedCode}/cover_original.jpg`;
+
+      if (croppedFile) {
+        const croppedBuffer = Buffer.from(await croppedFile.arrayBuffer());
+        fs.writeFileSync(path.join(filmPublicDir, "cover.jpg"), croppedBuffer);
+        coverPath = `/filmfy/movie/${normalizedCode}/cover.jpg`;
+      }
     }
 
     const rawParts = form.get("parts") as string;

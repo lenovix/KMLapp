@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Bookmark, Plus, Film as FilmIcon } from "lucide-react";
@@ -9,11 +8,14 @@ import InfoItem from "@/components/UI/InfoItem";
 import FilmfyPlayerClient from "@/components/filmfy/FilmfyPlayerClient";
 import MovieActionButtons from "@/components/filmfy/MovieActionButtons";
 import FavoriteRatingButtons from "@/components/filmfy/FavoriteRatingButtons";
+import CoverSectionClient from "@/components/filmfy/CoverSectionClient";
 
 import { Film, Cast } from "@/types/filmfy";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const DATA_FILE = path.join(process.cwd(), "data", "filmfy", "films.json");
+
+export const revalidate = 0;
 
 async function getCasts(): Promise<Cast[]> {
   try {
@@ -31,7 +33,7 @@ function getVideoFiles(folderPath: string) {
   return fs
     .readdirSync(folderPath)
     .filter((file) =>
-      [".mp4", ".webm", ".mov"].includes(path.extname(file).toLowerCase()),
+      [".mp4", ".webm", ".mov"].includes(path.extname(file).toLowerCase())
     );
 }
 
@@ -102,7 +104,7 @@ export default async function FilmDetailPage({
                       "filmfy",
                       "movie",
                       film.code,
-                      part.folder,
+                      part.folder
                     );
                     const videos = getVideoFiles(folderPath);
 
@@ -124,23 +126,15 @@ export default async function FilmDetailPage({
             )}
           </section>
         )}
+
         <section className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12 items-start">
           <div className="mx-auto md:mx-0 w-full max-w-75">
-            <div className="aspect-2/3 relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 dark:ring-gray-800">
-              {film.cover ? (
-                <Image
-                  src={film.cover}
-                  alt={film.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                  <FilmIcon className="w-12 h-12 text-gray-400" />
-                </div>
-              )}
-            </div>
+            <CoverSectionClient
+              cover={film.cover}
+              title={film.title}
+              code={film.code}
+              createdAt={film.createdAt}
+            />
 
             <div className="mt-6 space-y-3">
               <FavoriteRatingButtons filmId={film.id} />

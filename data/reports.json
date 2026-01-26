@@ -169,7 +169,8 @@
     "project": "Filmfy",
     "title": "cover upload can crop",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T18:01:13.453Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T18:01:13.453Z",
+    "updatedAt": "2026-01-26T06:49:09.604Z"
   }
 ]
