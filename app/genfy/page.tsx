@@ -21,6 +21,13 @@ export default function GenfyPage() {
   const [hwStats, setHwStats] = useState({ cpu: 0, ram: 0, vram: 0 });
   const [selectedModel, setSelectedModel] = useState("Stable Diffusion v1.5");
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const [params, setParams] = useState({
+    steps: 30,
+    cfg: 7.5,
+    seed: -1,
+  });
+
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "node-1",
@@ -82,13 +89,8 @@ export default function GenfyPage() {
     if (!userPrompt) return alert("Prompt empty!");
 
     setNodes((nds) =>
-      nds.map((node) =>
-        node.id === "node-2"
-          ? {
-              ...node,
-              data: { ...node.data, isLoading: true, imageUrl: undefined },
-            }
-          : node,
+      nds.map((n) =>
+        n.id === "node-2" ? { ...n, data: { ...n.data, isLoading: true } } : n,
       ),
     );
 
@@ -96,7 +98,12 @@ export default function GenfyPage() {
       const response = await fetch("http://localhost:8000/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userPrompt }),
+        body: JSON.stringify({
+          prompt: userPrompt,
+          steps: params.steps,
+          cfg: params.cfg,
+          seed: params.seed,
+        }),
       });
       const data = await response.json();
       setNodes((nds) =>
@@ -108,6 +115,7 @@ export default function GenfyPage() {
                   ...node.data,
                   isLoading: false,
                   imageUrl: data.image_base64,
+                  seed: data.seed,
                 },
               }
             : node,
@@ -173,14 +181,61 @@ export default function GenfyPage() {
             </div>
           </div>
 
-          <div className="mt-auto">
-            <div className="bg-gradient-to-br from-violet-900/20 to-transparent p-4 rounded-xl border border-violet-500/20">
-              <p className="text-[10px] text-violet-300 font-bold mb-1 italic">
-                Pro Tip:
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Drag nodes to connect logic and generate complex AI workflows.
-              </p>
+          <div className="space-y-6 mt-4">
+            <div className="flex items-center gap-2 text-violet-400 mb-2">
+              <Settings2 size={16} />
+              <h3 className="text-[10px] uppercase font-bold tracking-widest">
+                Advanced Params
+              </h3>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-mono">
+                <span>Inference Steps</span>
+                <span className="text-violet-400">{params.steps}</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="100"
+                value={params.steps}
+                onChange={(e) =>
+                  setParams({ ...params, steps: parseInt(e.target.value) })
+                }
+                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-violet-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-mono">
+                <span>Guidance Scale (CFG)</span>
+                <span className="text-violet-400">{params.cfg}</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="20"
+                step="0.5"
+                value={params.cfg}
+                onChange={(e) =>
+                  setParams({ ...params, cfg: parseFloat(e.target.value) })
+                }
+                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-violet-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] text-slate-500 uppercase font-bold">
+                Seed (-1 for Random)
+              </label>
+              <input
+                type="number"
+                value={params.seed}
+                onChange={(e) =>
+                  setParams({ ...params, seed: parseInt(e.target.value) })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-mono outline-none focus:ring-1 focus:ring-violet-500"
+              />
             </div>
           </div>
         </aside>

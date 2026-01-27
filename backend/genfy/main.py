@@ -71,21 +71,35 @@ async def get_stats():
     
     return stats
 
+class GenerateRequest(BaseModel):
+    prompt: str
+    steps: int = 30
+    cfg: float = 7.5
+    seed: int = -1
+
 @app.post("/generate")
 async def generate_image(request: GenerateRequest):
     try:
-        print(f"🎨 Generating: {request.prompt[:50]}...")
+        seed = request.seed if request.seed != -1 else torch.Generator().seed()
+        generator = torch.Generator(device=device).manual_seed(seed)
         
-        generator = torch.Generator(device=device)
+        print(f"🎨 Generating: {request.prompt[:30]}... | Steps: {request.steps} | CFG: {request.cfg} | Seed: {seed}")
         
-        image = pipe(request.prompt, generator=generator).images[0]
+        image = pipe(
+            request.prompt, 
+            num_inference_steps=request.steps, 
+            guidance_scale=request.cfg,
+            generator=generator
+        ).images[0]
         
         buffered = BytesIO()
         image.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
         
-        print("✨ Generation complete!")
-        return {"image_base64": f"data:image/png;base64,{img_str}"}
+        return {
+            "image_base64": f"data:image/png;base64,{img_str}",
+            "seed": seed
+        }
     
     except Exception as e:
         print(f"❌ Error: {e}")
