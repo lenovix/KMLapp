@@ -9,6 +9,17 @@ export default function ResultNode({
 }: {
   data: { imageUrl?: string; isLoading?: boolean; seed?: number };
 }) {
+  const handleDownload = () => {
+    if (!data.imageUrl) return;
+
+    const link = document.createElement("a");
+    link.href = data.imageUrl;
+    link.download = `genfy-result-${data.seed || "image"}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="bg-slate-900 border-2 border-emerald-500 rounded-xl shadow-2xl min-w-[300px] overflow-hidden transition-all">
       <div className="bg-emerald-500/10 border-b border-emerald-500/30 p-2 flex items-center justify-between">
@@ -31,6 +42,7 @@ export default function ResultNode({
 
           {data.imageUrl && (
             <button
+              onClick={handleDownload}
               className="text-emerald-400 hover:text-emerald-300 transition-colors"
               title="Download Image"
             >
