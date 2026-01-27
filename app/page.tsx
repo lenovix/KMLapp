@@ -5,12 +5,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500/30">
       <HeaderHome />
-
-      <main className="relative pt-20  px-6 overflow-hidden">
+      <main className="relative pt-20 px-6 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
         <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-indigo-900/20 blur-[120px] rounded-full" />
-
-        <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
+        <div className="mx-auto flex flex-col items-center relative z-10">
           <div className="text-center mb-20">
             <span className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-medium tracking-widest uppercase text-blue-400 mb-6 inline-block">
               Digital Ecosystem
@@ -27,7 +25,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-8 w-full">
+          <div className="grid grid-cols-5 gap-8 w-full">
             <CardWebHome
               logo="/img/logo/Komify2.png"
               name="Komify"
@@ -60,6 +58,14 @@ export default function Home() {
               endDate="Present"
               status="development"
               link="/sportfy"
+            />
+            <CardWebHome
+              logo="/Genfy.png"
+              name="Genfy"
+              startDate="27 Januari 2026"
+              endDate="Present"
+              status="development"
+              link="/genfy"
             />
           </div>
         </div>

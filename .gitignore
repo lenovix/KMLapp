@@ -53,3 +53,5 @@ next-env.d.ts
 
 /command.txt
 /public/tmp_upload
+/backend/genfy/venv/
+/backend/genfy/models_cache/
