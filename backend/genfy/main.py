@@ -1,4 +1,5 @@
 import os
+import psutil
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,6 +55,21 @@ except Exception as e:
 
 class GenerateRequest(BaseModel):
     prompt: str
+
+@app.get("/stats")
+async def get_stats():
+    stats = {
+        "cpu": psutil.cpu_percent(interval=None),
+        "ram": psutil.virtual_memory().percent,
+        "vram": 0.0,
+        "device": device.upper()
+    }
+    
+    if torch.cuda.is_available():
+        vram_used = torch.cuda.memory_allocated(device=None) / (1024**3)
+        stats["vram"] = round(vram_used, 2)
+    
+    return stats
 
 @app.post("/generate")
 async def generate_image(request: GenerateRequest):
