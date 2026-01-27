@@ -53,9 +53,9 @@
     "project": "Komify",
     "title": "add checklist for comic upload page",
     "description": "cover, title, parody, characters, artist, groups, tags, authors, title chapter, chapter file",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "createdAt": "2026-01-25T17:45:02.946Z",
-    "updatedAt": "2026-01-25T17:50:25.436Z"
+    "updatedAt": "2026-01-27T06:52:05.252Z"
   },
   {
     "id": "1769363123368",
@@ -182,7 +182,8 @@
     "project": "Komify",
     "title": "add feature last position read on chapter page",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-26T09:22:11.771Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-26T09:22:11.771Z",
+    "updatedAt": "2026-01-27T06:36:39.202Z"
   }
 ]

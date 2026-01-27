@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, LayoutGrid, BookOpen, Layers } from "lucide-react";
+import { Upload, LayoutGrid, Layers, CheckCircle2, Circle } from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -38,7 +38,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -46,12 +46,12 @@ interface ComicFormProps {
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
 }
 
@@ -88,10 +88,31 @@ export default function ComicForm({
     setActiveField(null);
   };
 
+  const checkStatus = [
+    { label: "Cover", isDone: comicData.cover.trim().length > 0 },
+    { label: "Title", isDone: comicData.title.trim().length > 0 },
+    { label: "Parody", isDone: comicData.parodies.trim().length > 0 },
+    { label: "Characters", isDone: comicData.characters.trim().length > 0 },
+    { label: "Artist", isDone: comicData.artist.trim().length > 0 },
+    { label: "Groups", isDone: comicData.groups.trim().length > 0 },
+    { label: "Tags", isDone: comicData.tags.trim().length > 0 },
+    { label: "Authors", isDone: comicData.authors.trim().length > 0 },
+    {
+      label: "Title Chapter",
+      isDone:
+        chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
+    },
+    {
+      label: "Chapter File",
+      isDone: chapters.length > 0 && chapters.every((c) => c.files.length > 0),
+    },
+  ];
+
   return (
     <>
       <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
+          {/* Kolom Kiri: Comic Info */}
           <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
             <div className="flex items-center gap-2 text-zinc-200">
               <LayoutGrid size={18} className="text-blue-500" />
@@ -201,7 +222,6 @@ export default function ComicForm({
                 Chapters List
               </h3>
             </div>
-
             <ChapterSection
               chapters={chapters}
               addChapter={addChapter}
@@ -211,6 +231,7 @@ export default function ComicForm({
               openPreview={openPreview}
             />
           </div>
+
           <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
             <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
               <div className="pt-2">
@@ -230,6 +251,33 @@ export default function ComicForm({
                 onClick={() => setCoverDialogOpen(true)}
                 onDelete={() => setComicData({ ...comicData, cover: "" })}
               />
+
+              <div className="border-t border-zinc-800 pt-4 space-y-3">
+                <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Upload Checklist
+                </h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {checkStatus.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 group">
+                      {item.isDone ? (
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                      ) : (
+                        <Circle
+                          size={16}
+                          className="text-zinc-700 group-hover:text-zinc-500 transition-colors"
+                        />
+                      )}
+                      <span
+                        className={`text-xs font-medium ${
+                          item.isDone ? "text-zinc-300" : "text-zinc-600"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

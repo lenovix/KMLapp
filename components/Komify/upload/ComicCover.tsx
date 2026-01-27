@@ -17,7 +17,7 @@ export default function ComicCover({
   return (
     <div
       className={`
-        relative w-full aspect-3/4 rounded-2xl border-2 border-dashed 
+        relative w-full aspect-video rounded-2xl border-2 border-dashed 
         transition-all duration-300 group overflow-hidden cursor-pointer
         ${
           cover
