@@ -72,6 +72,13 @@ export default function ComicForm({
   const [fixOpen, setFixOpen] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
 
+  const isManhwa = comicData.categories.toLowerCase() === "manhwa";
+  useEffect(() => {
+    if (!isManhwa && comicData.authors) {
+      setComicData((prev) => ({ ...prev, authors: "" }));
+    }
+  }, [isManhwa]);
+
   useEffect(() => {
     fetch("/data/komify/categories.json")
       .then((res) => res.json())
@@ -96,7 +103,9 @@ export default function ComicForm({
     { label: "Artist", isDone: comicData.artist.trim().length > 0 },
     { label: "Groups", isDone: comicData.groups.trim().length > 0 },
     { label: "Tags", isDone: comicData.tags.trim().length > 0 },
-    { label: "Authors", isDone: comicData.authors.trim().length > 0 },
+    ...(isManhwa
+      ? [{ label: "Authors", isDone: comicData.authors.trim().length > 0 }]
+      : []),
     {
       label: "Title Chapter (Require)",
       isDone:
@@ -163,35 +172,38 @@ export default function ComicForm({
                   label: "Author",
                   placeholder: "Author name",
                   fix: true,
+                  show: isManhwa,
                 },
-              ].map((field) => (
-                <div key={field.name} className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
-                    {field.label}
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      value={(comicData as any)[field.name]}
-                      onChange={handleComicChange}
-                      className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none"
-                    />
-                    {field.fix && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveField(field.name);
-                          setFixOpen(true);
-                        }}
-                        className="px-3 py-2 rounded-xl bg-zinc-800 text-[10px] font-bold text-zinc-400 hover:bg-zinc-700 hover:text-white border border-zinc-700 transition-all"
-                      >
-                        FIX
-                      </button>
-                    )}
+              ]
+                .filter((field) => field.show !== false)
+                .map((field) => (
+                  <div key={field.name} className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                      {field.label}
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        name={field.name}
+                        placeholder={field.placeholder}
+                        value={(comicData as any)[field.name]}
+                        onChange={handleComicChange}
+                        className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none"
+                      />
+                      {field.fix && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveField(field.name);
+                            setFixOpen(true);
+                          }}
+                          className="px-3 py-2 rounded-xl bg-zinc-800 text-[10px] font-bold text-zinc-400 hover:bg-zinc-700 hover:text-white border border-zinc-700 transition-all"
+                        >
+                          FIX
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
