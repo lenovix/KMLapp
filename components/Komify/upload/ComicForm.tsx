@@ -89,8 +89,8 @@ export default function ComicForm({
   };
 
   const checkStatus = [
-    { label: "Cover", isDone: comicData.cover.trim().length > 0 },
-    { label: "Title", isDone: comicData.title.trim().length > 0 },
+    { label: `Cover (Require)`, isDone: comicData.cover.trim().length > 0 },
+    { label: "Title (Require)", isDone: comicData.title.trim().length > 0 },
     { label: "Parody", isDone: comicData.parodies.trim().length > 0 },
     { label: "Characters", isDone: comicData.characters.trim().length > 0 },
     { label: "Artist", isDone: comicData.artist.trim().length > 0 },
@@ -98,12 +98,12 @@ export default function ComicForm({
     { label: "Tags", isDone: comicData.tags.trim().length > 0 },
     { label: "Authors", isDone: comicData.authors.trim().length > 0 },
     {
-      label: "Title Chapter",
+      label: "Title Chapter (Require)",
       isDone:
         chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
     },
     {
-      label: "Chapter File",
+      label: "Chapter File (Require)",
       isDone: chapters.length > 0 && chapters.every((c) => c.files.length > 0),
     },
   ];
@@ -112,7 +112,6 @@ export default function ComicForm({
     <>
       <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
-          {/* Kolom Kiri: Comic Info */}
           <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
             <div className="flex items-center gap-2 text-zinc-200">
               <LayoutGrid size={18} className="text-blue-500" />

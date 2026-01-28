@@ -15,8 +15,9 @@
     "project": "Komify",
     "title": "check feature ordering on preview chapter (upload page)",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:44:14.833Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:44:14.833Z",
+    "updatedAt": "2026-01-28T02:11:25.261Z"
   },
   {
     "id": "1769363063565",

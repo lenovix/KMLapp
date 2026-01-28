@@ -9,7 +9,7 @@ export default function PromptNode({
   data: { label: string; onChange: (val: string) => void };
 }) {
   return (
-    <div className="bg-slate-900 border-2 border-violet-500 rounded-xl shadow-2xl min-w-[250px] overflow-hidden">
+    <div className="bg-slate-900 border-2 border-violet-500 rounded-xl shadow-2xl min-w-62.5 overflow-hidden">
       <div className="bg-violet-500/10 border-b border-violet-500/30 p-2 flex items-center gap-2">
         <MessageSquareText className="w-4 h-4 text-violet-400" />
         <span className="text-[10px] font-bold text-violet-300 uppercase tracking-wider">
@@ -30,7 +30,7 @@ export default function PromptNode({
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 bg-violet-500 border-2 border-slate-900 !-right-1.5"
+        className="w-3 h-3 bg-violet-500 border-2 border-slate-900 -right-1.5!"
       />
     </div>
   );

@@ -72,11 +72,11 @@ export default function UploadComicPage({
     },
   ]);
   const [previewChapterIndex, setPreviewChapterIndex] = useState<number | null>(
-    null,
+    null
   );
 
   const handleComicChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
@@ -88,7 +88,7 @@ export default function UploadComicPage({
 
   const handleChapterChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const updated = [...chapters];
     const key = e.target.name as keyof (typeof updated)[number];
@@ -208,8 +208,8 @@ export default function UploadComicPage({
           language: ch.language,
           cencored: ch.cencored,
           uploadChapter: comicData.uploaded,
-        })),
-      ),
+        }))
+      )
     );
 
     chapters.forEach((ch) => {
@@ -237,7 +237,7 @@ export default function UploadComicPage({
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
           setAlertData((prev) =>
-            prev ? { ...prev, progress: percent } : null,
+            prev ? { ...prev, progress: percent } : null
           );
         }
       };
@@ -317,42 +317,23 @@ export default function UploadComicPage({
 
     setChapters((prev) =>
       prev.map((ch, idx) =>
-        idx === previewChapterIndex ? { ...ch, files: originalFiles } : ch,
-      ),
+        idx === previewChapterIndex ? { ...ch, files: originalFiles } : ch
+      )
     );
 
     closePreview();
   };
 
-  const handleDragEnd = (result: any) => {
-    if (!result.destination || previewChapterIndex === null) return;
-
-    const sourceIndex = result.source.index;
-    const destIndex = result.destination.index;
-
-    const chapter = chapters[previewChapterIndex];
-    if (!chapter || !Array.isArray(chapter.files)) return;
-
-    const reorderedFiles = Array.from(chapter.files);
-
-    if (
-      sourceIndex < 0 ||
-      sourceIndex >= reorderedFiles.length ||
-      destIndex < 0 ||
-      destIndex >= reorderedFiles.length
-    ) {
-      return;
-    }
-
-    const [movedItem] = reorderedFiles.splice(sourceIndex, 1);
-    reorderedFiles.splice(destIndex, 0, movedItem);
+  const handleReorderFiles = (files: File[]) => {
+    if (previewChapterIndex === null) return;
 
     setChapters((prev) =>
       prev.map((ch, idx) =>
-        idx === previewChapterIndex ? { ...ch, files: reorderedFiles } : ch,
-      ),
+        idx === previewChapterIndex ? { ...ch, files } : ch
+      )
     );
   };
+
   return (
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
@@ -412,7 +393,7 @@ export default function UploadComicPage({
           }}
           onSave={savePreviewOrder}
           onCancel={cancelPreviewOrder}
-          onDragEnd={handleDragEnd}
+          onReorder={handleReorderFiles}
         />
       )}
     </>

@@ -7,7 +7,7 @@ interface ChapterPreviewModalProps {
   visible: boolean;
   chapter: { title: string; number: number; files: File[] };
   onCancel: () => void;
-  onDragEnd: (result: any) => void;
+  onReorder: (files: File[]) => void;
   onSave: () => void;
 }
 
@@ -15,14 +15,14 @@ export default function ChapterPreviewModal({
   visible,
   chapter,
   onCancel,
-  onDragEnd,
+  onReorder,
   onSave,
 }: ChapterPreviewModalProps) {
   if (!visible || !chapter) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center z-100 p-4 md:p-8 animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-500/10 border border-slate-200 dark:border-slate-800 w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-500/10 border border-slate-200 dark:border-slate-800 w-full max-w-7xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-600">
@@ -62,16 +62,9 @@ export default function ChapterPreviewModal({
           </div>
         </div>
 
-        <div className="px-8 py-3 bg-amber-50/50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/30 flex items-center gap-2">
-          <Info className="w-3.5 h-3.5 text-amber-600" />
-          <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400">
-            Drag and drop images to reorder. Changes will be saved to the draft.
-          </p>
-        </div>
-
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/30 dark:bg-transparent">
-          <div className="max-w-4xl mx-auto">
-            <ChapterImageGrid files={chapter.files} onDragEnd={onDragEnd} />
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-slate-50/30 dark:bg-transparent">
+          <div className="mx-auto">
+            <ChapterImageGrid files={chapter.files} onReorder={onReorder} />
           </div>
         </div>
       </div>
