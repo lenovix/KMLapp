@@ -18,7 +18,7 @@ export interface ComicData {
   categories: string;
   tags: string;
   uploaded: string;
-  status: "Ongoing" | "Completed" | "Hiatus";
+  status: "Ongoing" | "Complete" | "Not Completed";
   cover: string;
 }
 
@@ -68,6 +68,7 @@ export default function ComicForm({
   setCoverDialogOpen,
   handleComicChange,
 }: ComicFormProps) {
+  const [statusOptions, setStatusOptions] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [fixOpen, setFixOpen] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
@@ -78,6 +79,13 @@ export default function ComicForm({
       setComicData((prev) => ({ ...prev, authors: "" }));
     }
   }, [isManhwa]);
+
+  useEffect(() => {
+    fetch("/data/komify/status.json")
+      .then((res) => res.json())
+      .then((data: string[]) => setStatusOptions(data))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     fetch("/data/komify/categories.json")
@@ -114,6 +122,12 @@ export default function ComicForm({
     {
       label: "Chapter File (Require)",
       isDone: chapters.length > 0 && chapters.every((c) => c.files.length > 0),
+    },
+    {
+      label: "Status",
+      isDone: ["Ongoing", "Complete", "Not Completed"].includes(
+        comicData.status
+      ),
     },
   ];
 
@@ -262,6 +276,25 @@ export default function ComicForm({
                 onClick={() => setCoverDialogOpen(true)}
                 onDelete={() => setComicData({ ...comicData, cover: "" })}
               />
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Status
+                </label>
+
+                <select
+                  name="status"
+                  value={comicData.status}
+                  onChange={handleComicChange}
+                  className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl p-2.5 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/30"
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status} className="bg-zinc-900">
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="border-t border-zinc-800 pt-4 space-y-3">
                 <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">

@@ -21,7 +21,7 @@ interface Comic {
   categories: string[];
   tags: string[];
   uploaded: string;
-  status: "Ongoing" | "Completed" | "Hiatus";
+  status: "Ongoing" | "Complete" | "Not Completed";
   cover: string;
 }
 
@@ -84,12 +84,12 @@ function EditComicContent() {
       }
     };
 
-    fetchConfig("/data/config/status.json", setStatusOptions);
+    fetchConfig("/data/komify/status.json", setStatusOptions);
     fetchConfig("/data/komify/categories.json", setCategoryOptions);
   }, [slug]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -105,7 +105,7 @@ function EditComicContent() {
       const fd = new FormData();
       fd.append("slug", String(slug));
       Object.entries(form).forEach(([key, value]) =>
-        fd.append(key, value || ""),
+        fd.append(key, value || "")
       );
       if (coverFile) fd.append("cover", coverFile);
 

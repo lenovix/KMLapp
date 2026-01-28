@@ -35,7 +35,7 @@ export default function UploadComicPage({
     categories: string;
     tags: string;
     uploaded: string;
-    status: "Ongoing" | "Completed" | "Hiatus";
+    status: "Ongoing" | "Complete" | "Not Completed";
     cover: string;
   }
   const [comicData, setComicData] = useState<ComicData>({

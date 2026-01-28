@@ -258,6 +258,12 @@ export default function ComicDetail() {
     }
   }, [comic]);
 
+  const statusStyle: Record<string, string> = {
+    Ongoing: "bg-blue-600 text-white border-blue-400",
+    Complete: "bg-emerald-600 text-white border-emerald-400",
+    "Not Completed": "bg-zinc-700 text-zinc-100 border-zinc-500",
+  };
+
   return (
     <div className=" bg-zinc-950 text-zinc-100">
       <Header defaultSlug={comic.title} />
@@ -294,9 +300,8 @@ export default function ComicDetail() {
               <div className="absolute -top-2 -right-2 z-20">
                 <span
                   className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${
-                    comic.status === "Ongoing"
-                      ? "bg-blue-600 text-white border-blue-400"
-                      : "bg-emerald-600 text-white border-emerald-400"
+                    statusStyle[comic.status] ??
+                    "bg-zinc-700 text-white border-zinc-600"
                   }`}
                 >
                   {comic.status}
@@ -401,7 +406,7 @@ export default function ComicDetail() {
               chapters={chapters}
               setChapters={handleSetChapters}
               isOrdering={isOrdering}
-              onDeleteChapter={(n:any) => {
+              onDeleteChapter={(n: any) => {
                 setChapterToDelete(n);
                 setDeleteChapterOpen(true);
               }}

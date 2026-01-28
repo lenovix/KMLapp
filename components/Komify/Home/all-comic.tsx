@@ -43,45 +43,50 @@ export default function AllComic() {
   }, [debouncedSearch, selectedStatus, selectedCategories, selectedTags]);
 
   const filteredComics = useMemo(() => {
-    const filtered = (comics as unknown as ComicData[]).map((comic) => ({
-      ...comic,
-      artist: comic.artist || [],
-    })).filter((comic) => {
-      const title =
-        typeof comic.title === "string"
-          ? comic.title
-          : Array.isArray(comic.title)
+    const filtered = (comics as unknown as ComicData[])
+      .map((comic) => ({
+        ...comic,
+        artist: comic.artist || [],
+      }))
+      .filter((comic) => {
+        const title =
+          typeof comic.title === "string"
+            ? comic.title
+            : Array.isArray(comic.title)
             ? comic.title[0]
             : "";
 
-      const matchesSearch = title
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase());
+        const matchesSearch = title
+          .toLowerCase()
+          .includes(debouncedSearch.toLowerCase());
 
-      const comicTags = Array.isArray(comic.tags)
-        ? comic.tags
-        : comic.tags
+        const comicTags = Array.isArray(comic.tags)
+          ? comic.tags
+          : comic.tags
           ? [comic.tags]
           : [];
 
-      const matchesTags =
-        selectedTags.length === 0 ||
-        selectedTags.every((tag) => comicTags.includes(tag));
+        const matchesTags =
+          selectedTags.length === 0 ||
+          selectedTags.every((tag) => comicTags.includes(tag));
 
-      const matchesStatus = !selectedStatus || comic.status === selectedStatus;
+        const matchesStatus =
+          !selectedStatus || comic.status === selectedStatus;
 
-      const comicCategories = Array.isArray(comic.categories)
-        ? comic.categories
-        : comic.categories
+        const comicCategories = Array.isArray(comic.categories)
+          ? comic.categories
+          : comic.categories
           ? [comic.categories]
           : [];
 
-      const matchesCategories =
-        selectedCategories.length === 0 ||
-        selectedCategories.every((cat) => comicCategories.includes(cat));
+        const matchesCategories =
+          selectedCategories.length === 0 ||
+          selectedCategories.every((cat) => comicCategories.includes(cat));
 
-      return matchesSearch && matchesTags && matchesStatus && matchesCategories;
-    });
+        return (
+          matchesSearch && matchesTags && matchesStatus && matchesCategories
+        );
+      });
 
     return filtered.sort((a: any, b: any) => {
       const uploadedA = Array.isArray(a.uploaded) ? a.uploaded[0] : a.uploaded;
@@ -97,9 +102,9 @@ export default function AllComic() {
     () =>
       filteredComics.slice(
         (currentPage - 1) * COMICS_PER_PAGE,
-        currentPage * COMICS_PER_PAGE,
+        currentPage * COMICS_PER_PAGE
       ),
-    [filteredComics, currentPage],
+    [filteredComics, currentPage]
   );
 
   const goToPage = (page: number) => {
@@ -121,14 +126,20 @@ export default function AllComic() {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category],
+        : [...prev, category]
     );
   };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
+  };
+
+  const statusStyle: Record<string, string> = {
+    Ongoing: "bg-blue-600 text-white border-blue-400",
+    Complete: "bg-emerald-600 text-white border-emerald-400",
+    "Not Completed": "bg-zinc-700 text-zinc-100 border-zinc-500",
   };
 
   return (
@@ -182,7 +193,7 @@ export default function AllComic() {
                   const title =
                     typeof comic.title === "string"
                       ? comic.title
-                      : (comic.title?.[0] ?? "Comic");
+                      : comic.title?.[0] ?? "Comic";
 
                   return (
                     <Link
@@ -203,10 +214,12 @@ export default function AllComic() {
                           unoptimized
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        <div className="absolute top-2 left-2">
+                        <div className="absolute top-2 right-2">
                           <span
-                            className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-sm 
-                              ${comic.status === "Completed" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}`}
+                            className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${
+                              statusStyle[comic.status] ??
+                              "bg-zinc-700 text-white border-zinc-600"
+                            }`}
                           >
                             {comic.status}
                           </span>

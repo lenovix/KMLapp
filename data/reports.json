@@ -64,8 +64,9 @@
     "project": "Komify",
     "title": "add status chapter not completed",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:45:23.368Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:45:23.368Z",
+    "updatedAt": "2026-01-28T04:51:23.654Z"
   },
   {
     "id": "1769363132285",
@@ -73,8 +74,9 @@
     "project": "Komify",
     "title": "add switch between manga and manhwa",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:45:32.285Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:45:32.285Z",
+    "updatedAt": "2026-01-28T02:27:06.182Z"
   },
   {
     "id": "1769363140807",
