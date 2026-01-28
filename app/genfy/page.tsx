@@ -11,16 +11,23 @@ import {
   MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { Play, Cpu, Database, Layers, Settings2, Activity } from "lucide-react";
 
+import Alert from "@/components/UI/Alert";
 import PromptNode from "@/components/genfy/nodes/PromptNode";
 import ResultNode from "@/components/genfy/nodes/ResultNode";
 import HeaderHome from "@/components/Home/headerHome";
-import { Play, Cpu, Database, Layers, Settings2, Activity } from "lucide-react";
 
 export default function GenfyPage() {
   const [hwStats, setHwStats] = useState({ cpu: 0, ram: 0, vram: 0 });
   const [selectedModel, setSelectedModel] = useState("Stable Diffusion v1.5");
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const [alert, setAlert] = useState<{
+    type: "success" | "warning" | "error" | "onprogress";
+    title: string;
+    message?: string;
+  } | null>(null);
 
   const [params, setParams] = useState({
     steps: 30,
@@ -40,8 +47,8 @@ export default function GenfyPage() {
             nds.map((node) =>
               node.id === "node-1"
                 ? { ...node, data: { ...node.data, label: value } }
-                : node,
-            ),
+                : node
+            )
           );
         },
       },
@@ -62,7 +69,11 @@ export default function GenfyPage() {
         setHwStats(data);
       }
     } catch (err) {
-      console.error("Gagal mengambil stats hardware");
+      setAlert({
+        type: "error",
+        title: "Gagal mengambil data",
+        message: "Gagal mengambil stats hardware",
+      });
     }
   }, []);
 
@@ -74,24 +85,29 @@ export default function GenfyPage() {
 
   const nodeTypes = useMemo(
     () => ({ promptNode: PromptNode, resultNode: ResultNode }),
-    [],
+    []
   );
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    [setEdges]
   );
 
   const handleGenerate = async () => {
     const promptNode = nodes.find((n) => n.id === "node-1");
     const userPrompt = (promptNode?.data as any)?.label || "";
 
-    if (!userPrompt) return alert("Prompt empty!");
+    if (!userPrompt)
+      return setAlert({
+        type: "error",
+        title: "Prompt empty!",
+        message: "Prompt empty! Please enter a prompt to generate an image.",
+      });
 
     setNodes((nds) =>
       nds.map((n) =>
-        n.id === "node-2" ? { ...n, data: { ...n.data, isLoading: true } } : n,
-      ),
+        n.id === "node-2" ? { ...n, data: { ...n.data, isLoading: true } } : n
+      )
     );
 
     try {
@@ -118,16 +134,16 @@ export default function GenfyPage() {
                   seed: data.seed,
                 },
               }
-            : node,
-        ),
+            : node
+        )
       );
     } catch (error) {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === "node-2"
             ? { ...node, data: { ...node.data, isLoading: false } }
-            : node,
-        ),
+            : node
+        )
       );
     }
   };
@@ -321,6 +337,16 @@ export default function GenfyPage() {
           </ReactFlow>
         </main>
       </div>
+      {/* ALERT */}
+      {alert && (
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          duration={4000}
+          onClose={() => setAlert(null)}
+        />
+      )}
     </div>
   );
 }

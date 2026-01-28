@@ -28,7 +28,7 @@ export default function Alert({
   onClose,
 }: AlertProps) {
   const [countdown, setCountdown] = useState(
-    duration && duration > 0 ? Math.ceil(duration / 1000) : 0,
+    duration && duration > 0 ? Math.ceil(duration / 1000) : 0
   );
   const calledCloseRef = useRef(false);
 
@@ -91,7 +91,7 @@ export default function Alert({
   return (
     <div
       className={`
-        fixed bottom-8 right-8 z-[200]
+        fixed bottom-8 right-8 z-200
         w-[calc(100%-4rem)] max-w-sm
         p-5 rounded-2xl border backdrop-blur-xl shadow-2xl
         flex flex-col gap-4 animate-in slide-in-from-right-10 duration-300
