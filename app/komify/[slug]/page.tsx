@@ -43,10 +43,11 @@ interface ComicData {
   characters: string[];
   categories: string[];
   tags: string[];
-  uploaded: string;
   status: "Ongoing" | "Completed" | "Hiatus";
   cover: string;
   chapters?: ComicChapter[];
+  uploaded?: string;
+  updated_at?: string;
 }
 
 export default function ComicDetail() {

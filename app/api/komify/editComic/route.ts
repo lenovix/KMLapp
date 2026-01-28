@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       tags: normalizeField(formData.get("tags")),
       status: getString(formData.get("status")),
 
-      uploaded: new Date()
+      updated_at: new Date()
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),
     };

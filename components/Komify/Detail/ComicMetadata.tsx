@@ -29,7 +29,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
   const renderList = (
     label: string,
     value: string | string[] | null | undefined,
-    icon: React.ReactNode,
+    icon: React.ReactNode
   ) => {
     const list = toArray(value);
     if (list.length === 0) return null;
@@ -73,39 +73,39 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
           {renderList(
             "Author",
             comic.authors,
-            <User size={12} className="text-blue-500" />,
+            <User size={12} className="text-blue-500" />
           )}
           {renderList(
             "Artist",
             comic.artists,
-            <Palette size={12} className="text-purple-500" />,
+            <Palette size={12} className="text-purple-500" />
           )}
           {renderList(
             "Groups",
             comic.groups,
-            <Users size={12} className="text-emerald-500" />,
+            <Users size={12} className="text-emerald-500" />
           )}
         </div>
         <div className="space-y-5">
           {renderList(
             "Parodies",
             comic.parodies,
-            <Ghost size={12} className="text-orange-500" />,
+            <Ghost size={12} className="text-orange-500" />
           )}
           {renderList(
             "Characters",
             comic.characters,
-            <Layers size={12} className="text-pink-500" />,
+            <Layers size={12} className="text-pink-500" />
           )}
           {renderList(
             "Categories",
             comic.categories,
-            <BookOpen size={12} className="text-cyan-500" />,
+            <BookOpen size={12} className="text-cyan-500" />
           )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-zinc-800/50">
+      <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-zinc-800/50">
         <div className="flex items-center gap-2 text-zinc-500">
           <Calendar size={14} />
           <span className="text-xs font-medium uppercase tracking-tighter">
@@ -115,6 +115,18 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
             {comic.uploaded || "Recently"}
           </span>
         </div>
+
+        {comic.updated_at && (
+          <div className="flex items-center gap-2 text-zinc-500">
+            <Info size={14} />
+            <span className="text-xs font-medium uppercase tracking-tighter">
+              Updated at:
+            </span>
+            <span className="text-xs font-bold text-zinc-300">
+              {comic.updated_at}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

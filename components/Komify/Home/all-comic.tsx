@@ -89,9 +89,14 @@ export default function AllComic() {
       });
 
     return filtered.sort((a: any, b: any) => {
-      const uploadedA = Array.isArray(a.uploaded) ? a.uploaded[0] : a.uploaded;
-      const uploadedB = Array.isArray(b.uploaded) ? b.uploaded[0] : b.uploaded;
-      return new Date(uploadedB).getTime() - new Date(uploadedA).getTime();
+      const getDate = (comic: any) => {
+        const raw = comic.updated_at ?? comic.uploaded ?? null;
+
+        const value = Array.isArray(raw) ? raw[0] : raw;
+        return value ? new Date(value).getTime() : 0;
+      };
+
+      return getDate(b) - getDate(a);
     });
   }, [debouncedSearch, selectedTags, selectedStatus, selectedCategories]);
 

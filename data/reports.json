@@ -84,8 +84,9 @@
     "project": "Komify",
     "title": "add field update comic on detail comic page and on logic update comic",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:45:40.807Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:45:40.807Z",
+    "updatedAt": "2026-01-28T06:14:55.737Z"
   },
   {
     "id": "1769363147823",
