@@ -74,21 +74,6 @@ async def list_models():
     files = glob.glob(os.path.join(CHECKPOINT_DIR, "*.safetensors"))
     return [os.path.basename(f) for f in files]
 
-@app.get("/stats")
-async def get_stats():
-    # Menghitung VRAM terpakai dalam GB
-    vram = 0
-    if torch.cuda.is_available():
-        vram = torch.cuda.memory_reserved() / (1024**3)
-    
-    return {
-        "cpu": psutil.cpu_percent(),
-        "ram": psutil.virtual_memory().percent,
-        "ram_gb": round(psutil.Process().memory_info().rss / (1024**3), 2),
-        "vram": round(vram, 2),
-        "active_model": os.path.basename(current_model_path) if current_model_path else "None"
-    }
-
 class GenerateRequest(BaseModel):
     prompt: str
     model_name: str
