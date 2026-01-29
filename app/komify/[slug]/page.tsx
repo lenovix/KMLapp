@@ -287,7 +287,11 @@ export default function ComicDetail() {
                 onClick={() => setCoverOpen(true)}
               >
                 <img
-                  src={comic.cover}
+                  src={`${comic.cover}?v=${
+                    comic.updated_at
+                      ? new Date(comic.updated_at).getTime()
+                      : Date.now()
+                  }`}
                   alt={comic.title}
                   className="w-full h-auto object-cover object-top transition-transform duration-700 group-hover:scale-110"
                 />

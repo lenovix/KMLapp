@@ -84,24 +84,32 @@ export async function POST(req: Request) {
         .replace("T", " "),
     };
 
-    const coverFile = formData.get("cover") as File | null;
+    const coverData = formData.get("cover");
+    const coverDir = path.join(process.cwd(), "public", "komify", String(slug));
+    const targetCoverPath = path.join(coverDir, "cover.jpg");
 
-    if (coverFile && coverFile.size > 0) {
-      const buffer = Buffer.from(await coverFile.arrayBuffer());
-
-      const coverDir = path.join(
-        process.cwd(),
-        "public",
-        "komify",
-        String(slug)
-      );
-
+    if (coverData instanceof File && coverData.size > 0) {
+      const buffer = Buffer.from(await coverData.arrayBuffer());
       fs.mkdirSync(coverDir, { recursive: true });
-
-      const coverPath = path.join(coverDir, "cover.jpg");
-      fs.writeFileSync(coverPath, buffer);
+      fs.writeFileSync(targetCoverPath, buffer);
 
       comics[idx].cover = `/komify/${slug}/cover.jpg`;
+    } else if (
+      typeof coverData === "string" &&
+      coverData.includes("dummy-cover.png")
+    ) {
+      const sourceDummy = path.join(
+        process.cwd(),
+        "public",
+        "img",
+        "dummy-cover.png"
+      );
+
+      if (fs.existsSync(sourceDummy)) {
+        fs.mkdirSync(coverDir, { recursive: true });
+        fs.copyFileSync(sourceDummy, targetCoverPath);
+        comics[idx].cover = `/komify/${slug}/cover.jpg`;
+      }
     }
 
     fs.writeFileSync(comicsPath, JSON.stringify(comics, null, 2));

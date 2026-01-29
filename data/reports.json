@@ -112,8 +112,9 @@
     "project": "Komify",
     "title": "add checkbox dummy cover on cover upload page",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:46:02.890Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:46:02.890Z",
+    "updatedAt": "2026-01-29T06:29:38.236Z"
   },
   {
     "id": "1769363172898",

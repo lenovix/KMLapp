@@ -28,6 +28,8 @@ interface Comic {
 const comics = comicsData as unknown as Comic[];
 
 function EditComicContent() {
+  const [useDummyCover, setUseDummyCover] = useState(false);
+  const dummyPath = "/img/dummy-cover.png";
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = Number(searchParams.get("slug"));
@@ -48,6 +50,17 @@ function EditComicContent() {
     Partial<Record<keyof Comic | "artists", string>>
   >({});
   const [currentCover, setCurrentCover] = useState("");
+
+  const handleDummyToggle = (checked: boolean) => {
+    setUseDummyCover(checked);
+    if (checked) {
+      setCurrentCover(dummyPath);
+      setCoverFile(null);
+    } else {
+      const found = comics.find((c) => Number(c.slug) === slug);
+      setCurrentCover(found?.cover || "");
+    }
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -104,17 +117,28 @@ function EditComicContent() {
     try {
       const fd = new FormData();
       fd.append("slug", String(slug));
+
       Object.entries(form).forEach(([key, value]) =>
         fd.append(key, value || "")
       );
-      if (coverFile) fd.append("cover", coverFile);
+
+      if (useDummyCover) {
+        fd.append("cover", dummyPath);
+      } else if (coverFile) {
+        fd.append("cover", coverFile);
+      }
 
       const res = await fetch("/api/komify/editComic", {
         method: "POST",
         body: fd,
       });
-      if (res.ok) router.push(`/komify/${slug}`);
-      else throw new Error();
+      if (res.ok) {
+        const cacheBuster = `?t=${Date.now()}`;
+        router.push(`/komify/${slug}${cacheBuster}`);
+        router.refresh();
+      } else {
+        throw new Error();
+      }
     } catch {
       setAlertData({
         type: "error",
@@ -213,6 +237,22 @@ function EditComicContent() {
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">
                 Visual & Status
               </h3>
+            </div>
+
+            <div className="flex items-center gap-3 px-4 py-3 bg-zinc-950/50 rounded-2xl border border-zinc-800/50 mb-4">
+              <input
+                type="checkbox"
+                id="dummyCoverEdit"
+                checked={useDummyCover}
+                onChange={(e) => handleDummyToggle(e.target.checked)}
+                className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="dummyCoverEdit"
+                className="text-[11px] font-black text-zinc-400 cursor-pointer uppercase tracking-wider"
+              >
+                Use Dummy Cover
+              </label>
             </div>
 
             <ComicCover

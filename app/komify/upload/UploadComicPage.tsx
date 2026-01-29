@@ -193,11 +193,17 @@ export default function UploadComicPage({
     const formData = new FormData();
     Object.entries(comicData).forEach(([key, value]) => {
       if (key === "cover") return;
-      if (!value) return;
-      formData.append(key, value);
+      if (value === undefined || value === null) return;
+      formData.append(key, String(value));
     });
 
-    if (coverFile) formData.append("cover", coverFile);
+    const dummyPath = "/img/dummy-cover.png";
+
+    if (comicData.cover === dummyPath) {
+      formData.append("cover", dummyPath);
+    } else if (coverFile) {
+      formData.append("cover", coverFile);
+    }
 
     formData.append(
       "chapters",

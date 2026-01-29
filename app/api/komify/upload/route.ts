@@ -56,14 +56,30 @@ export async function POST(req: NextRequest) {
 
     fs.mkdirSync(slugPath, { recursive: true });
 
-    const coverFile = formData.get("cover") as File | null;
-    const coverBuffer = await fileToBuffer(coverFile);
+    const coverData = formData.get("cover");
+    const coverPath = path.join(slugPath, "cover.jpg");
 
-    if (coverBuffer) {
-      const coverPath = path.join(slugPath, "cover.jpg");
-      fs.writeFileSync(coverPath, coverBuffer);
-    } else {
-      console.warn("⚠ Tidak ada cover file yang diterima.");
+    if (coverData instanceof File) {
+      const coverBuffer = await fileToBuffer(coverData);
+      if (coverBuffer) {
+        fs.writeFileSync(coverPath, coverBuffer);
+      }
+    } else if (
+      typeof coverData === "string" &&
+      coverData.includes("dummy-cover.png")
+    ) {
+      const sourceDummy = path.join(
+        process.cwd(),
+        "public",
+        "img",
+        "dummy-cover.png"
+      );
+
+      if (fs.existsSync(sourceDummy)) {
+        fs.copyFileSync(sourceDummy, coverPath);
+      } else {
+        console.warn("⚠ File dummy sumber tidak ditemukan di:", sourceDummy);
+      }
     }
 
     const chaptersStr = formData.get("chapters")?.toString() || "[]";
@@ -127,6 +143,7 @@ export async function POST(req: NextRequest) {
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),
 
+      // Path cover yang disimpan di JSON tetap konsisten ke folder komify
       cover: `/komify/${slug}/cover.jpg`,
 
       rating: Number(formData.get("rating") ?? 0),

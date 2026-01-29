@@ -72,6 +72,19 @@ export default function ComicForm({
   const [categories, setCategories] = useState<string[]>([]);
   const [fixOpen, setFixOpen] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
+  const [useDummyCover, setUseDummyCover] = useState(false);
+  const dummyPath = "/img/dummy-cover.png";
+
+  const handleDummyToggle = (checked: boolean) => {
+    setUseDummyCover(checked);
+    if (checked) {
+      setComicData((prev) => ({ ...prev, cover: dummyPath }));
+    } else {
+      if (comicData.cover === dummyPath) {
+        setComicData((prev) => ({ ...prev, cover: "" }));
+      }
+    }
+  };
 
   const isManhwa = comicData.categories.toLowerCase() === "manhwa";
   useEffect(() => {
@@ -106,6 +119,11 @@ export default function ComicForm({
   const checkStatus = [
     { label: `Cover (Require)`, isDone: comicData.cover.trim().length > 0 },
     { label: "Title (Require)", isDone: comicData.title.trim().length > 0 },
+    {
+      label: "Title Chapter (Require)",
+      isDone:
+        chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
+    },
     { label: "Parody", isDone: comicData.parodies.trim().length > 0 },
     { label: "Characters", isDone: comicData.characters.trim().length > 0 },
     { label: "Artist", isDone: comicData.artist.trim().length > 0 },
@@ -115,12 +133,7 @@ export default function ComicForm({
       ? [{ label: "Authors", isDone: comicData.authors.trim().length > 0 }]
       : []),
     {
-      label: "Title Chapter (Require)",
-      isDone:
-        chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
-    },
-    {
-      label: "Chapter File (Require)",
+      label: "Chapter Files",
       isDone: chapters.length > 0 && chapters.every((c) => c.files.length > 0),
     },
     {
@@ -269,6 +282,22 @@ export default function ComicForm({
                 >
                   PUBLISH
                 </PrimaryButton>
+              </div>
+
+              <div className="flex items-center gap-3 px-2 py-1 bg-zinc-950/30 rounded-xl border border-zinc-800/50">
+                <input
+                  type="checkbox"
+                  id="dummyCover"
+                  checked={useDummyCover}
+                  onChange={(e) => handleDummyToggle(e.target.checked)}
+                  className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="dummyCover"
+                  className="text-[11px] font-bold text-zinc-400 cursor-pointer uppercase tracking-tight"
+                >
+                  Use Dummy Cover
+                </label>
               </div>
 
               <ComicCover
