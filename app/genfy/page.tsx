@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 
 export default function GenfyPage() {
+  const [loraList, setLoraList] = useState<string[]>([]);
+  const [loraName, setLoraName] = useState("None");
+  const [loraWeight, setLoraWeight] = useState(0.75);
   const [modelList, setModelList] = useState<string[]>([]);
   const [modelName, setModelName] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -28,17 +31,24 @@ export default function GenfyPage() {
   const [seed, setSeed] = useState(-1);
 
   useEffect(() => {
-    const fetchModels = async () => {
+    const fetchModelsAndLoras = async () => {
       try {
-        const res = await fetch("http://localhost:8000/models");
-        const data = await res.json();
-        setModelList(data);
-        if (data.length > 0) setModelName(data[0]);
+        const [modelRes, loraRes] = await Promise.all([
+          fetch("http://localhost:8000/models"),
+          fetch("http://localhost:8000/loras"),
+        ]);
+        const models = await modelRes.json();
+        const loras = await loraRes.json();
+
+        setModelList(models);
+        if (models.length > 0) setModelName(models[0]);
+
+        setLoraList(loras);
       } catch (e) {
         setError("Backend disconnected. Error: " + e);
       }
     };
-    fetchModels();
+    fetchModelsAndLoras();
   }, []);
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -56,6 +66,8 @@ export default function GenfyPage() {
         body: JSON.stringify({
           prompt,
           model_name: modelName,
+          lora_name: loraName,
+          lora_weight: loraWeight,
           steps,
           cfg,
           seed,
@@ -134,6 +146,45 @@ export default function GenfyPage() {
                     size={16}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="space-y-3">
+                  <label className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-500 flex items-center gap-2 px-1">
+                    Visual Extension (LoRA)
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={loraName}
+                      onChange={(e) => setLoraName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl px-5 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer appearance-none"
+                    >
+                      {loraList.map((l) => (
+                        <option key={l} value={l} className="bg-slate-900">
+                          {l}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+                      size={16}
+                    />
+                  </div>
+                </div>
+
+                {loraName !== "None" && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <ControlSlider
+                      label="LoRA Strength"
+                      value={loraWeight}
+                      min={0}
+                      max={1.5}
+                      step={0.05}
+                      onChange={setLoraWeight}
+                      accent="bg-purple-500"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">
