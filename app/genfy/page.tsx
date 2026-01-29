@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Image as ImageIcon,
   Sparkles,
   Download,
   Loader2,
-  Cpu,
   Zap,
   ChevronDown,
   Hash,
@@ -35,7 +35,7 @@ export default function GenfyPage() {
         setModelList(data);
         if (data.length > 0) setModelName(data[0]);
       } catch (e) {
-        setError("Backend disconnected.");
+        setError("Backend disconnected. Error: " + e);
       }
     };
     fetchModels();
@@ -69,8 +69,10 @@ export default function GenfyPage() {
 
       const data = await response.json();
       setResult(data);
-    } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan sistem.");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Terjadi kesalahan sistem.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -111,7 +113,6 @@ export default function GenfyPage() {
         <aside className="lg:col-span-4 xl:col-span-4 space-y-6">
           <div className="bg-white/[0.03] border border-white/10 p-8 rounded-[2rem] shadow-2xl backdrop-blur-2xl relative overflow-hidden group">
             <form onSubmit={handleGenerate} className="space-y-8 relative z-10">
-              {/* Engine Checkpoint */}
               <div className="space-y-3">
                 <label className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-500 flex items-center gap-2 px-1">
                   Engine Checkpoint
@@ -135,7 +136,6 @@ export default function GenfyPage() {
                 </div>
               </div>
 
-              {/* Visual Description */}
               <div className="space-y-3">
                 <label className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-500 flex items-center gap-2 px-1">
                   Visual Description
@@ -148,7 +148,6 @@ export default function GenfyPage() {
                 />
               </div>
 
-              {/* Control Sliders & Seed */}
               <div className="space-y-6 pt-4 border-t border-white/5">
                 <ControlSlider
                   label="Precision Steps"
@@ -168,7 +167,6 @@ export default function GenfyPage() {
                   accent="bg-purple-500"
                 />
 
-                {/* Seed Implementation */}
                 <div className="space-y-3">
                   <label className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-500 flex items-center gap-2 px-1">
                     Identity Seed
@@ -217,15 +215,17 @@ export default function GenfyPage() {
           </div>
         </aside>
 
-        {/* Right Result Panel */}
         <section className="lg:col-span-8 xl:col-span-8 space-y-4">
           <div className="relative aspect-square md:aspect-video lg:aspect-auto lg:h-[800px] bg-white/[0.02] border border-white/5 rounded-[2.5rem] flex items-center justify-center overflow-hidden group shadow-inner">
             {result ? (
               <div className="relative w-full h-full p-6 animate-in fade-in zoom-in duration-700">
-                <img
+                <Image
                   src={result.image_base64}
                   alt="AI Result"
                   className="w-full h-full object-contain rounded-[1.5rem] shadow-2xl"
+                  width={800}
+                  height={800}
+                  unoptimized
                 />
                 <div className="absolute bottom-10 right-10 flex gap-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                   <button
@@ -292,7 +292,23 @@ export default function GenfyPage() {
   );
 }
 
-function ControlSlider({ label, value, min, max, step = 1, onChange, accent }) {
+function ControlSlider({
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  accent,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  accent: string;
+}) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-end">
@@ -310,7 +326,7 @@ function ControlSlider({ label, value, min, max, step = 1, onChange, accent }) {
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className={`w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-white hover:accent-indigo-400 transition-all`}
+        className={`w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer ${accent} hover:opacity-80 transition-all`}
       />
     </div>
   );
