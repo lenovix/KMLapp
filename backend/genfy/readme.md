@@ -18,7 +18,7 @@ source venv/bin/activate
 
 # Install dependencies utama
 
-pip install diffusers transformers accelerate pillow fastapi uvicorn
+pip install diffusers transformers accelerate pillow fastapi uvicorn triton
 
 # CUDA 12.4
 
