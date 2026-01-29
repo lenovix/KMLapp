@@ -4,13 +4,34 @@ import HeaderHome from "@/components/Home/headerHome";
 import AddReportModal from "@/components/report/AddReportModal";
 import ReportDetailModal from "@/components/report/ReportDetailModal";
 
+interface Report {
+  id: string;
+  type: "bug" | "feature";
+  project: string;
+  title: string;
+  description: string;
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export default function ReportsPage() {
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [filterType, setFilterType] = useState("all");
   const [filterProject, setFilterProject] = useState("all");
   const [filterStatus, setFilterStatus] = useState("OPEN");
   const [showAdd, setShowAdd] = useState(false);
-  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+
+  useEffect(() => {
+    const loadReports = async () => {
+      const res = await fetch("/api/reports");
+      const data = await res.json();
+      setReports(data);
+    };
+
+    loadReports();
+  }, []);
 
   const fetchReports = async () => {
     const res = await fetch("/api/reports");
@@ -18,14 +39,17 @@ export default function ReportsPage() {
     setReports(data);
   };
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
-  const projects = ["K.Platforms", "Komify", "Filmfy", "Animefy", "Peoplefy"];
+  const projects = [
+    "K.Platforms",
+    "Komify",
+    "Filmfy",
+    "Genfy",
+    "Animefy",
+    "Peoplefy",
+  ];
   const statuses = ["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"];
 
-  const filtered = reports.filter((r: any) => {
+  const filtered = reports.filter((r: Report) => {
     const typeMatch = filterType === "all" || r.type === filterType;
     const projectMatch = filterProject === "all" || r.project === filterProject;
     const statusMatch = filterStatus === "ALL" || r.status === filterStatus;
@@ -114,7 +138,7 @@ export default function ReportsPage() {
 
         <div className="grid gap-3">
           {filtered.length > 0 ? (
-            filtered.map((r: any) => (
+            filtered.map((r: Report) => (
               <div
                 key={r.id}
                 onClick={() => setSelectedReport(r)}

@@ -3,9 +3,23 @@
 import { useState } from "react";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+interface Report {
+  id: string;
+  comicTitle: string;
+  comicId: string;
+  chapterNumber?: string;
+  pageFilename?: string;
+  type: string;
+  title: string;
+  description: string;
+  status: string;
+  screenshot?: string;
+}
 
 interface Props {
-  report: any;
+  report: Report;
   onClose: () => void;
 }
 
@@ -90,9 +104,11 @@ export default function ReportDetailModal({ report, onClose }: Props) {
         {report.status !== "deleted" && report.screenshot && (
           <div className="mb-4">
             <div className="text-sm text-zinc-400 mb-1">Screenshot</div>
-            <img
+            <Image
               src={report.screenshot}
               alt="Screenshot Report"
+              width={600}
+              height={600}
               className="max-h-64 rounded border border-zinc-700"
             />
           </div>
