@@ -200,8 +200,9 @@
     "project": "Genfy",
     "title": "tab system",
     "description": "- select model & lora\n- prompt\n- size image\n- setting (step, dll)",
-    "status": "OPEN",
-    "createdAt": "2026-01-29T15:51:45.676Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-29T15:51:45.676Z",
+    "updatedAt": "2026-01-30T14:57:39.946Z"
   },
   {
     "id": "1769701928313",
