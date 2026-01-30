@@ -208,10 +208,11 @@
     "id": "1769701928313",
     "type": "feature",
     "project": "Genfy",
-    "title": "multi select lora",
+    "title": "multi select lora and progress bar",
     "description": "can select more than 1 lora",
-    "status": "OPEN",
-    "createdAt": "2026-01-29T15:52:08.313Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-29T15:52:08.313Z",
+    "updatedAt": "2026-01-30T16:17:03.847Z"
   },
   {
     "id": "1769736818597",

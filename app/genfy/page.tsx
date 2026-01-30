@@ -17,10 +17,20 @@ import {
 } from "lucide-react";
 import ControlSlider from "@/components/genfy/ControlSlider";
 
+interface SelectedLora {
+  name: string;
+  weight: number;
+}
+
+interface LoraItem {
+  name: string;
+  arch: string;
+}
+
 export default function GenfyPage() {
-  const [loraList, setLoraList] = useState<string[]>([]);
-  const [loraName, setLoraName] = useState("None");
-  const [loraWeight, setLoraWeight] = useState(0.75);
+  const [progress, setProgress] = useState(0);
+  const [loraList, setLoraList] = useState<LoraItem[]>([]);
+  const [selectedLoras, setSelectedLoras] = useState<SelectedLora[]>([]);
   const [modelList, setModelList] = useState<string[]>([]);
   const [modelName, setModelName] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -47,8 +57,10 @@ export default function GenfyPage() {
         ]);
         const models = await modelRes.json();
         const loras = await loraRes.json();
+
         setModelList(models);
         if (models.length > 0) setModelName(models[0]);
+
         setLoraList(loras);
       } catch (e) {
         setError("Backend disconnected. Error: " + e);
@@ -57,22 +69,75 @@ export default function GenfyPage() {
     fetchModelsAndLoras();
   }, []);
 
+  const downloadImage = () => {
+    if (!result) return;
+    const link = document.createElement("a");
+    link.href = result.image_base64;
+    link.download = `genfy-${result.seed}.png`;
+    link.click();
+  };
+
+  const currentModelArch =
+    modelName.toLowerCase().includes("xl") ||
+    modelName.toLowerCase().includes("illustrious") ||
+    modelName.toLowerCase().includes("pony")
+      ? "SDXL"
+      : "SD1.5";
+
+  const compatibleLoras = loraList.filter(
+    (lora) => lora.arch === currentModelArch,
+  );
+
+  const addLora = (name: string) => {
+    if (name === "None" || selectedLoras.find((l) => l.name === name)) return;
+    setSelectedLoras([...selectedLoras, { name, weight: 0.75 }]);
+  };
+
+  const removeLora = (index: number) => {
+    setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
+  };
+
+  const updateLoraWeight = (index: number, weight: number) => {
+    const newLoras = [...selectedLoras];
+    newLoras[index].weight = weight;
+    setSelectedLoras(newLoras);
+  };
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt || !modelName) return;
+
     setLoading(true);
+    setProgress(0);
     setError("");
     setResult(null);
 
+    const ws = new WebSocket("ws://localhost:8000/ws/progress");
+
+    const waitForWs = new Promise((resolve) => {
+      ws.onopen = () => {
+        console.log("WebSocket Connected");
+        resolve(true);
+      };
+    });
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.progress !== undefined) {
+        setProgress(Math.round(data.progress * 100));
+      }
+    };
+
     try {
+      await waitForWs;
+
       const response = await fetch("http://localhost:8000/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt,
           model_name: modelName,
-          lora_name: loraName,
-          lora_weight: loraWeight,
+          active_loras: selectedLoras,
           steps,
           cfg,
           seed,
@@ -92,16 +157,9 @@ export default function GenfyPage() {
         err instanceof Error ? err.message : "Terjadi kesalahan sistem.",
       );
     } finally {
+      setTimeout(() => ws.close(), 500);
       setLoading(false);
     }
-  };
-
-  const downloadImage = () => {
-    if (!result) return;
-    const link = document.createElement("a");
-    link.href = result.image_base64;
-    link.download = `genfy-${result.seed}.png`;
-    link.click();
   };
 
   return (
@@ -166,10 +224,40 @@ export default function GenfyPage() {
               </div>
             )}
             {loading && (
-              <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-xl flex flex-col items-center justify-center z-50">
-                <div className="w-24 h-24 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-                <p className="mt-8 text-white font-black text-2xl tracking-[0.2em] italic">
-                  PROCESSING
+              <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-xl flex flex-col items-center justify-center z-50 p-12">
+                <div className="relative w-48 h-48 flex items-center justify-center">
+                  <svg className="w-full h-full -rotate-90">
+                    <circle
+                      cx="96"
+                      cy="96"
+                      r="80"
+                      stroke="currentColor"
+                      strokeWidth="8"
+                      fill="transparent"
+                      className="text-white/5"
+                    />
+                    <circle
+                      cx="96"
+                      cy="96"
+                      r="80"
+                      stroke="currentColor"
+                      strokeWidth="8"
+                      fill="transparent"
+                      strokeDasharray={502.4}
+                      strokeDashoffset={502.4 - (502.4 * progress) / 100}
+                      className="text-indigo-500 transition-all duration-500 ease-out"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute text-4xl font-black italic text-white">
+                    {progress}%
+                  </span>
+                </div>
+                <p className="mt-8 text-white font-black text-2xl tracking-[02em] italic animate-pulse">
+                  CRAFTING IMAGE...
+                </p>
+                <p className="text-slate-500 text-xs mt-2 font-mono uppercase">
+                  Step optimization active via SDPA
                 </p>
               </div>
             )}
@@ -228,19 +316,27 @@ export default function GenfyPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <label className="text-[11px] uppercase tracking-widest font-bold text-slate-500 px-1">
-                      Visual Extension (LoRA)
+                      Visual Extensions (Multi-LoRA)
                     </label>
+
                     <div className="relative">
                       <select
-                        value={loraName}
-                        onChange={(e) => setLoraName(e.target.value)}
+                        value="None"
+                        onChange={(e) => addLora(e.target.value)}
                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white outline-none appearance-none focus:ring-2 focus:ring-purple-500/50"
                       >
-                        {loraList.map((l) => (
-                          <option key={l} value={l} className="bg-slate-900">
-                            {l}
+                        <option value="None">
+                          Add {currentModelArch} LoRA...
+                        </option>
+                        {compatibleLoras.map((l) => (
+                          <option
+                            key={l.name}
+                            value={l.name}
+                            className="bg-slate-900"
+                          >
+                            {l.name}
                           </option>
                         ))}
                       </select>
@@ -249,17 +345,37 @@ export default function GenfyPage() {
                         size={16}
                       />
                     </div>
-                    {loraName !== "None" && (
-                      <ControlSlider
-                        label="LoRA Strength"
-                        value={loraWeight}
-                        min={0}
-                        max={1.5}
-                        step={0.05}
-                        onChange={setLoraWeight}
-                        accent="bg-purple-500"
-                      />
-                    )}
+
+                    <div className="space-y-4 mt-4">
+                      {selectedLoras.map((lora, index) => (
+                        <div
+                          key={lora.name}
+                          className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-3 relative group"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-purple-400 truncate pr-8">
+                              {lora.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeLora(index)}
+                              className="text-[10px] text-red-400 font-bold hover:underline"
+                            >
+                              REMOVE
+                            </button>
+                          </div>
+                          <ControlSlider
+                            label="Weight"
+                            value={lora.weight}
+                            min={0}
+                            max={1.5}
+                            step={0.05}
+                            onChange={(val) => updateLoraWeight(index, val)}
+                            accent="bg-purple-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
