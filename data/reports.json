@@ -45,8 +45,9 @@
     "project": "Komify",
     "title": "add ordering chapter on upload page",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:44:53.971Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:44:53.971Z",
+    "updatedAt": "2026-01-30T10:11:40.933Z"
   },
   {
     "id": "1769363102946",
@@ -220,5 +221,14 @@
     "status": "RESOLVED",
     "createdAt": "2026-01-30T01:33:38.597Z",
     "updatedAt": "2026-01-30T06:19:12.364Z"
+  },
+  {
+    "id": "1769767939580",
+    "type": "bug",
+    "project": "Komify",
+    "title": "ordering chapter animation",
+    "description": "bug animation of ordering chapter on upload comic page",
+    "status": "OPEN",
+    "createdAt": "2026-01-30T10:12:19.580Z"
   }
 ]

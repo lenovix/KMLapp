@@ -40,7 +40,7 @@ interface ComicFormProps {
     index: number,
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
-
+  reorderChapters: (newChapters: ChapterData[]) => void;
   handleChapterFile: (index: number, files: FileList | null) => void;
   openPreview: (index: number) => void;
   handleOpenDialog: (
@@ -67,6 +67,7 @@ export default function ComicForm({
   handleOpenDialog,
   setCoverDialogOpen,
   handleComicChange,
+  reorderChapters,
 }: ComicFormProps) {
   const [statusOptions, setStatusOptions] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -267,6 +268,7 @@ export default function ComicForm({
               handleChapterChange={handleChapterChange}
               handleChapterFile={handleChapterFile}
               openPreview={openPreview}
+              reorderChapters={reorderChapters}
             />
           </div>
 

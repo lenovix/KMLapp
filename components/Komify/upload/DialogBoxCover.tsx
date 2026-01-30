@@ -82,7 +82,7 @@ export default function DialogBoxCover({
               <div
                 className={`
                   border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center text-center 
-                  cursor-pointer transition-all duration-300 min-h-[280px]
+                  cursor-pointer transition-all duration-300 min-h-70
                   ${
                     preview
                       ? "border-zinc-700 bg-zinc-950/30"

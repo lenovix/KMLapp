@@ -11,6 +11,21 @@ interface UploadComicHeaderProps {
   defaultSlug: number;
 }
 
+interface ComicData {
+  slug: number;
+  title: string;
+  authors: string;
+  artist: string;
+  groups: string;
+  parodies: string;
+  characters: string;
+  categories: string;
+  tags: string;
+  uploaded: string;
+  status: "Ongoing" | "Complete" | "Not Completed";
+  cover: string;
+}
+
 export default function UploadComicPage({
   defaultSlug,
 }: UploadComicHeaderProps) {
@@ -24,20 +39,6 @@ export default function UploadComicPage({
     onClose?: () => void;
   } | null>(null);
 
-  interface ComicData {
-    slug: number;
-    title: string;
-    authors: string;
-    artist: string;
-    groups: string;
-    parodies: string;
-    characters: string;
-    categories: string;
-    tags: string;
-    uploaded: string;
-    status: "Ongoing" | "Complete" | "Not Completed";
-    cover: string;
-  }
   const [comicData, setComicData] = useState<ComicData>({
     slug: defaultSlug,
     title: "",
@@ -387,6 +388,10 @@ export default function UploadComicPage({
     setDialogOpen(true);
   };
 
+  const reorderChapters = (newChapters: any[]) => {
+    setChapters(newChapters);
+  };
+
   return (
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
@@ -404,6 +409,7 @@ export default function UploadComicPage({
           handleOpenDialog={handleOpenDialog}
           setCoverDialogOpen={setCoverDialogOpen}
           handleComicChange={handleComicChange}
+          reorderChapters={reorderChapters}
         />
       </main>
 
@@ -447,9 +453,9 @@ export default function UploadComicPage({
           onSave={savePreviewOrder}
           onCancel={cancelPreviewOrder}
           onReorder={handleReorderFiles}
-          onAddImages={handleAddImagesToPreview} // Tambah ini
-          onDeleteImage={handleDeleteImageFromPreview} // Tambah ini
-          onDeleteAll={handleDeleteAllImages} // Tambah ini
+          onAddImages={handleAddImagesToPreview}
+          onDeleteImage={handleDeleteImageFromPreview}
+          onDeleteAll={handleDeleteAllImages}
         />
       )}
     </>

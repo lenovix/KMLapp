@@ -9,6 +9,7 @@ interface InputTextProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   onClear?: () => void;
+  disabled?: boolean;
 }
 
 export default function InputText({
@@ -18,8 +19,11 @@ export default function InputText({
   onChange,
   className = "",
   onClear,
+  disabled,
 }: InputTextProps) {
   const clearValue = () => {
+    if (disabled) return;
+
     if (onClear) {
       onClear();
       return;
@@ -33,19 +37,28 @@ export default function InputText({
   };
 
   return (
-    <div className="relative w-full">
+    <div
+      className={`relative w-full ${
+        disabled ? "opacity-60 cursor-not-allowed" : ""
+      }`}
+    >
       <input
         type="text"
         name={name}
         placeholder={placeholder}
         value={value ?? ""}
         onChange={onChange}
+        disabled={disabled}
         spellCheck={false}
         autoComplete="off"
-        className={`border p-2 pr-8 rounded bg-white/20 text-white placeholder-gray-300 w-full ${className}`}
+        className={`border p-2 pr-8 rounded bg-white/20 text-white placeholder-gray-300 w-full transition-all focus:outline-none ${
+          disabled
+            ? "border-zinc-800 pointer-events-none select-none"
+            : "focus:border-blue-500"
+        } ${className}`}
       />
 
-      {value && (
+      {value && !disabled && (
         <button
           type="button"
           onClick={clearValue}
