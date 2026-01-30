@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Maximize2 } from "lucide-react";
-import { Download, Flag, Edit, Trash } from "lucide-react";
+import { Maximize2, Download, Flag, Edit, Trash } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { motion } from "framer-motion";
@@ -13,7 +12,6 @@ import CommentSection from "@/components/Komify/Detail/CommentSection";
 import comicsData from "@/data/komify/comics.json";
 import DialogBox from "@/components/UI/DialogBox";
 
-const comics = comicsData as unknown as ComicData[];
 import ComicTags from "@/components/Komify/Detail/ComicTags";
 import ComicMetadata from "@/components/Komify/Detail/ComicMetadata";
 import ComicActions from "@/components/Komify/Detail/ComicActions";
@@ -31,6 +29,7 @@ dayjs.extend(relativeTime);
 interface ComicChapter {
   number: string;
   title: string;
+  _id?: string;
 }
 
 interface ComicData {
@@ -50,45 +49,50 @@ interface ComicData {
   updated_at?: string;
 }
 
+const comics = comicsData as unknown as ComicData[];
+
 export default function ComicDetail() {
-  const [downloadOpen, setDownloadOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
   const { slug } = useParams();
   const router = useRouter();
+
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [avgRating, setAvgRating] = useState(0);
+  const [coverOpen, setCoverOpen] = useState(false);
+  const [deleteComicOpen, setDeleteComicOpen] = useState(false);
+  const [deleteChapterOpen, setDeleteChapterOpen] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
+  const [alert, setAlert] = useState<string | null>(null);
+  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const comic = useMemo(
     () => comics.find((c: ComicData) => String(c.slug) === String(slug)),
     [slug]
   );
 
-  if (!comic) return <p className="p-6">Loading...</p>;
+  const [chapters, setChapters] = useState<any[]>([]);
+  const [originalChapters, setOriginalChapters] = useState<any[]>([]);
 
-  const normalizeChapters = (chs: any[]) =>
-    chs.map((ch, i) => ({
-      ...ch,
-      _id: ch._id ?? `chapter-${ch.number}-${i}`,
-    }));
-
-  const [chapters, setChapters] = useState(
-    normalizeChapters(comic.chapters ?? [])
+  const normalizeChapters = useCallback(
+    (chs: any[]) =>
+      chs.map((ch, i) => ({
+        ...ch,
+        _id: ch._id ?? `chapter-${ch.number}-${i}`,
+      })),
+    []
   );
-  const [originalChapters, setOriginalChapters] = useState(
-    normalizeChapters(comic.chapters ?? [])
-  );
-  const [isOrdering, setIsOrdering] = useState(false);
 
-  const [bookmarked, setBookmarked] = useState(false);
-  const [userRating, setUserRating] = useState(0);
-  const [avgRating, setAvgRating] = useState(0);
-
-  const [coverOpen, setCoverOpen] = useState(false);
-  const [deleteComicOpen, setDeleteComicOpen] = useState(false);
-  const [deleteChapterOpen, setDeleteChapterOpen] = useState(false);
-  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
-
-  const [alert, setAlert] = useState<string | null>(null);
-  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  useEffect(() => {
+    if (comic?.chapters) {
+      const normalized = normalizeChapters(comic.chapters);
+      setChapters(normalized);
+      setOriginalChapters(normalized);
+    }
+  }, [comic, normalizeChapters]);
 
   useEffect(() => {
     if (!comic) return;
@@ -112,13 +116,11 @@ export default function ComicDetail() {
 
   const handleBookmark = useCallback(async () => {
     if (!comic) return;
-
     const res = await fetch("/api/komify/bookmarks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: comic.slug }),
     });
-
     const data = await res.json();
     setBookmarked(data.bookmarked);
   }, [comic]);
@@ -126,12 +128,10 @@ export default function ComicDetail() {
   const handleRating = useCallback(
     async (rating: number) => {
       if (!comic) return;
-
       const res = await fetch("/api/komify/ratings", {
         method: "POST",
         body: JSON.stringify({ slug: comic.slug, rating }),
       });
-
       if (res.ok) {
         setUserRating(rating);
         setAvgRating(rating);
@@ -142,20 +142,17 @@ export default function ComicDetail() {
 
   const handleDeleteComic = useCallback(async () => {
     if (!comic) return;
-
     try {
       setDeleting(true);
-
       const res = await fetch("/api/komify/deleteComic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: comic.slug }),
       });
 
-      if (!res.ok) {
-        throw new Error("Delete failed");
-      }
+      if (!res.ok) throw new Error("Delete failed");
 
+      setDeleteComicOpen(false);
       router.push("/komify");
     } catch (err) {
       setAlert("Gagal menghapus komik");
@@ -166,14 +163,10 @@ export default function ComicDetail() {
 
   const confirmDeleteChapter = useCallback(async () => {
     if (!comic || chapterToDelete === null) return;
-
     const res = await fetch("/api/komify/deleteChapter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slug: comic.slug,
-        chapter: chapterToDelete,
-      }),
+      body: JSON.stringify({ slug: comic.slug, chapter: chapterToDelete }),
     });
 
     if (res.ok) router.refresh();
@@ -194,38 +187,30 @@ export default function ComicDetail() {
   };
 
   const handleSaveOrder = async () => {
+    if (!comic) return;
     const cleanedChapters = chapters.map(({ _id, ...ch }) => ch);
-
     await fetch("/api/komify/orderingChapter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slug: comic.slug,
-        chapters: cleanedChapters,
-      }),
+      body: JSON.stringify({ slug: comic.slug, chapters: cleanedChapters }),
     });
-
     setIsOrdering(false);
     setAlertSuccess("Urutan chapter berhasil disimpan");
   };
 
   const handleBatchDownload = () => {
+    if (!comic) return;
     window.location.href = `/api/komify/download-batch?slug=${comic.slug}`;
     setAlertSuccess("Menyiapkan file download...");
   };
 
-  const handleDownloadSelectedChapters = async (chapters: string[]) => {
+  const handleDownloadSelectedChapters = async (selectedChapters: string[]) => {
+    if (!comic) return;
     setAlertSuccess("Menyiapkan file download...");
-
     const res = await fetch("/api/komify/download-chapters", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        slug: comic.slug,
-        chapters,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: comic.slug, chapters: selectedChapters }),
     });
 
     if (!res.ok) {
@@ -235,40 +220,37 @@ export default function ComicDetail() {
 
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
-
     const date = new Date().toISOString().split("T")[0];
-    a.download = `${date}_${comic.slug}_chapters_${chapters.join("-")}.zip`;
-
+    a.download = `${date}_${comic.slug}_chapters_${selectedChapters.join(
+      "-"
+    )}.zip`;
     document.body.appendChild(a);
     a.click();
     a.remove();
-
     window.URL.revokeObjectURL(url);
   };
 
-  const handleSetChapters = (newChapters: any[]) => {
-    setChapters(newChapters);
-  };
-
-  useEffect(() => {
-    if (comic?.chapters) {
-      setChapters(normalizeChapters(comic.chapters));
-    }
-  }, [comic]);
+  if (!comic) {
+    return (
+      <div className="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-zinc-500 font-bold tracking-widest">
+          LOADING...
+        </div>
+      </div>
+    );
+  }
 
   const statusStyle: Record<string, string> = {
     Ongoing: "bg-blue-600 text-white border-blue-400",
-    Complete: "bg-emerald-600 text-white border-emerald-400",
+    Completed: "bg-emerald-600 text-white border-emerald-400",
     "Not Completed": "bg-zinc-700 text-zinc-100 border-zinc-500",
   };
 
   return (
-    <div className=" bg-zinc-950 text-zinc-100">
+    <div className="bg-zinc-950 text-zinc-100 min-h-screen">
       <Header defaultSlug={comic.title} />
-
       <div className="absolute top-0 w-full h-100 bg-linear-to-b from-blue-600/10 to-transparent pointer-events-none" />
 
       <main className="relative z-10 p-4 md:p-8 max-w-350 mx-auto">
@@ -281,7 +263,6 @@ export default function ComicDetail() {
           <div className="flex flex-col lg:flex-row gap-8 p-6 md:p-10">
             <div className="relative group shrink-0 h-fit mx-auto lg:mx-0 w-full max-w-70">
               <div className="absolute -inset-1 bg-linear-to-b from-blue-500 to-purple-600 rounded-[22px] blur opacity-20 group-hover:opacity-60 transition duration-500" />
-
               <div
                 className="relative w-full h-fit rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-zoom-in group shadow-2xl"
                 onClick={() => setCoverOpen(true)}
@@ -301,12 +282,10 @@ export default function ComicDetail() {
                   </div>
                 </div>
               </div>
-
               <div className="absolute -top-2 -right-2 z-20">
                 <span
                   className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${
-                    statusStyle[comic.status] ??
-                    "bg-zinc-700 text-white border-zinc-600"
+                    statusStyle[comic.status] || "bg-zinc-700 text-white"
                   }`}
                 >
                   {comic.status}
@@ -316,15 +295,9 @@ export default function ComicDetail() {
 
             <div className="flex-1 flex flex-col min-w-0">
               <div className="space-y-6">
-                <div className="max-w-full overflow-hidden">
-                  <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-3 uppercase leading-[0.9] line-clamp-3 wrap-break-word"
-                    title={comic.title}
-                  >
-                    {comic.title}
-                  </h1>
-                </div>
-
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-3 uppercase leading-[0.9] line-clamp-3 wrap-break-word">
+                  {comic.title}
+                </h1>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 border-y border-zinc-800/50 py-8">
                   <ComicMetadata comic={comic} />
                   <div className="space-y-4">
@@ -344,45 +317,36 @@ export default function ComicDetail() {
                   onRate={handleRating}
                   avgRating={avgRating}
                 />
-
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <PrimaryButton
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-900/20 px-6 py-5 rounded-2xl group shrink-0"
-                      icon={
-                        <Download
-                          size={18}
-                          className="group-hover:translate-y-0.5 transition-transform"
-                        />
-                      }
-                      onClick={() => setDownloadOpen(true)}
-                    >
-                      DOWNLOAD
-                    </PrimaryButton>
-                  </div>
-
+                  <PrimaryButton
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-500 shadow-xl px-6 py-5 rounded-2xl group"
+                    icon={
+                      <Download
+                        size={18}
+                        className="group-hover:translate-y-0.5 transition-transform"
+                      />
+                    }
+                    onClick={() => setDownloadOpen(true)}
+                  >
+                    DOWNLOAD
+                  </PrimaryButton>
                   <div className="flex items-center gap-1 bg-zinc-950/50 p-1.5 rounded-2xl border border-zinc-800/50">
                     <button
                       onClick={() => setReportOpen(true)}
                       className="p-2.5 rounded-xl text-zinc-500 hover:text-yellow-500 hover:bg-yellow-500/10 transition-all"
-                      title="Report"
                     >
                       <Flag size={16} />
                     </button>
-
                     <div className="h-6 w-px bg-zinc-800 mx-1" />
-
                     <button
                       onClick={() =>
                         router.push(`/komify/edit-comic?slug=${comic.slug}`)
                       }
                       className="p-2.5 rounded-xl text-zinc-500 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
-                      title="Edit"
                     >
                       <Edit size={16} />
                     </button>
-
                     <button
                       onClick={() => setDeleteComicOpen(true)}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-all font-bold text-[10px] uppercase tracking-widest"
@@ -409,7 +373,7 @@ export default function ComicDetail() {
             <ChaptersList
               slug={Number(comic.slug)}
               chapters={chapters}
-              setChapters={handleSetChapters}
+              setChapters={setChapters}
               isOrdering={isOrdering}
               onDeleteChapter={(n: any) => {
                 setChapterToDelete(n);
@@ -433,18 +397,17 @@ export default function ComicDetail() {
         onConfirm={handleDeleteComic}
         onCancel={() => setDeleteComicOpen(false)}
       />
-      {
-        <DialogBox
-          open={deleteChapterOpen}
-          title="Hapus Chapter?"
-          desc={`Chapter ${chapterToDelete} akan dihapus.`}
-          type="danger"
-          confirmText="Hapus"
-          cancelText="Batal"
-          onConfirm={confirmDeleteChapter}
-          onCancel={() => setDeleteChapterOpen(false)}
-        />
-      }
+
+      <DialogBox
+        open={deleteChapterOpen}
+        title="Hapus Chapter?"
+        desc={`Chapter ${chapterToDelete} akan dihapus.`}
+        type="danger"
+        confirmText="Hapus"
+        cancelText="Batal"
+        onConfirm={confirmDeleteChapter}
+        onCancel={() => setDeleteChapterOpen(false)}
+      />
 
       {alert && (
         <Alert
@@ -472,7 +435,6 @@ export default function ComicDetail() {
       {reportOpen && (
         <ReportComicModal comic={comic} onClose={() => setReportOpen(false)} />
       )}
-
       <DownloadComicModal
         open={downloadOpen}
         onClose={() => setDownloadOpen(false)}

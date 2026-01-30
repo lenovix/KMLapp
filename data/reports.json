@@ -208,5 +208,15 @@
     "description": "can select more than 1 lora",
     "status": "OPEN",
     "createdAt": "2026-01-29T15:52:08.313Z"
+  },
+  {
+    "id": "1769736818597",
+    "type": "bug",
+    "project": "Komify",
+    "title": "delete flow",
+    "description": "after delete the comic, the web not navigate correctly",
+    "status": "RESOLVED",
+    "createdAt": "2026-01-30T01:33:38.597Z",
+    "updatedAt": "2026-01-30T06:19:12.364Z"
   }
 ]
