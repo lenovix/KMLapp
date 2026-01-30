@@ -55,3 +55,5 @@ next-env.d.ts
 /public/tmp_upload
 /backend/genfy/venv/
 /backend/genfy/models_cache/
+/backend/genfy/models/checkpoint/*.safetensors
+/backend/genfy/models/loras/*.safetensors

@@ -190,5 +190,23 @@
     "status": "RESOLVED",
     "createdAt": "2026-01-26T09:22:11.771Z",
     "updatedAt": "2026-01-27T06:36:39.202Z"
+  },
+  {
+    "id": "1769701905676",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "tab system",
+    "description": "- select model & lora\n- prompt\n- size image\n- setting (step, dll)",
+    "status": "OPEN",
+    "createdAt": "2026-01-29T15:51:45.676Z"
+  },
+  {
+    "id": "1769701928313",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "multi select lora",
+    "description": "can select more than 1 lora",
+    "status": "OPEN",
+    "createdAt": "2026-01-29T15:52:08.313Z"
   }
 ]

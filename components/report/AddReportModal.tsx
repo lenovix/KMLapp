@@ -21,8 +21,9 @@ export default function AddReportModal({
     { id: "1", name: "K.Platforms" },
     { id: "2", name: "Komify" },
     { id: "3", name: "Filmfy" },
-    { id: "4", name: "Animefy" },
-    { id: "5", name: "Peoplefy" },
+    { id: "4", name: "Genfy" },
+    { id: "5", name: "Animefy" },
+    { id: "6", name: "Peoplefy" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,8 +57,10 @@ export default function AddReportModal({
 
       onSuccess();
       onClose();
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
