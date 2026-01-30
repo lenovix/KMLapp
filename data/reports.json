@@ -101,10 +101,11 @@
     "id": "1769363155382",
     "type": "feature",
     "project": "Komify",
-    "title": "add button add/delete all pages on pages modal",
+    "title": "add button add/delete and delete all images/pages on preview modal",
     "description": "",
-    "status": "OPEN",
-    "createdAt": "2026-01-25T17:45:55.382Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-25T17:45:55.382Z",
+    "updatedAt": "2026-01-30T07:17:39.487Z"
   },
   {
     "id": "1769363162890",

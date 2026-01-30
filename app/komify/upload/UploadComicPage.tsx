@@ -340,6 +340,53 @@ export default function UploadComicPage({
     );
   };
 
+  const handleAddImagesToPreview = (newFileList: FileList) => {
+    if (previewChapterIndex === null) return;
+
+    const newFilesArray = Array.from(newFileList);
+    setChapters((prev) =>
+      prev.map((ch, idx) =>
+        idx === previewChapterIndex
+          ? { ...ch, files: [...ch.files, ...newFilesArray] }
+          : ch
+      )
+    );
+  };
+
+  const handleDeleteImageFromPreview = (imageIndex: number) => {
+    if (previewChapterIndex === null) return;
+
+    setChapters((prev) =>
+      prev.map((ch, idx) => {
+        if (idx === previewChapterIndex) {
+          const updatedFiles = [...ch.files];
+          updatedFiles.splice(imageIndex, 1);
+          return { ...ch, files: updatedFiles };
+        }
+        return ch;
+      })
+    );
+  };
+
+  const handleDeleteAllImages = () => {
+    if (previewChapterIndex === null) return;
+
+    setDialogData({
+      title: "Hapus Semua Gambar?",
+      desc: "Tindakan ini akan menghapus seluruh halaman di chapter ini.",
+      onConfirm: () => {
+        setChapters((prev) =>
+          prev.map((ch, idx) =>
+            idx === previewChapterIndex ? { ...ch, files: [] } : ch
+          )
+        );
+        setDialogOpen(false);
+      },
+      onCancel: () => setDialogOpen(false),
+    });
+    setDialogOpen(true);
+  };
+
   return (
     <>
       <HeaderUpload defaulftSlug={comicData.slug} />
@@ -400,6 +447,9 @@ export default function UploadComicPage({
           onSave={savePreviewOrder}
           onCancel={cancelPreviewOrder}
           onReorder={handleReorderFiles}
+          onAddImages={handleAddImagesToPreview} // Tambah ini
+          onDeleteImage={handleDeleteImageFromPreview} // Tambah ini
+          onDeleteAll={handleDeleteAllImages} // Tambah ini
         />
       )}
     </>

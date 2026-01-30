@@ -4,6 +4,13 @@ import path from "path";
 
 const DATA_PATH = path.join(process.cwd(), "data", "komify", "comics.json");
 
+const formatPages = (pages: any[], slug: string, chapter: string) => {
+  return (pages || []).map((p: any) => ({
+    ...p,
+    fullUrl: `/komify/${slug}/chapters/${chapter}/${p.filename}`,
+  }));
+};
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -20,15 +27,10 @@ export async function GET(req: Request) {
     if (!chData)
       return NextResponse.json({ message: "Not found" }, { status: 404 });
 
-    const formattedPages = (chData.pages || []).map((p: any) => {
-      const fileName = p.filename;
-      return {
-        ...p,
-        fullUrl: `/komify/${slug}/chapters/${chapter}/${fileName}`,
-      };
+    return NextResponse.json({
+      ...chData,
+      pages: formatPages(chData.pages, String(slug), String(chapter)),
     });
-
-    return NextResponse.json({ ...chData, pages: formattedPages });
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 });
   }
@@ -63,6 +65,86 @@ export async function POST(req: Request) {
     await fs.writeFile(DATA_PATH, JSON.stringify(comics, null, 2), "utf-8");
     return NextResponse.json({ success: true });
   } catch (err: any) {
+    return NextResponse.json({ message: err.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const formData = await req.formData();
+    const slug = formData.get("slug") as string;
+    const chapter = formData.get("chapter") as string;
+    const newFiles = formData.getAll("new_pages") as File[];
+
+    if (!slug || !chapter || newFiles.length === 0) {
+      return NextResponse.json({ message: "Missing data" }, { status: 400 });
+    }
+
+    const chapterDir = path.join(
+      process.cwd(),
+      "public",
+      "komify",
+      slug,
+      "chapters",
+      chapter
+    );
+    await fs.mkdir(chapterDir, { recursive: true });
+
+    const raw = await fs.readFile(DATA_PATH, "utf-8");
+    let comics = JSON.parse(raw);
+
+    const comicIndex = comics.findIndex(
+      (c: any) => String(c.slug) === String(slug)
+    );
+    if (comicIndex === -1)
+      return NextResponse.json({ message: "Comic not found" }, { status: 404 });
+
+    const chIndex = comics[comicIndex].chapters.findIndex(
+      (ch: any) => String(ch.number) === String(chapter)
+    );
+    if (chIndex === -1)
+      return NextResponse.json(
+        { message: "Chapter not found" },
+        { status: 404 }
+      );
+
+    const currentPages = comics[comicIndex].chapters[chIndex].pages || [];
+    const newPagesData = [];
+
+    const batchTimestamp = Date.now();
+
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+
+      const uniqueId = `${batchTimestamp}-${i}-${Math.random()
+        .toString(36)
+        .substring(2, 7)}`;
+
+      const fileExtension = path.extname(file.name);
+      const safeName = `page-${uniqueId}${fileExtension}`;
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await fs.writeFile(path.join(chapterDir, safeName), buffer);
+
+      newPagesData.push({
+        id: `pg-${uniqueId}`,
+        filename: safeName,
+        order: currentPages.length + i + 1,
+      });
+    }
+
+    const updatedPages = [...currentPages, ...newPagesData];
+    comics[comicIndex].chapters[chIndex].pages = updatedPages;
+    comics[comicIndex].chapters[chIndex].updatedAt = new Date().toISOString();
+
+    await fs.writeFile(DATA_PATH, JSON.stringify(comics, null, 2));
+
+    return NextResponse.json({
+      success: true,
+      pages: formatPages(updatedPages, slug, chapter),
+    });
+  } catch (err: any) {
+    console.error("Upload Error:", err);
     return NextResponse.json({ message: err.message }, { status: 500 });
   }
 }

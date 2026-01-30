@@ -34,6 +34,8 @@ import {
   X,
   Save,
   Loader2,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 
@@ -257,7 +259,7 @@ export default function ChaptersList({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   useEffect(() => {
@@ -278,10 +280,10 @@ export default function ChaptersList({
     const { active, over } = event;
     if (active.id !== over?.id) {
       const oldIndex = chapters.findIndex(
-        (c: any) => `ch-${c.number}` === active.id,
+        (c: any) => `ch-${c.number}` === active.id
       );
       const newIndex = chapters.findIndex(
-        (c: any) => `ch-${c.number}` === over.id,
+        (c: any) => `ch-${c.number}` === over.id
       );
       setChapters(arrayMove(chapters, oldIndex, newIndex));
     }
@@ -304,7 +306,7 @@ export default function ChaptersList({
     setIsPagesModalOpen(true);
     try {
       const res = await fetch(
-        `/api/komify/orderingPages?slug=${slug}&chapter=${ch.number}`,
+        `/api/komify/orderingPages?slug=${slug}&chapter=${ch.number}`
       );
       const data = await res.json();
       setEditingPages(data.pages || []);
@@ -333,8 +335,8 @@ export default function ChaptersList({
         chapters.map((c: any) =>
           c.number === editingChapter.number
             ? { ...editingChapter, updatedAt: new Date().toISOString() }
-            : c,
-        ),
+            : c
+        )
       );
       setIsModalOpen(false);
     } catch (err) {
@@ -360,8 +362,8 @@ export default function ChaptersList({
         chapters.map((ch: any) =>
           ch.number === editingChapter.number
             ? { ...ch, pages: editingPages }
-            : ch,
-        ),
+            : ch
+        )
       );
       setIsPagesModalOpen(false);
     } catch (error) {
@@ -376,12 +378,68 @@ export default function ChaptersList({
     try {
       const res = await fetch(
         `/api/komify/orderingPages?slug=${slug}&chapter=${editingChapter.number}&filename=${filename}`,
-        { method: "DELETE" },
+        { method: "DELETE" }
       );
       if (res.ok)
         setEditingPages((prev) => prev.filter((p) => p.filename !== filename));
     } catch (error) {
       alert("Gagal hapus");
+    }
+  };
+
+  const handleAddPages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setIsLoadingPages(true);
+    const formData = new FormData();
+    formData.append("slug", String(slug));
+    formData.append("chapter", String(editingChapter.number));
+
+    Array.from(e.target.files).forEach((file) => {
+      formData.append("new_pages", file);
+    });
+
+    try {
+      const res = await fetch("/api/komify/orderingPages", {
+        method: "PUT",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setEditingPages(data.pages);
+      }
+    } catch (error) {
+      alert("Gagal menambah gambar");
+    } finally {
+      setIsLoadingPages(false);
+    }
+  };
+
+  const handleDeleteAllPages = async () => {
+    if (
+      !confirm(
+        "Hapus SEMUA gambar di chapter ini? Tindakan ini tidak bisa dibatalkan."
+      )
+    )
+      return;
+
+    setIsSaving(true);
+    try {
+      const res = await fetch(
+        `/api/komify/orderingPages?slug=${slug}&chapter=${editingChapter.number}&all=true`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (res.ok) {
+        setEditingPages([]);
+      }
+    } catch (error) {
+      alert("Gagal menghapus semua gambar");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -498,14 +556,39 @@ export default function ChaptersList({
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
           <div className="bg-zinc-900 border border-white/10 w-full max-w-5xl h-[85vh] rounded-4xl shadow-2xl flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <div>
-                <h3 className="font-black uppercase text-white">
-                  Reorder Pages: CH {editingChapter.number}
-                </h3>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase">
-                  {editingPages.length} Images Loaded
-                </p>
+              <div className="flex items-center gap-6">
+                <div>
+                  <h3 className="font-black uppercase text-white">
+                    Reorder Pages: CH {editingChapter.number}
+                  </h3>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase">
+                    {editingPages.length} Images Loaded
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 ml-4">
+                  <label className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-all cursor-pointer text-[10px] font-black uppercase border border-blue-500/20">
+                    <Plus size={14} />
+                    Add Pages
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAddPages}
+                    />
+                  </label>
+
+                  <button
+                    onClick={handleDeleteAllPages}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-500 hover:text-white rounded-lg transition-all text-[10px] font-black uppercase border border-rose-500/20"
+                  >
+                    <Trash2 size={14} />
+                    Clear All
+                  </button>
+                </div>
               </div>
+
               <button
                 onClick={() => setIsPagesModalOpen(false)}
                 className="p-2 text-zinc-500 hover:text-white"

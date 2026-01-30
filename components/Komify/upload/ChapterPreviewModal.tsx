@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Save, LayoutGrid, Info } from "lucide-react";
+import { X, Save, LayoutGrid, Plus, Trash2 } from "lucide-react";
 import ChapterImageGrid from "./ChapterImageGrid";
 
 interface ChapterPreviewModalProps {
@@ -9,6 +9,9 @@ interface ChapterPreviewModalProps {
   onCancel: () => void;
   onReorder: (files: File[]) => void;
   onSave: () => void;
+  onAddImages: (files: FileList) => void;
+  onDeleteImage: (index: number) => void;
+  onDeleteAll: () => void;
 }
 
 export default function ChapterPreviewModal({
@@ -17,6 +20,9 @@ export default function ChapterPreviewModal({
   onCancel,
   onReorder,
   onSave,
+  onAddImages,
+  onDeleteImage,
+  onDeleteAll,
 }: ChapterPreviewModalProps) {
   if (!visible || !chapter) return null;
 
@@ -43,7 +49,29 @@ export default function ChapterPreviewModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl font-bold text-sm cursor-pointer hover:bg-emerald-100 transition-all">
+              <Plus className="w-4 h-4" />
+              Add Images
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files && onAddImages(e.target.files)}
+              />
+            </label>
+
+            <button
+              onClick={onDeleteAll}
+              className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+              Clear All
+            </button>
+
+            <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 mx-1 hidden md:block" />
+
             <button
               onClick={onCancel}
               className="group flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95"
@@ -64,7 +92,11 @@ export default function ChapterPreviewModal({
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-slate-50/30 dark:bg-transparent">
           <div className="mx-auto">
-            <ChapterImageGrid files={chapter.files} onReorder={onReorder} />
+            <ChapterImageGrid
+              files={chapter.files}
+              onReorder={onReorder}
+              onDelete={onDeleteImage}
+            />
           </div>
         </div>
       </div>

@@ -17,22 +17,25 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash } from "lucide-react";
 
 interface ChapterImageGridProps {
   files: File[];
   onReorder: (files: File[]) => void;
+  onDelete: (index: number) => void;
 }
 
 function SortableImage({
   id,
   url,
   index,
+  onDelete,
   isOverlay = false,
 }: {
   id: string;
   url: string;
   index: number;
+  onDelete?: (idx: number) => void;
   isOverlay?: boolean;
 }) {
   const {
@@ -65,6 +68,15 @@ function SortableImage({
         }
       `}
     >
+      {!isOverlay && (
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onDelete?.(index)}
+          className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-20 hover:bg-red-600 shadow-lg"
+        >
+          <Trash className="w-3.5 h-3.5" />
+        </button>
+      )}
       <img
         src={url}
         alt={`Page ${index + 1}`}
@@ -89,6 +101,7 @@ function SortableImage({
 export default function ChapterImageGrid({
   files,
   onReorder,
+  onDelete,
 }: ChapterImageGridProps) {
   const imageFiles = useMemo(
     () => files.filter((f) => f.type.startsWith("image/")),
@@ -157,6 +170,7 @@ export default function ChapterImageGrid({
                 id={item.id}
                 url={item.url}
                 index={idx}
+                onDelete={onDelete}
               />
             ))}
           </div>
@@ -168,6 +182,7 @@ export default function ChapterImageGrid({
               id={activeItem.id}
               url={activeItem.url}
               index={previews.findIndex((p) => p.id === activeId)}
+              onDelete={onDelete}
               isOverlay
             />
           ) : null}
