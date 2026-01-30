@@ -12,7 +12,7 @@ export default function UploadComicHeader({
 }: UploadComicHeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-xl">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-350 mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         <nav className="flex items-center gap-2 md:gap-4 text-sm font-medium">
           <Link
             href="/komify"
@@ -26,7 +26,7 @@ export default function UploadComicHeader({
 
           <ChevronRight size={14} className="text-zinc-700" />
 
-          <div className="flex items-center gap-2 text-white max-w-[150px] md:max-w-[300px]">
+          <div className="flex items-center gap-2 text-white max-w-37.5 md:max-w-75">
             <LayoutGrid size={14} className="text-blue-500 shrink-0" />
             <span className="font-bold truncate tracking-tight uppercase text-xs md:text-sm">
               {defaultSlug}
