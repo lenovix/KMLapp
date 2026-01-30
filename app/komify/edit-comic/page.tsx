@@ -2,13 +2,20 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { Save, ChevronLeft, Info, Image as ImageIcon } from "lucide-react";
+import {
+  Save,
+  ChevronLeft,
+  Info,
+  Image as ImageIcon,
+  Sparkles,
+} from "lucide-react";
 import comicsData from "@/data/komify/comics.json";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import DialogBox from "@/components/UI/DialogBox";
 import Alert from "@/components/UI/Alert";
+import FixParagraphModal from "@/components/Komify/Detail/FixParagraphModal";
 
 interface Comic {
   slug: number;
@@ -28,6 +35,8 @@ interface Comic {
 const comics = comicsData as unknown as Comic[];
 
 function EditComicContent() {
+  const [fixerOpen, setFixerOpen] = useState(false);
+  const [activeFixField, setActiveFixField] = useState<string | null>(null);
   const [useDummyCover, setUseDummyCover] = useState(false);
   const dummyPath = "/img/dummy-cover.png";
   const router = useRouter();
@@ -150,6 +159,18 @@ function EditComicContent() {
     }
   };
 
+  const openFixer = (fieldName: string) => {
+    setActiveFixField(fieldName);
+    setFixerOpen(true);
+  };
+
+  const handleApplyFix = (newValue: string) => {
+    if (activeFixField) {
+      setForm((prev) => ({ ...prev, [activeFixField]: newValue }));
+    }
+    setFixerOpen(false);
+  };
+
   if (!slug) return null;
 
   return (
@@ -192,32 +213,55 @@ function EditComicContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
-                ["title", "Judul Komik"],
-                ["authors", "Penulis"],
-                ["artists", "Artist"],
-                ["groups", "Scan Group"],
-                ["parodies", "Parody Content"],
+                ["title", "Title"],
+                ["authors", "Authors"],
+                ["artists", "Artists"],
+                ["groups", "Groups"],
+                ["parodies", "Parodies"],
                 ["characters", "Characters"],
-              ].map(([name, label]) => (
-                <div key={name} className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                    {label}
-                  </label>
-                  <input
-                    name={name}
-                    value={form[name as keyof typeof form] || ""}
-                    onChange={handleChange}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-sm text-white focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none"
-                    placeholder={`Input ${label}...`}
-                  />
-                </div>
-              ))}
+              ].map(([name, label]) => {
+                if (name === "authors" && form.categories !== "Manhwa")
+                  return null;
+
+                return (
+                  <div key={name} className="space-y-2">
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                        {label}
+                      </label>
+                      {name !== "title" && (
+                        <button
+                          onClick={() => openFixer(name)}
+                          className="text-[10px] font-bold text-blue-500 hover:text-blue-400 flex items-center gap-1 transition-colors"
+                        >
+                          <Sparkles size={10} /> FIX
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      name={name}
+                      value={form[name as keyof typeof form] || ""}
+                      onChange={handleChange}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-sm text-white focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all outline-none"
+                      placeholder={`Input ${label}...`}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                Tags (Pisahkan dengan koma)
-              </label>
+              <div className="flex items-center justify-between px-1">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                  Tags (Pisahkan dengan koma)
+                </label>
+                <button
+                  onClick={() => openFixer("tags")}
+                  className="text-[10px] font-bold text-blue-500 hover:text-blue-400 flex items-center gap-1 transition-colors"
+                >
+                  <Sparkles size={10} /> FIX
+                </button>
+              </div>
               <textarea
                 name="tags"
                 value={form.tags || ""}
@@ -307,6 +351,15 @@ function EditComicContent() {
           </div>
         </div>
       </div>
+
+      <FixParagraphModal
+        open={fixerOpen}
+        value={
+          activeFixField ? form[activeFixField as keyof typeof form] || "" : ""
+        }
+        onApply={handleApplyFix}
+        onClose={() => setFixerOpen(false)}
+      />
 
       <DialogBoxCover
         open={coverDialogOpen}
