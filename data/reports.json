@@ -250,5 +250,23 @@
     "description": "can scroll on modal",
     "status": "OPEN",
     "createdAt": "2026-01-30T12:52:46.030Z"
+  },
+  {
+    "id": "1769791584047",
+    "type": "bug",
+    "project": "Genfy",
+    "title": "over percentage",
+    "description": "when step over 25, the percentage/progress is > 100%",
+    "status": "OPEN",
+    "createdAt": "2026-01-30T16:46:24.047Z"
+  },
+  {
+    "id": "1769791613474",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "image viewer",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-01-30T16:46:53.474Z"
   }
 ]
