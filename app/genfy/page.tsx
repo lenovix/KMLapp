@@ -51,7 +51,7 @@ export default function GenfyPage() {
     image_base64: string;
     seed: number;
   } | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [steps, setSteps] = useState(25);
   const [cfg, setCfg] = useState(7.0);
   const [seed, setSeed] = useState(-1);
@@ -61,25 +61,53 @@ export default function GenfyPage() {
   const [height, setHeight] = useState(512);
 
   useEffect(() => {
+    let isMounted = true;
+    let retryCount = 0;
+    let timeoutId: NodeJS.Timeout;
+
     const fetchModelsAndLoras = async () => {
       try {
         const [modelRes, loraRes] = await Promise.all([
           fetch("http://localhost:8000/models"),
           fetch("http://localhost:8000/loras"),
         ]);
+
+        if (!modelRes.ok) throw new Error("Models server error");
+        if (!loraRes.ok) throw new Error("Loras server error");
+
         const models = await modelRes.json();
         const loras = await loraRes.json();
 
-        setModelList(models);
-        if (models.length > 0) setModelName(models[0]);
+        if (isMounted) {
+          setModelList(models);
+          if (models.length > 0 && !modelName) setModelName(models[0]);
+          setLoraList(loras);
 
-        setLoraList(loras);
-      } catch (e) {
-        setError("Backend disconnected. Error: " + e);
+          setError(null);
+          retryCount = 0;
+
+          timeoutId = setTimeout(fetchModelsAndLoras, 10000);
+        }
+      } catch (err) {
+        if (isMounted) {
+          retryCount++;
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          setError(
+            `Backend disconnected. Attempt ${retryCount}. Error: ${errorMessage}`,
+          );
+
+          timeoutId = setTimeout(fetchModelsAndLoras, 3000);
+        }
       }
     };
+
     fetchModelsAndLoras();
-  }, []);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [modelName]);
 
   const downloadImage = () => {
     if (!result) return;
