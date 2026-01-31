@@ -1,9 +1,9 @@
-import "./globals.css";
+import "../globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "K.Platform",
-  description: "K.Platform is SuperAPP for Storage, Comics, Films, Anime",
+  title: "Support Center :: K.Platform",
+  description: "Support Center for K.Platform App",
 };
 
 export default function RootLayout({

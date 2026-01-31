@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Calendar, Edit3, Save, Tag, Info } from "lucide-react";
 
 interface Report {
@@ -27,6 +27,15 @@ export default function ReportDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(report);
 
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
   const handleUpdate = async () => {
     const res = await fetch("/api/reports", {
       method: "PUT",
@@ -45,9 +54,9 @@ export default function ReportDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#020617]/80 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-[#0f172a] border border-white/10 w-full max-w-xl rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50">
-        <div className="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+    <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-[#020617]/80 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-[#0f172a] border border-white/10 w-full max-w-5xl rounded-4xl overflow-hidden shadow-2xl shadow-black/50 flex flex-col max-h-[90vh]">
+        <div className="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-white/2 shrink-0">
           <div>
             <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
               {isEditing ? (
@@ -69,7 +78,7 @@ export default function ReportDetailModal({
           </button>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-8 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
           {isEditing ? (
             <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-2">
@@ -90,7 +99,7 @@ export default function ReportDetailModal({
                   Description
                 </label>
                 <textarea
-                  className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:ring-2 focus:ring-indigo-500/50 h-32 resize-none transition-all"
+                  className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[150px] resize-none transition-all"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -151,7 +160,7 @@ export default function ReportDetailModal({
                 <h3 className="text-3xl font-black text-white leading-tight">
                   {report.title}
                 </h3>
-                <div className="p-5 bg-white/[0.03] border border-white/5 rounded-2xl">
+                <div className="p-5 bg-white/3 border border-white/5 rounded-2xl">
                   <p className="text-slate-400 leading-relaxed text-sm whitespace-pre-wrap">
                     {report.description || "No description provided."}
                   </p>
@@ -192,7 +201,7 @@ export default function ReportDetailModal({
           )}
         </div>
 
-        <div className="px-8 py-6 bg-black/20 flex gap-3">
+        <div className="px-8 py-6 bg-black/20 flex gap-3 shrink-0 border-t border-white/5">
           {isEditing ? (
             <>
               <button
@@ -203,7 +212,7 @@ export default function ReportDetailModal({
               </button>
               <button
                 onClick={handleUpdate}
-                className="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+                className="flex-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
               >
                 <Save size={16} /> Save Master Changes
               </button>
@@ -218,6 +227,22 @@ export default function ReportDetailModal({
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 }

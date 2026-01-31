@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import HeaderHome from "@/components/Home/headerHome";
 import AddReportModal from "@/components/report/AddReportModal";
 import ReportDetailModal from "@/components/report/ReportDetailModal";
+import Link from "next/link";
 
 interface Report {
   id: string;
@@ -58,25 +58,46 @@ export default function ReportsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-10 px-6 pb-20">
-      <HeaderHome />
-      <div className="max-w-5xl mx-auto space-y-8 mt-10">
+    <div className="min-h-screen bg-[#0a0a0a] text-white pb-20">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform">
+              ←
+            </span>
+            <span className="text-sm font-bold tracking-tighter uppercase">
+              Back to App
+            </span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+              System Live
+            </span>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-5xl mx-auto space-y-8 mt-24 px-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <h1 className="text-4xl font-black">Support Center</h1>
             <p className="text-slate-400">
-              Total {reports.length} laporan masuk.
+              Total {reports.length} laporan masuk dari komunitas Genfy.
             </p>
           </div>
           <button
             onClick={() => setShowAdd(true)}
-            className="bg-blue-600 px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg shadow-blue-600/20"
+            className="bg-blue-600 px-6 py-3 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-600/20"
           >
             + New Report
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/5 p-6 rounded-3xl border border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/5 p-6 rounded-3xl border border-white/10 shadow-2xl">
           <div className="space-y-3">
             <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase tracking-tighter">
               Filter Type
@@ -88,7 +109,7 @@ export default function ReportsPage() {
                   onClick={() => setFilterType(t)}
                   className={`flex-1 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${
                     filterType === t
-                      ? "bg-white text-black"
+                      ? "bg-white text-black shadow-lg"
                       : "bg-white/5 text-slate-400 hover:text-white"
                   }`}
                 >
@@ -105,7 +126,7 @@ export default function ReportsPage() {
             <select
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 outline-none cursor-pointer appearance-none"
             >
               <option value="all" className="bg-[#121212]">
                 All Projects
@@ -125,7 +146,7 @@ export default function ReportsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 outline-none cursor-pointer appearance-none"
             >
               {statuses.map((s) => (
                 <option key={s} value={s} className="bg-[#121212]">
@@ -142,11 +163,11 @@ export default function ReportsPage() {
               <div
                 key={r.id}
                 onClick={() => setSelectedReport(r)}
-                className="bg-[#121212] border border-white/5 p-5 rounded-2xl flex justify-between items-center hover:border-blue-500/50 cursor-pointer transition-all group animate-in fade-in slide-in-from-bottom-2"
+                className="bg-[#121212] border border-white/5 p-5 rounded-2xl flex justify-between items-center hover:border-blue-500/50 cursor-pointer transition-all group animate-in fade-in slide-in-from-bottom-2 shadow-sm hover:shadow-blue-500/10"
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${
                       r.type === "bug" ? "bg-red-500/10" : "bg-blue-500/10"
                     }`}
                   >
