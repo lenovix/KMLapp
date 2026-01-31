@@ -50,6 +50,8 @@ next-env.d.ts
 /data/filmfy/casts.json
 /data/filmfy/metadata-cast.json
 /data/filmfy/user-actions.json
+/data/genfy/models.json
+/data/genfy/generateHistory.json
 
 /command.txt
 /public/tmp_upload

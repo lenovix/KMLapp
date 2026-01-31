@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   ImageIcon,
@@ -60,54 +60,44 @@ export default function GenfyPage() {
   const [width, setWidth] = useState(512);
   const [height, setHeight] = useState(512);
 
+  const fetchModelsAndLoras = useCallback(async () => {
+    try {
+      const [modelRes, loraRes] = await Promise.all([
+        fetch("http://localhost:8000/models"),
+        fetch("http://localhost:8000/loras"),
+      ]);
+
+      if (!modelRes.ok || !loraRes.ok) throw new Error("Server error");
+
+      const models = await modelRes.json();
+      const loras = await loraRes.json();
+
+      setModelList(models);
+      if (models.length > 0 && !modelName) setModelName(models[0]);
+      setLoraList(loras);
+      setError(null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`Backend disconnected. Error: ${errorMessage}`);
+    }
+  }, [modelName]);
+
   useEffect(() => {
-    let isMounted = true;
-    let retryCount = 0;
-    let timeoutId: NodeJS.Timeout;
-
-    const fetchModelsAndLoras = async () => {
-      try {
-        const [modelRes, loraRes] = await Promise.all([
-          fetch("http://localhost:8000/models"),
-          fetch("http://localhost:8000/loras"),
-        ]);
-
-        if (!modelRes.ok) throw new Error("Models server error");
-        if (!loraRes.ok) throw new Error("Loras server error");
-
-        const models = await modelRes.json();
-        const loras = await loraRes.json();
-
-        if (isMounted) {
-          setModelList(models);
-          if (models.length > 0 && !modelName) setModelName(models[0]);
-          setLoraList(loras);
-
-          setError(null);
-          retryCount = 0;
-
-          timeoutId = setTimeout(fetchModelsAndLoras, 10000);
-        }
-      } catch (err) {
-        if (isMounted) {
-          retryCount++;
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          setError(
-            `Backend disconnected. Attempt ${retryCount}. Error: ${errorMessage}`,
-          );
-
-          timeoutId = setTimeout(fetchModelsAndLoras, 3000);
-        }
-      }
-    };
-
     fetchModelsAndLoras();
 
+    let intervalId: NodeJS.Timeout;
+
+    if (!loading) {
+      intervalId = setInterval(() => {
+        console.log("Polling active...");
+        fetchModelsAndLoras();
+      }, 10000);
+    }
+
     return () => {
-      isMounted = false;
-      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [modelName]);
+  }, [loading, fetchModelsAndLoras]);
 
   const downloadImage = () => {
     if (!result) return;
@@ -190,6 +180,7 @@ export default function GenfyPage() {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Gagal generate gambar.");
       }
+
       const data = await response.json();
       setResult(data);
     } catch (err: unknown) {
@@ -197,8 +188,11 @@ export default function GenfyPage() {
         err instanceof Error ? err.message : "Terjadi kesalahan sistem.",
       );
     } finally {
-      setTimeout(() => ws.close(), 500);
-      setLoading(false);
+      setTimeout(() => {
+        ws.close();
+        setLoading(false);
+        fetchModelsAndLoras();
+      }, 500);
     }
   };
 
@@ -212,7 +206,7 @@ export default function GenfyPage() {
           <div className="flex items-center gap-4 mb-1">
             <Link
               href="/"
-              className="group/back flex items-center gap-3 bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-105 transition-all duration-300 active:scale-95"
+              className="group/back flex items-center gap-3 bg-linear-to-br from-indigo-500 to-purple-600 p-2.5 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-105 transition-all duration-300 active:scale-95"
             >
               <div className="relative w-6 h-6">
                 <Zap
@@ -229,12 +223,12 @@ export default function GenfyPage() {
               GENFY<span className="text-indigo-500">.</span>
             </h1>
           </div>
-          <p className="text-slate-500 text-[11px] uppercase tracking-[0.3em] font-bold ml-[3.25rem]">
+          <p className="text-slate-500 text-[11px] uppercase tracking-[0.3em] font-bold ml-13">
             Next-Gen Synthesis Studio
           </p>
         </div>
 
-        <div className="flex items-center bg-white/[0.03] border border-white/10 p-1.5 rounded-[2rem] backdrop-blur-md shadow-inner">
+        <div className="flex items-center bg-white/3 border border-white/10 p-1.5 rounded-4xl backdrop-blur-md shadow-inner">
           {[
             { id: "image", label: "Image", icon: ImageIcon },
             { id: "video", label: "Video", icon: Video, locked: true },
@@ -245,7 +239,7 @@ export default function GenfyPage() {
               disabled={item.locked}
               onClick={() => setGenerationMode(item.id)}
               className={`
-          relative flex items-center gap-3 px-6 py-3 rounded-[1.5rem] transition-all duration-500 group
+          relative flex items-center gap-3 px-6 py-3 rounded-3xl transition-all duration-500 group
           ${
             generationMode === item.id
               ? "bg-white shadow-[0_10px_20px_rgba(255,255,255,0.1)] text-black"
@@ -286,13 +280,13 @@ export default function GenfyPage() {
 
       <main className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <section className="lg:col-span-5 xl:col-span-5 order-1">
-          <div className="relative aspect-square w-full h-full xl:h-[700px] bg-gradient-to-b from-white/[0.03] to-transparent border border-white/10 rounded-[3rem] flex items-center justify-center overflow-hidden shadow-2xl group transition-all duration-500 hover:border-indigo-500/30">
+          <div className="relative aspect-square w-full h-full xl:h-[700px] bg-linear-to-b from-white/3 to-transparent border border-white/10 rounded-[3rem] flex items-center justify-center overflow-hidden shadow-2xl group transition-all duration-500 hover:border-indigo-500/30">
             {result ? (
               <div className="relative w-full h-full p-4 animate-in fade-in zoom-in duration-1000">
                 <Image
                   src={result.image_base64}
                   alt="AI Masterpiece"
-                  className="w-full h-full object-contain rounded-[2rem] shadow-2xl"
+                  className="w-full h-full object-contain rounded-4xl shadow-2xl"
                   width={1024}
                   height={1024}
                   unoptimized
@@ -318,7 +312,7 @@ export default function GenfyPage() {
               </div>
             ) : (
               <div className="text-center p-20 flex flex-col items-center">
-                <div className="w-32 h-32 bg-white/[0.02] border border-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                <div className="w-32 h-32 bg-white/2 border border-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 rotate-12 group-hover:rotate-0 transition-transform duration-700">
                   <ImageIcon className="text-slate-800" size={48} />
                 </div>
                 <h3 className="text-slate-600 font-black text-xl uppercase tracking-[0.4em] italic">
@@ -371,8 +365,8 @@ export default function GenfyPage() {
         </section>
 
         <aside className="lg:col-span-5 xl:col-span-7 space-y-6 order-2 lg:sticky lg:top-8">
-          <div className="bg-white/[0.02] border border-white/10 rounded-[3rem] shadow-3xl backdrop-blur-3xl overflow-hidden">
-            <div className="flex p-2 gap-1 bg-black/40 m-4 rounded-[2rem] border border-white/5">
+          <div className="bg-white/2 border border-white/10 rounded-4xl shadow-3xl backdrop-blur-3xl overflow-hidden">
+            <div className="flex p-2 gap-1 bg-black/40 m-4 rounded-4xl">
               {[
                 { id: "model", icon: Layers, label: "Engine" },
                 { id: "prompt", icon: Type, label: "Prompt" },
@@ -460,7 +454,7 @@ export default function GenfyPage() {
                           {selectedLoras.map((lora, index) => (
                             <div
                               key={lora.name}
-                              className="bg-white/[0.03] border border-white/10 p-5 rounded-[1.5rem] space-y-4"
+                              className="bg-white/3 border border-white/10 p-5 rounded-3xl space-y-4"
                             >
                               <div className="flex justify-between items-start">
                                 <span className="text-sm font-bold text-white">
@@ -498,7 +492,7 @@ export default function GenfyPage() {
                       <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        className="w-full h-80 bg-black/40 border border-white/10 rounded-[2rem] p-6 text-white focus:border-indigo-500/50 outline-none resize-none text-sm shadow-inner"
+                        className="w-full h-80 bg-black/40 border border-white/10 rounded-4xl p-6 text-white focus:border-indigo-500/50 outline-none resize-none text-sm shadow-inner"
                         placeholder="Describe the impossible..."
                       />
                     </div>
@@ -606,9 +600,9 @@ export default function GenfyPage() {
               <button
                 type="submit"
                 disabled={loading || !prompt}
-                className="w-full relative group overflow-hidden h-20 flex-shrink-0 bg-white text-black rounded-[1.5rem] transition-all duration-300 hover:scale-[1.02] active:scale-95 disabled:opacity-30 shadow-xl"
+                className="w-full relative group overflow-hidden h-20 shrink-0 bg-white text-black rounded-3xl transition-all duration-300 hover:scale-[1.02] active:scale-95 disabled:opacity-30 shadow-xl"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity" />
+                <div className="absolute inset-0 bg-linear-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity" />
                 <div className="relative flex items-center justify-center gap-4">
                   {loading ? (
                     <Loader2
@@ -629,7 +623,7 @@ export default function GenfyPage() {
       </main>
 
       {error && (
-        <div className="fixed bottom-10 left-10 right-10 md:left-auto md:right-10 md:w-96 bg-red-950/40 border border-red-500/50 backdrop-blur-2xl p-6 rounded-[2rem] text-red-400 animate-in slide-in-from-right-10 duration-500 z-[100] shadow-2xl">
+        <div className="fixed bottom-10 left-10 right-10 md:left-auto md:right-10 md:w-96 bg-red-950/40 border border-red-500/50 backdrop-blur-2xl p-6 rounded-4xl text-red-400 animate-in slide-in-from-right-10 duration-500 z-100 shadow-2xl">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-red-500/20 rounded-full animate-pulse">
               <Zap size={20} />
@@ -645,7 +639,7 @@ export default function GenfyPage() {
       )}
 
       {showGuide && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-110 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div
             className="absolute inset-0 bg-black/80 backdrop-blur-xl"
             onClick={() => setShowGuide(false)}
@@ -671,7 +665,7 @@ export default function GenfyPage() {
 
             <div className="flex-1 overflow-y-auto px-8 pb-10 md:px-12 space-y-6 custom-scrollbar">
               <div className="grid gap-6">
-                <div className="group bg-white/[0.02] border border-white/5 p-6 rounded-3xl hover:border-indigo-500/30 transition-all">
+                <div className="group bg-white/2 border border-white/5 p-6 rounded-3xl hover:border-indigo-500/30 transition-all">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                       <Activity size={20} />
@@ -690,7 +684,7 @@ export default function GenfyPage() {
                   </p>
                 </div>
 
-                <div className="group bg-white/[0.02] border border-white/5 p-6 rounded-3xl hover:border-amber-500/30 transition-all">
+                <div className="group bg-white/2 border border-white/5 p-6 rounded-3xl hover:border-amber-500/30 transition-all">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
                       <Compass size={20} />
@@ -708,7 +702,7 @@ export default function GenfyPage() {
                   </p>
                 </div>
 
-                <div className="group bg-white/[0.02] border border-white/5 p-6 rounded-3xl hover:border-blue-500/30 transition-all">
+                <div className="group bg-white/2 border border-white/5 p-6 rounded-3xl hover:border-blue-500/30 transition-all">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                       <Hash size={20} />
@@ -727,7 +721,7 @@ export default function GenfyPage() {
                   </p>
                 </div>
 
-                <div className="group bg-white/[0.02] border border-white/5 p-6 rounded-3xl hover:border-purple-500/30 transition-all">
+                <div className="group bg-white/2 border border-white/5 p-6 rounded-3xl hover:border-purple-500/30 transition-all">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
                       <Layers size={20} />

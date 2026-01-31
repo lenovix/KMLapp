@@ -10,8 +10,11 @@ xformers
 diffusers
 transformers
 accelerate
+peft
 
 # Backend & Utilities
+uvicorn[standard]
 fastapi
-uvicorn
+websockets
+wsproto
 pillow

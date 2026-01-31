@@ -268,5 +268,60 @@
     "description": "",
     "status": "OPEN",
     "createdAt": "2026-01-30T16:46:53.474Z"
+  },
+  {
+    "id": "1769840815857",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "dropdown for spec model",
+    "description": "- SD1.5\n- SDXL\n- dll",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T06:26:55.857Z"
+  },
+  {
+    "id": "1769841372685",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "history generate",
+    "description": "can select by image, in image provide (step, base model, loras), after select, can modify",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T06:36:12.685Z"
+  },
+  {
+    "id": "1769841710709",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "filter tipe base model",
+    "description": "- Stable Diffusion 1.5 (SD 1.5)\n- Stable Diffusion XL (SDXL)\n- Pony Diffusion (Berbasis SDXL)\n- Flux.1 (Generasi Terbaru)\n- Illustrious",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T06:41:50.709Z",
+    "updatedAt": "2026-01-31T06:45:41.353Z"
+  },
+  {
+    "id": "1769843951795",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "halaman upload model/lora (metadata)",
+    "description": "simpannya di D:\\KMLapp\\data\\genfy\\models.json",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T07:19:11.795Z"
+  },
+  {
+    "id": "1769843990214",
+    "type": "feature",
+    "project": "Genfy",
+    "title": "history generate",
+    "description": "simpannya di D:\\KMLapp\\data\\genfy\\generateHistory.json.\njadi kalo mau generate dengan komfigurasi yang sama, tinggal pilih aja template dari json",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T07:19:50.214Z"
+  },
+  {
+    "id": "1769844051631",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "add issue every project",
+    "description": "di setiap halaman utama project ada tombol untuk menambahkan issue, dan di  update/disimpan di D:\\KMLapp\\data\\reports.json",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T07:20:51.631Z"
   }
 ]
