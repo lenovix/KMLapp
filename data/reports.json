@@ -323,5 +323,32 @@
     "description": "di setiap halaman utama project ada tombol untuk menambahkan issue, dan di  update/disimpan di D:\\KMLapp\\data\\reports.json",
     "status": "OPEN",
     "createdAt": "2026-01-31T07:20:51.631Z"
+  },
+  {
+    "id": "1769850453873",
+    "type": "feature",
+    "project": "Komify",
+    "title": "every chapter have summary",
+    "description": "setiap chapter ada inti cerita/event (tambah input/field summary)",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T09:07:33.873Z"
+  },
+  {
+    "id": "1769851600620",
+    "type": "feature",
+    "project": "Komify",
+    "title": "re-fill upload page",
+    "description": "saat upload berhasil, input file jgn dikosongkan, lalu ada tombol refresh/reset untuk mengkosongkan input",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T09:26:40.620Z"
+  },
+  {
+    "id": "1769855733503",
+    "type": "feature",
+    "project": "Komify",
+    "title": "character list",
+    "description": "jika manhwa, ada modal untuk character detail",
+    "status": "OPEN",
+    "createdAt": "2026-01-31T10:35:33.503Z"
   }
 ]
