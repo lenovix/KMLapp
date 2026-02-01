@@ -1,4 +1,3 @@
-# Membaca metadata dari file safetensors untuk menentukan arsitektur.
 import os
 from safetensors import safe_open
 
@@ -45,14 +44,14 @@ def validate_compatibility(model_path, lora_paths):
         print(f"STATUS: {status}")
         print("-" * 30)
 
-
-checkpoint = r"./models/checkpoint/smoothMixOldVerNoobai_illustriousV3.safetensors"
-loras = [
-    r"./models/loras/final-000002.safetensors",
-    r"./models/loras/shenhe_new.safetensors",
-]
+checkpoint = r"../models/checkpoint/perfectWorld_v6Baked.safetensors"
+# loras = [
+#     r"../models/loras/final-000002.safetensors",
+#     r"../models/loras/shenhe_new.safetensors",
+# ]
 
 if os.path.exists(checkpoint):
-    validate_compatibility(checkpoint, loras)
+    # validate_compatibility(checkpoint, loras)
+    validate_compatibility(checkpoint, [])
 else:
     print("Path model tidak ditemukan! Pastikan path benar.")

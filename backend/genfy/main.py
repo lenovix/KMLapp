@@ -14,6 +14,7 @@ from io import BytesIO
 from typing import List
 from safetensors import safe_open
 from fastapi import WebSocket, WebSocketDisconnect
+from transformers import CLIPTokenizer, CLIPTextModel
 
 BASE_DIR = Path(__file__).resolve().parent
 CHECKPOINT_DIR = os.path.join(BASE_DIR, "models", "checkpoint")
@@ -44,6 +45,29 @@ async def startup_event():
     global main_loop
     main_loop = asyncio.get_running_loop()
 
+def fix_missing_clip(pipeline, is_xl: bool):
+    if is_xl:
+        if pipeline.tokenizer is None:
+            pipeline.tokenizer = CLIPTokenizer.from_pretrained(
+                "stabilityai/stable-diffusion-xl-base-1.0",
+                subfolder="tokenizer"
+            )
+        if pipeline.text_encoder is None:
+            pipeline.text_encoder = CLIPTextModel.from_pretrained(
+                "stabilityai/stable-diffusion-xl-base-1.0",
+                subfolder="text_encoder"
+            )
+    else:
+        if pipeline.tokenizer is None:
+            pipeline.tokenizer = CLIPTokenizer.from_pretrained(
+                "runwayml/stable-diffusion-v1-5",
+                subfolder="tokenizer"
+            )
+        if pipeline.text_encoder is None:
+            pipeline.text_encoder = CLIPTextModel.from_pretrained(
+                "runwayml/stable-diffusion-v1-5",
+                subfolder="text_encoder"
+            )
 
 def progress_callback(pipe, step_index, timestep, callback_kwargs):
     global active_websocket, main_loop
@@ -128,6 +152,7 @@ def load_model_into_memory(model_name: str):
         torch_dtype=torch.float16 if device == "cuda" else torch.float32,
         use_safetensors=True,
     )
+    fix_missing_clip(pipe, is_xl)
     pipe = apply_optimizations(pipe)
     current_model_path = model_path
 
@@ -245,3 +270,6 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    print("Tokenizer:", type(pipe.tokenizer))
+    print("Text Encoder:", type(pipe.text_encoder))

@@ -30,6 +30,8 @@ pip install -U xformers --index-url https://download.pytorch.org/whl/cu124
 
 # CUDA 13.1
 
+cd backend\genfy
+genfy\Scripts\activate
 pip install -r requirements.txt
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 pip install -U xformers --index-url https://download.pytorch.org/whl/cu130
@@ -38,3 +40,6 @@ pip install diffusers transformers accelerate pillow fastapi uvicorn
 D:\KMLapp>python -c "import torch; print(f'Nama GPU: {torch.cuda.get_device_name(0)}'); print(f'Total VRAM: {torch.cuda.get_device_properties(0).total_memory / 1024\*\*3:.2f} GB')"
 Nama GPU: NVIDIA GeForce RTX 4050 Laptop GPU
 Total VRAM: 6.00 GB
+
+# run script civitai
+python script/civitai.py

@@ -18,3 +18,7 @@ fastapi
 websockets
 wsproto
 pillow
+
+requests
+python-dotenv
+tqdm
