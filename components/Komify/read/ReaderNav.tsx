@@ -19,7 +19,7 @@ interface ReaderNavProps {
 
 export default function ReaderNav({ comic, prev, next }: ReaderNavProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-y border-white/5 bg-zinc-900/30 rounded-[2rem] px-6 backdrop-blur-sm">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-y border-white/5 bg-zinc-900/30 rounded-4xl px-6 backdrop-blur-sm">
       <div className="w-full sm:w-1/3 flex justify-start">
         {prev ? (
           <Link

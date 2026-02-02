@@ -74,8 +74,16 @@ export default function ComicDetail() {
     [slug]
   );
 
+  const [coverSrc, setCoverSrc] = useState(comic?.cover);
   const [chapters, setChapters] = useState<any[]>([]);
   const [originalChapters, setOriginalChapters] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (comic?.updated_at) {
+      const version = new Date(comic.updated_at).getTime();
+      setCoverSrc(`${comic.cover}?v=${version}`);
+    }
+  }, [comic?.cover, comic?.updated_at]);
 
   const normalizeChapters = useCallback(
     (chs: any[]) =>
@@ -268,11 +276,7 @@ export default function ComicDetail() {
                 onClick={() => setCoverOpen(true)}
               >
                 <img
-                  src={`${comic.cover}?v=${
-                    comic.updated_at
-                      ? new Date(comic.updated_at).getTime()
-                      : Date.now()
-                  }`}
+                  src={coverSrc}
                   alt={comic.title}
                   className="w-full h-auto object-cover object-top transition-transform duration-700 group-hover:scale-110"
                 />
