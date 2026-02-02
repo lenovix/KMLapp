@@ -248,8 +248,9 @@
     "project": "K.Platforms",
     "title": "scrollable on modal detail report",
     "description": "can scroll on modal",
-    "status": "OPEN",
-    "createdAt": "2026-01-30T12:52:46.030Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-30T12:52:46.030Z",
+    "updatedAt": "2026-02-02T01:32:35.873Z"
   },
   {
     "id": "1769791584047",
@@ -319,10 +320,11 @@
     "id": "1769844051631",
     "type": "feature",
     "project": "K.Platforms",
-    "title": "add issue every project",
+    "title": "add issue modal on every project",
     "description": "di setiap halaman utama project ada tombol untuk menambahkan issue, dan di  update/disimpan di D:\\KMLapp\\data\\reports.json",
-    "status": "OPEN",
-    "createdAt": "2026-01-31T07:20:51.631Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-31T07:20:51.631Z",
+    "updatedAt": "2026-02-02T03:51:07.416Z"
   },
   {
     "id": "1769850453873",

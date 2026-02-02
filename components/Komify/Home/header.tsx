@@ -1,8 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Upload, ArrowLeft, Bookmark, X, Search } from "lucide-react";
+import {
+  Upload,
+  ArrowLeft,
+  Bookmark,
+  X,
+  Search,
+  AlertCircle,
+} from "lucide-react";
 import { metadataLinks } from "@/components/Komify/metadata/metadataLinks";
+import AddReportModal from "@/components/report/AddReportModal";
 
 interface AllComicHeaderProps {
   searchTerm: string;
@@ -13,6 +22,8 @@ export default function AllComicHeader({
   searchTerm,
   setSearchTerm,
 }: AllComicHeaderProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -59,6 +70,14 @@ export default function AllComicHeader({
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 
+                       text-zinc-100 rounded-2xl border border-zinc-800 transition text-sm font-semibold"
+          >
+            <AlertCircle className="w-4 h-4 text-red-500" />
+            <span className="hidden lg:inline">Report Issue</span>
+          </button>
           <Link
             href="/komify/bookmarks"
             className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 
@@ -94,6 +113,12 @@ export default function AllComicHeader({
       </nav>
 
       <hr className="border-zinc-800/50" />
+      {isModalOpen && (
+        <AddReportModal
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => {}}
+        />
+      )}
     </div>
   );
 }

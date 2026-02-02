@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   ImageIcon,
   Sparkles,
@@ -23,9 +24,10 @@ import {
   X,
   Video,
   Mic,
+  AlertCircle,
 } from "lucide-react";
 import ControlSlider from "@/components/genfy/ControlSlider";
-import Link from "next/link";
+import AddReportModal from "@/components/report/AddReportModal";
 
 interface SelectedLora {
   name: string;
@@ -38,6 +40,7 @@ interface LoraItem {
 }
 
 export default function GenfyPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [generationMode, setGenerationMode] = useState("image");
   const [showGuide, setShowGuide] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -115,7 +118,7 @@ export default function GenfyPage() {
       : "SD1.5";
 
   const compatibleLoras = loraList.filter(
-    (lora) => lora.arch === currentModelArch,
+    (lora) => lora.arch === currentModelArch
   );
 
   const addLora = (name: string) => {
@@ -185,7 +188,7 @@ export default function GenfyPage() {
       setResult(data);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "Terjadi kesalahan sistem.",
+        err instanceof Error ? err.message : "Terjadi kesalahan sistem."
       );
     } finally {
       setTimeout(() => {
@@ -198,10 +201,9 @@ export default function GenfyPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 p-4 md:p-8 font-sans selection:bg-indigo-500/30 overflow-x-hidden">
-      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-indigo-600/10 blur-[150px] pointer-events-none -z-10 animate-pulse" />
-      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] pointer-events-none -z-10" />
-
-      <nav className="max-w-[1600px] mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 mb-10 border-b border-white/5 pb-8">
+      <div className="fixed top-0 left-1/4 w-150 h-150 bg-indigo-600/10 blur-[150px] pointer-events-none -z-10 animate-pulse" />
+      <div className="fixed bottom-0 right-1/4 w-125 h-125 bg-purple-600/10 blur-[150px] pointer-events-none -z-10" />
+      <nav className="max-w-400 mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 mb-10 border-b border-white/5 pb-8">
         <div className="flex flex-col items-center md:items-start shrink-0">
           <div className="flex items-center gap-4 mb-1">
             <Link
@@ -239,14 +241,18 @@ export default function GenfyPage() {
               disabled={item.locked}
               onClick={() => setGenerationMode(item.id)}
               className={`
-          relative flex items-center gap-3 px-6 py-3 rounded-3xl transition-all duration-500 group
-          ${
-            generationMode === item.id
-              ? "bg-white shadow-[0_10px_20px_rgba(255,255,255,0.1)] text-black"
-              : "text-slate-500 hover:text-white hover:bg-white/5"
-          }
-          ${item.locked ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}
-        `}
+                relative flex items-center gap-3 px-6 py-3 rounded-3xl transition-all duration-500 group
+                ${
+                  generationMode === item.id
+                    ? "bg-white shadow-[0_10px_20px_rgba(255,255,255,0.1)] text-black"
+                    : "text-slate-500 hover:text-white hover:bg-white/5"
+                }
+                ${
+                  item.locked
+                    ? "opacity-30 cursor-not-allowed"
+                    : "cursor-pointer"
+                }
+              `}
             >
               <item.icon
                 size={18}
@@ -275,12 +281,20 @@ export default function GenfyPage() {
               System Guide
             </span>
           </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="group flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-300 active:scale-95"
+          >
+            <div className="bg-red-500/20 p-1.5 rounded-lg group-hover:bg-red-500/40 transition-colors">
+              <AlertCircle size={18} className="text-red-400" />
+            </div>
+          </button>
         </div>
       </nav>
 
-      <main className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <main className="max-w-400 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <section className="lg:col-span-5 xl:col-span-5 order-1">
-          <div className="relative aspect-square w-full h-full xl:h-[700px] bg-linear-to-b from-white/3 to-transparent border border-white/10 rounded-[3rem] flex items-center justify-center overflow-hidden shadow-2xl group transition-all duration-500 hover:border-indigo-500/30">
+          <div className="relative aspect-square w-full h-full xl:h-175 bg-linear-to-b from-white/3 to-transparent border border-white/10 rounded-[3rem] flex items-center justify-center overflow-hidden shadow-2xl group transition-all duration-500 hover:border-indigo-500/30">
             {result ? (
               <div className="relative w-full h-full p-4 animate-in fade-in zoom-in duration-1000">
                 <Image
@@ -392,10 +406,10 @@ export default function GenfyPage() {
 
             <form
               onSubmit={handleGenerate}
-              className="p-8 pt-2 flex flex-col h-[610px]"
+              className="p-8 pt-2 flex flex-col h-152.5"
             >
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 mb-6">
-                <div className="min-h-[400px]">
+                <div className="min-h-100">
                   {activeTab === "model" && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                       <div className="space-y-3">
@@ -759,6 +773,12 @@ export default function GenfyPage() {
             </div>
           </div>
         </div>
+      )}
+      {isModalOpen && (
+        <AddReportModal
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => {}}
+        />
       )}
     </div>
   );

@@ -6,8 +6,6 @@ export interface FilmPart {
 }
 
 export interface Film {
-  isFavorite: boolean;
-  rating: null;
   id: number;
   title: string;
   code: string;
@@ -23,6 +21,8 @@ export interface Film {
   cover: string | null;
   parts: FilmPart[];
   createdAt: string;
+  isFavorite: boolean;
+  rating: number | null;
 }
 
 export interface CastPhysical {

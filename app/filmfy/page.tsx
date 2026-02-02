@@ -3,11 +3,20 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Plus, Bookmark, Search, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Bookmark,
+  Search,
+  Users,
+  AlertCircle,
+} from "lucide-react";
 import filmsData from "@/data/filmfy/films.json";
 import { Film } from "@/types/filmfy";
+import AddReportModal from "@/components/report/AddReportModal";
 
 export default function FilmfyPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [filterDeleted, setFilterDeleted] = useState<string>("all");
@@ -90,12 +99,21 @@ export default function FilmfyPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition shadow-sm group"
+              title="Report Issue"
+            >
+              <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-red-500 transition-colors" />
+            </button>
+
             <Link
               href="/filmfy/favorite"
               className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-100 transition shadow-sm"
             >
               <Bookmark className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </Link>
+
             <Link
               href="/filmfy/upload"
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 active:scale-95"
@@ -267,6 +285,12 @@ export default function FilmfyPage() {
           </div>
         )}
       </div>
+      {isModalOpen && (
+        <AddReportModal
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => {}}
+        />
+      )}
     </main>
   );
 }
