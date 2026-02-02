@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import {
   Plus,
@@ -12,9 +12,6 @@ import {
   Layers,
   GripVertical,
 } from "lucide-react";
-import FileUploadInput from "@/components/UI/FileUploadInput";
-import InputText from "@/components/UI/InputText";
-
 import {
   DndContext,
   closestCenter,
@@ -34,6 +31,9 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+import FileUploadInput from "@/components/UI/FileUploadInput";
+import InputText from "@/components/UI/InputText";
 
 interface Chapter {
   number: string;
@@ -83,18 +83,16 @@ function ChapterCard({
 }: ChapterItemProps & { dragProps?: any; listeners?: any }) {
   return (
     <div
-      className={`group relative rounded-tr-3xl rounded-br-3xl border transition-all duration-500 ease-out backdrop-blur-sm ${
-        isOverlay
-          ? "border-blue-500/50 bg-zinc-900/90 shadow-[0_20px_50px_rgba(59,130,246,0.15)] scale-[1.03] z-50 cursor-grabbing ring-1 ring-blue-500/20"
-          : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/60 shadow-lg"
-      }`}
+      className={`group relative rounded-tr-3xl rounded-br-3xl border transition-all duration-500 ease-out backdrop-blur-sm ${isOverlay
+        ? "border-blue-500/50 bg-zinc-900/90 shadow-[0_20px_50px_rgba(59,130,246,0.15)] scale-[1.03] z-50 cursor-grabbing ring-1 ring-blue-500/20"
+        : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/60 shadow-lg"
+        }`}
     >
       <div
-        className={`absolute top-0 left-0 w-1 h-full transition-all duration-300 ${
-          isOverlay
-            ? "bg-blue-500 shadow-[2px_0_10px_rgba(59,130,246,0.5)]"
-            : "bg-zinc-700 group-hover:bg-blue-500/80"
-        }`}
+        className={`absolute top-0 left-0 w-1 h-full transition-all duration-300 ${isOverlay
+          ? "bg-blue-500 shadow-[2px_0_10px_rgba(59,130,246,0.5)]"
+          : "bg-zinc-700 group-hover:bg-blue-500/80"
+          }`}
       />
 
       <div className="p-6 space-y-6">
@@ -259,6 +257,7 @@ export default function ChapterSection({
   handleChapterFile,
   openPreview,
 }: ChapterSectionProps) {
+  const id = useId();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [languages, setLanguages] = useState<string[]>([]);
   const [cencoredList, setCencoredList] = useState<string[]>([]);
@@ -331,6 +330,7 @@ export default function ChapterSection({
       </div>
 
       <DndContext
+        id={id}
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
