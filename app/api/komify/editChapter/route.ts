@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     const slug = formData.get("slug")?.toString();
     const chapter = formData.get("chapter")?.toString();
     const title = formData.get("title")?.toString();
+    const summary = formData.get("summary")?.toString();
     const language = formData.get("language")?.toString();
     const cencored = formData.get("cencored")?.toString();
     const orderRaw = formData.get("order")?.toString();
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     chapterData.title = title;
+    chapterData.summary = summary;
     chapterData.language = language;
     chapterData.cencored = cencored;
     chapterData.uploadChapter = new Date()

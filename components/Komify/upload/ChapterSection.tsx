@@ -146,7 +146,7 @@ function ChapterCard({
               value={ch.title}
               onChange={(e) => handleChapterChange(index, e)}
               disabled={isOverlay}
-              className="w-full bg-zinc-950/40 border-zinc-800/80 text-sm py-2.5 focus:bg-zinc-950/80 transition-all rounded-xl"
+              className="w-full bg-zinc-950/40 border-zinc-800/80 text-sm py-2.5 focus:bg-zinc-950/80 transition-all rounded-xl text-white placeholder:text-zinc-700"
             />
           </div>
 

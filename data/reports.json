@@ -332,8 +332,9 @@
     "project": "Komify",
     "title": "every chapter have summary",
     "description": "setiap chapter ada inti cerita/event (tambah input/field summary)",
-    "status": "OPEN",
-    "createdAt": "2026-01-31T09:07:33.873Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-31T09:07:33.873Z",
+    "updatedAt": "2026-02-02T06:23:46.140Z"
   },
   {
     "id": "1769851600620",

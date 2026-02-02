@@ -166,6 +166,11 @@ function SortableChapter({
               {ch.title || "Untitled Chapter"}
             </h4>
           </Link>
+          {ch.summary && (
+            <p className="text-[11px] text-zinc-500 line-clamp-1 mb-3 italic">
+              "{ch.summary}"
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-800 border border-zinc-700/50">
               <span className="text-xs">{langMeta.flag}</span>
@@ -324,6 +329,7 @@ export default function ChaptersList({
       formData.append("slug", String(slug));
       formData.append("chapter", String(editingChapter.number));
       formData.append("title", editingChapter.title || "");
+      formData.append("summary", editingChapter.summary || "");
       formData.append("language", editingChapter.language || "");
       formData.append("cencored", editingChapter.cencored || "");
 
@@ -492,16 +498,38 @@ export default function ChaptersList({
               </button>
             </div>
             <div className="p-6 space-y-4">
-              <input
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none"
-                value={editingChapter.title}
-                onChange={(e) =>
-                  setEditingChapter({
-                    ...editingChapter,
-                    title: e.target.value,
-                  })
-                }
-              />
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">
+                  Chapter Title
+                </label>
+                <input
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-all"
+                  placeholder="Contoh: Pertemuan Tak Terduga"
+                  value={editingChapter.title}
+                  onChange={(e) =>
+                    setEditingChapter({
+                      ...editingChapter,
+                      title: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">
+                  Chapter Summary
+                </label>
+                <textarea
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-all min-h-25 text-sm resize-none"
+                  placeholder="Tulis inti cerita chapter ini..."
+                  value={editingChapter.summary || ""}
+                  onChange={(e) =>
+                    setEditingChapter({
+                      ...editingChapter,
+                      summary: e.target.value,
+                    })
+                  }
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <select
                   className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white"
