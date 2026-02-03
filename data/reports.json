@@ -364,5 +364,23 @@
     "status": "RESOLVED",
     "createdAt": "2026-02-02T23:07:22.245Z",
     "updatedAt": "2026-02-02T23:20:54.926Z"
+  },
+  {
+    "id": "1770122064568",
+    "type": "bug",
+    "project": "Filmfy",
+    "title": "crop feature",
+    "description": "di production, fitur ini tidak berjalan",
+    "status": "OPEN",
+    "createdAt": "2026-02-03T12:34:24.568Z"
+  },
+  {
+    "id": "1770122272523",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "not have file, change to trailer",
+    "description": "jika sebuah code tidak ada file filmnya, maka diganti menjadi trailer:\n- ganti field menjadi url trailer\n- saat submit, otomatis mendownload trailer dan simpan di folder code film",
+    "status": "OPEN",
+    "createdAt": "2026-02-03T12:37:52.523Z"
   }
 ]

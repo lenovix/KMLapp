@@ -153,11 +153,10 @@ export default function CastPage() {
                   <button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 active:scale-90 ${
-                      active
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-2 ring-blue-500/20"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500"
-                    }`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 active:scale-90 ${active
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-2 ring-blue-500/20"
+                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500"
+                      }`}
                   >
                     {tag}
                   </button>
@@ -195,11 +194,6 @@ export default function CastPage() {
                 <h3 className="text-sm font-black text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
                   {cast.name}
                 </h3>
-                {cast.alias && (
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">
-                    "{cast.alias}"
-                  </p>
-                )}
               </div>
             </Link>
           ))}
