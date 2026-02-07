@@ -1,0 +1,14 @@
+{
+  "categories": ["Electronic", "Furniture", "Other"],
+  "statuses": ["tersedia", "hilang", "rusak"],
+  "store": [
+    {
+      "name": "tokopedia",
+      "link": "https://www.tokopedia.com"
+    },
+    {
+      "name": "shopee",
+      "link": "https://www.shopee.com"
+    }
+  ]
+}
