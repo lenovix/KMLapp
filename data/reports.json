@@ -382,5 +382,42 @@
     "description": "jika sebuah code tidak ada file filmnya, maka diganti menjadi trailer:\n- ganti field menjadi url trailer\n- saat submit, otomatis mendownload trailer dan simpan di folder code film",
     "status": "OPEN",
     "createdAt": "2026-02-03T12:37:52.523Z"
+  },
+  {
+    "id": "1770292881597",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "add screenshot",
+    "description": "di detail film page, ada section untuk screenshot/gallery",
+    "status": "OPEN",
+    "createdAt": "2026-02-05T12:01:21.597Z"
+  },
+  {
+    "id": "1770293356149",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "fix crop cover",
+    "description": "untuk fitur ini, bisa menyesuaikan lebar dan tinggi, jadi ga constant",
+    "status": "RESOLVED",
+    "createdAt": "2026-02-05T12:09:16.149Z",
+    "updatedAt": "2026-02-07T01:58:35.542Z"
+  },
+  {
+    "id": "1770300510335",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "fix word on genre field",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-02-05T14:08:30.335Z"
+  },
+  {
+    "id": "1770300522787",
+    "type": "feature",
+    "project": "Filmfy",
+    "title": "fix word on cast field",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-02-05T14:08:42.787Z"
   }
 ]

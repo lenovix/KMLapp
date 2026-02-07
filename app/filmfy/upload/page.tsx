@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Upload,
   ArrowLeft,
@@ -10,13 +10,14 @@ import {
   Layers,
   Loader2,
   Clapperboard,
-  Calendar,
   Tag,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import Cropper from "react-easy-crop";
+import { Cropper, CropperRef } from "react-advanced-cropper";
+import "react-advanced-cropper/dist/style.css";
+import CalendarPicker from "@/components/UI/CalendarPicker";
 
 interface Part {
   id: number;
@@ -24,53 +25,13 @@ interface Part {
   note?: string;
 }
 
-const getCroppedImg = async (
-  imageSrc: string,
-  pixelCrop: any
-): Promise<Blob> => {
-  const image = new window.Image();
-  image.src = imageSrc;
-  await new Promise((resolve) => (image.onload = resolve));
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("No 2d context");
-
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
-
-  return new Promise((resolve) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) resolve(blob);
-      },
-      "image/jpeg",
-      0.9
-    );
-  });
-};
-
 export default function FilmfyUploadPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-
   const [showCropModal, setShowCropModal] = useState(false);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  const cropperRef = useRef<CropperRef>(null);
 
   const [isDeleted, setIsDeleted] = useState<"no" | "yes">("no");
   const [cencoredOptions, setCencoredOptions] = useState<string[]>([]);
@@ -92,13 +53,6 @@ export default function FilmfyUploadPage() {
   const [partTitle, setPartTitle] = useState("");
   const [partNote, setPartNote] = useState("");
 
-  const fetchNextId = () => {
-    fetch("/api/filmfy/nextId")
-      .then((res) => res.json())
-      .then((data) => setNextId(data.nextId))
-      .catch(() => setNextId(null));
-  };
-
   useEffect(() => {
     fetchNextId();
     fetch("/data/config/cencored.json")
@@ -110,11 +64,32 @@ export default function FilmfyUploadPage() {
       .catch(() => setCencoredOptions([]));
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-    };
-  }, [coverPreview]);
+  const fetchNextId = () => {
+    fetch("/api/filmfy/nextId")
+      .then((res) => res.json())
+      .then((data) => setNextId(data.nextId))
+      .catch(() => setNextId(null));
+  };
+
+  const handleApplyCrop = () => {
+    if (cropperRef.current) {
+      const canvas = cropperRef.current.getCanvas();
+      if (canvas) {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              setCroppedBlob(blob);
+              const previewUrl = URL.createObjectURL(blob);
+              setCoverPreview(previewUrl);
+              setShowCropModal(false);
+            }
+          },
+          "image/jpeg",
+          0.9,
+        );
+      }
+    }
+  };
 
   const addPart = () => {
     if (!partTitle.trim()) return;
@@ -135,7 +110,6 @@ export default function FilmfyUploadPage() {
       alert("Judul wajib diisi!");
       return;
     }
-
     setIsUploading(true);
     const formData = new FormData();
     formData.append("title", title);
@@ -148,9 +122,7 @@ export default function FilmfyUploadPage() {
     formData.append("cast", cast);
     formData.append("series", series);
     if (coverFile) formData.append("cover", coverFile);
-    if (croppedBlob) {
-      formData.append("croppedCover", croppedBlob, "cover.jpg");
-    }
+    if (croppedBlob) formData.append("croppedCover", croppedBlob, "cover.jpg");
     formData.append("parts", JSON.stringify(parts));
     formData.append("cencored", cencored);
     formData.append("isDeleted", isDeleted);
@@ -160,21 +132,8 @@ export default function FilmfyUploadPage() {
         method: "POST",
         body: formData,
       });
-
       if (!res.ok) throw new Error("Gagal simpan");
-
       alert("Film berhasil disimpan!");
-      setTitle("");
-      setCode("");
-      setReleaseDate("");
-      setDirector("");
-      setMaker("");
-      setLabel("");
-      setGenre("");
-      setCast("");
-      setSeries("");
-      setParts([]);
-      setCoverFile(null);
       setCoverPreview(null);
       fetchNextId();
     } catch (error) {
@@ -184,25 +143,8 @@ export default function FilmfyUploadPage() {
     }
   };
 
-  const onCropComplete = useCallback((_area: any, pixels: any) => {
-    setCroppedAreaPixels(pixels);
-  }, []);
-
-  const handleApplyCrop = async () => {
-    if (coverPreview && croppedAreaPixels) {
-      const blob = await getCroppedImg(coverPreview, croppedAreaPixels);
-      setCroppedBlob(blob);
-      const previewUrl = URL.createObjectURL(blob);
-      setCoverPreview(previewUrl);
-      setShowCropModal(false);
-    }
-  };
-
   const inputClass =
-    "w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 " +
-    "bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 " +
-    "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm placeholder:text-gray-400";
-
+    "w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm";
   const labelClass =
     "text-[11px] font-black uppercase tracking-[0.1em] text-gray-500 dark:text-gray-400 ml-1 mb-1.5 block";
 
@@ -272,16 +214,11 @@ export default function FilmfyUploadPage() {
                   />
                 </div>
 
-                <div className="md:col-span-3">
-                  <label className={labelClass}>
-                    <Calendar className="w-3 h-3 inline mr-1 mb-0.5" /> Tanggal
-                    Rilis
-                  </label>
-                  <input
-                    type="date"
+                <div className="col-span-3">
+                  <CalendarPicker
+                    label="Tanggal Rilis"
                     value={releaseDate}
-                    onChange={(e) => setReleaseDate(e.target.value)}
-                    className={inputClass}
+                    onChange={(date: string) => setReleaseDate(date)}
                   />
                 </div>
                 <div className="md:col-span-3">
@@ -443,25 +380,22 @@ export default function FilmfyUploadPage() {
                     <Image
                       src={coverPreview}
                       alt="Preview"
+                      className="w-full h-full object-cover"
                       fill
-                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center backdrop-blur-sm">
-                      <div className="bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-black uppercase">
+                      <span className="bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-black uppercase">
                         Ganti Gambar
-                      </div>
+                      </span>
                     </div>
                   </>
                 ) : (
-                  <div className="text-center p-6 flex flex-col items-center">
-                    <div className="w-16 h-16 bg-blue-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center mb-4">
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 bg-blue-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center mb-4 mx-auto">
                       <ImageIcon className="w-8 h-8 text-blue-500" />
                     </div>
-                    <p className="text-xs font-bold text-gray-500">
-                      Click to Upload Cover
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-1 uppercase">
-                      Recomended 3:4 Ratio
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                      Click to Upload
                     </p>
                   </div>
                 )}
@@ -489,6 +423,14 @@ export default function FilmfyUploadPage() {
                   </button>
                 )}
               </label>
+              {coverPreview && !showCropModal && (
+                <button
+                  onClick={() => setShowCropModal(true)}
+                  className="w-full text-[10px] font-black text-blue-500 uppercase"
+                >
+                  Adjust Crop
+                </button>
+              )}
             </section>
 
             <section className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 space-y-5">
@@ -539,31 +481,35 @@ export default function FilmfyUploadPage() {
           </div>
         </div>
       </div>
+
       {showCropModal && coverPreview && (
-        <div className="fixed inset-0 z-100 bg-black/90 flex flex-col items-center justify-center p-4">
-          <div className="relative w-full max-w-2xl aspect-3/4 bg-gray-900 rounded-3xl overflow-hidden">
-            <Cropper
-              image={coverPreview}
-              crop={crop}
-              zoom={zoom}
-              aspect={3 / 4.5}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
+        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 backdrop-blur-md">
+          <div className="relative w-full max-w-4xl flex-1 flex items-center justify-center overflow-hidden">
+            <div className="w-full h-full max-h-[70vh] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-gray-900/50">
+              <Cropper
+                ref={cropperRef}
+                src={coverPreview}
+                className="h-full w-full"
+                stencilProps={{
+                  aspectRatio: undefined,
+                  grid: true,
+                }}
+              />
+            </div>
           </div>
-          <div className="mt-6 flex gap-4 w-full max-w-2xl">
+
+          <div className="mt-8 flex gap-4 w-full max-w-md">
             <button
               onClick={() => setShowCropModal(false)}
-              className="flex-1 px-6 py-4 rounded-2xl bg-white/10 text-white font-bold"
+              className="flex-1 px-8 py-4 rounded-2xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all uppercase tracking-wider text-[10px]"
             >
               Batal
             </button>
             <button
               onClick={handleApplyCrop}
-              className="flex-1 px-6 py-4 rounded-2xl bg-blue-600 text-white font-black"
+              className="flex-1 px-8 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/40 uppercase tracking-wider text-[10px]"
             >
-              Terapkan Crop
+              Terapkan
             </button>
           </div>
         </div>
