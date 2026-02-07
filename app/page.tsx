@@ -25,7 +25,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-8 w-full">
+          <div className="grid grid-cols-5 gap-8 w-full">
             <CardWebHome
               logo="/img/logo/Komify2.png"
               name="Komify"
@@ -58,6 +58,14 @@ export default function Home() {
               endDate="Present"
               status="development"
               link="/genfy"
+            />
+            <CardWebHome
+              logo="/Assetfy.png"
+              name="Assetfy"
+              startDate="07 February 2026"
+              endDate="Present"
+              status="development"
+              link="/assetfy"
             />
           </div>
         </div>
