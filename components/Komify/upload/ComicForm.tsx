@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, LayoutGrid, Layers, CheckCircle2, Circle } from "lucide-react";
+import {
+  Upload,
+  LayoutGrid,
+  Layers,
+  CheckCircle2,
+  Circle,
+  Sparkles,
+  Link2,
+  Loader2,
+} from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -38,7 +47,7 @@ interface ComicFormProps {
   removeChapter: (index: number) => void;
   handleChapterChange: (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   reorderChapters: (newChapters: ChapterData[]) => void;
   handleChapterFile: (index: number, files: FileList | null) => void;
@@ -46,12 +55,12 @@ interface ComicFormProps {
   handleOpenDialog: (
     e:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 }
 
@@ -74,6 +83,11 @@ export default function ComicForm({
   const [fixOpen, setFixOpen] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [useDummyCover, setUseDummyCover] = useState(false);
+
+  const [isExtractModalOpen, setIsExtractModalOpen] = useState(false);
+  const [extractUrl, setExtractUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+
   const dummyPath = "/img/dummy-cover.png";
 
   const handleDummyToggle = (checked: boolean) => {
@@ -92,7 +106,7 @@ export default function ComicForm({
     if (!isManhwa && comicData.authors) {
       setComicData((prev) => ({ ...prev, authors: "" }));
     }
-  }, [isManhwa]);
+  }, [isManhwa, setComicData]);
 
   useEffect(() => {
     fetch("/data/komify/status.json")
@@ -115,6 +129,44 @@ export default function ComicForm({
     setComicData((prev) => ({ ...prev, [activeField]: value }));
     setFixOpen(false);
     setActiveField(null);
+  };
+
+  const handleExtract = async () => {
+    if (!extractUrl.includes("nhentai.net")) {
+      alert("Please enter a valid nHentai link");
+      return;
+    }
+
+    setIsExtracting(true);
+    try {
+      const res = await fetch("/api/komify/extract-comic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: extractUrl }),
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setComicData((prev) => ({
+          ...prev,
+          title: result.data.title || prev.title,
+          parodies: result.data.Parodies || prev.parodies,
+          characters: result.data.Characters || prev.characters,
+          tags: result.data.Tags || prev.tags,
+          artist: result.data.Artists || prev.artist,
+          groups: result.data.Groups || prev.groups,
+        }));
+        setIsExtractModalOpen(false);
+        setExtractUrl("");
+      } else {
+        alert(result.message || "Extraction failed");
+      }
+    } catch (error) {
+      console.error("Extract Error:", error);
+      alert("Connection error while extracting");
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   const checkStatus = [
@@ -140,7 +192,7 @@ export default function ComicForm({
     {
       label: "Status",
       isDone: ["Ongoing", "Complete", "Not Completed"].includes(
-        comicData.status
+        comicData.status,
       ),
     },
   ];
@@ -150,11 +202,21 @@ export default function ComicForm({
       <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
           <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
-            <div className="flex items-center gap-2 text-zinc-200">
-              <LayoutGrid size={18} className="text-blue-500" />
-              <h3 className="text-sm font-bold uppercase tracking-wider">
-                Comic Info
-              </h3>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-zinc-200">
+                <LayoutGrid size={18} className="text-blue-500" />
+                <h3 className="text-sm font-bold uppercase tracking-wider">
+                  Comic Info
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsExtractModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/20 transition-all text-[10px] font-black tracking-tighter"
+              >
+                <Sparkles size={12} />
+                EXTRACT
+              </button>
             </div>
 
             <div className="space-y-4">
@@ -312,7 +374,6 @@ export default function ComicForm({
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
                   Status
                 </label>
-
                 <select
                   name="status"
                   value={comicData.status}
@@ -368,6 +429,60 @@ export default function ComicForm({
             setActiveField(null);
           }}
         />
+      )}
+
+      {isExtractModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-500">
+                <Link2 size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white leading-none">
+                  Auto Extract
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Paste your gallery link below
+                </p>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              placeholder="https://nhentai.net/g/xxxxxx/"
+              value={extractUrl}
+              onChange={(e) => setExtractUrl(e.target.value)}
+              className="w-full bg-zinc-950 border border-zinc-800 p-4 rounded-2xl text-white mb-6 outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-zinc-800"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsExtractModalOpen(false);
+                  setExtractUrl("");
+                }}
+                className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-2xl font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExtract}
+                disabled={isExtracting || !extractUrl}
+                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
+              >
+                {isExtracting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>Extracting...</span>
+                  </>
+                ) : (
+                  <span>Extract Now</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
