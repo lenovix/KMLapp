@@ -77,7 +77,7 @@ export default function UploadComicPage({
   );
 
   const handleComicChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
 
@@ -89,7 +89,7 @@ export default function UploadComicPage({
 
   const handleChapterChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const updated = [...chapters];
     const key = e.target.name as keyof (typeof updated)[number];

@@ -60,7 +60,9 @@ interface ComicFormProps {
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => void;
 }
 
@@ -226,6 +228,7 @@ export default function ComicForm({
                   label: "Title",
                   placeholder: "Main title",
                   fix: false,
+                  type: "textarea",
                 },
                 {
                   name: "parodies",
@@ -272,13 +275,25 @@ export default function ComicForm({
                       {field.label}
                     </label>
                     <div className="flex gap-2">
-                      <input
-                        name={field.name}
-                        placeholder={field.placeholder}
-                        value={(comicData as any)[field.name]}
-                        onChange={handleComicChange}
-                        className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none"
-                      />
+                      {field.type === "textarea" ? (
+                        <textarea
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          value={(comicData as any)[field.name]}
+                          onChange={handleComicChange}
+                          rows={3}
+                          className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none resize-none"
+                        />
+                      ) : (
+                        <input
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          value={(comicData as any)[field.name]}
+                          onChange={handleComicChange}
+                          className="w-full bg-zinc-950/50 border border-zinc-800 p-2.5 rounded-xl text-sm text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/30 outline-none"
+                        />
+                      )}
+
                       {field.fix && (
                         <button
                           type="button"
@@ -286,7 +301,7 @@ export default function ComicForm({
                             setActiveField(field.name);
                             setFixOpen(true);
                           }}
-                          className="px-3 py-2 rounded-xl bg-zinc-800 text-[10px] font-bold text-zinc-400 hover:bg-zinc-700 hover:text-white border border-zinc-700 transition-all"
+                          className="px-3 py-2 h-fit self-start rounded-xl bg-zinc-800 text-[10px] font-bold text-zinc-400 hover:bg-zinc-700 hover:text-white border border-zinc-700 transition-all"
                         >
                           FIX
                         </button>
