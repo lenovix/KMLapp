@@ -14,9 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="" suppressHydrationWarning>
-        <div className="flex flex-col bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100">
-          {children}
-        </div>
+        <div className="">{children}</div>
       </body>
     </html>
   );

@@ -419,5 +419,14 @@
     "description": "",
     "status": "OPEN",
     "createdAt": "2026-02-05T14:08:42.787Z"
+  },
+  {
+    "id": "1770678398271",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "AnimeFy",
+    "description": "Anime Portal",
+    "status": "OPEN",
+    "createdAt": "2026-02-09T23:06:38.271Z"
   }
 ]
