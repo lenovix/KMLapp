@@ -48,10 +48,10 @@ export default function PeoplefyHome() {
           <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-red-400 transition border border-transparent hover:border-slate-700">
             <Heart size={20} />
           </button>
-          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl transition font-semibold shadow-lg shadow-blue-900/40 active:scale-95">
+          <Link href="/peoplefy/add" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl transition font-semibold shadow-lg shadow-blue-900/40 active:scale-95">
             <Plus size={18} />
-            <span className="hidden sm:inline">Tambah Foto</span>
-          </button>
+            <span className="hidden sm:inline">Add People</span>
+          </Link>
         </div>
       </header>
 
