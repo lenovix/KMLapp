@@ -53,8 +53,8 @@ export default function AllComic() {
           typeof comic.title === "string"
             ? comic.title
             : Array.isArray(comic.title)
-            ? comic.title[0]
-            : "";
+              ? comic.title[0]
+              : "";
 
         const matchesSearch = title
           .toLowerCase()
@@ -63,8 +63,8 @@ export default function AllComic() {
         const comicTags = Array.isArray(comic.tags)
           ? comic.tags
           : comic.tags
-          ? [comic.tags]
-          : [];
+            ? [comic.tags]
+            : [];
 
         const matchesTags =
           selectedTags.length === 0 ||
@@ -76,8 +76,8 @@ export default function AllComic() {
         const comicCategories = Array.isArray(comic.categories)
           ? comic.categories
           : comic.categories
-          ? [comic.categories]
-          : [];
+            ? [comic.categories]
+            : [];
 
         const matchesCategories =
           selectedCategories.length === 0 ||
@@ -215,16 +215,15 @@ export default function AllComic() {
                           alt={title}
                           fill
                           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                          loading="lazy"
+                          loading="eager"
                           unoptimized
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute top-2 right-2">
                           <span
-                            className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${
-                              statusStyle[comic.status] ??
+                            className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${statusStyle[comic.status] ??
                               "bg-zinc-700 text-white border-zinc-600"
-                            }`}
+                              }`}
                           >
                             {comic.status}
                           </span>

@@ -74,7 +74,7 @@ export default function ReaderImage({
           height={1800}
           priority={priority}
           unoptimized={true}
-          onLoadingComplete={() => setStatus("success")}
+          onLoad={() => setStatus("success")}
           onError={() => setStatus("error")}
           className={`
             w-full h-auto
