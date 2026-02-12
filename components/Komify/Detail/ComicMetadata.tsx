@@ -98,7 +98,7 @@ export default function ComicMetadata({ comic }: ComicMetaProps) {
             <Layers size={12} className="text-pink-500" />
           )}
           {renderList(
-            "Categories",
+            "categories",
             comic.categories,
             <BookOpen size={12} className="text-cyan-500" />
           )}
