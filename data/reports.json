@@ -430,5 +430,14 @@
     "description": "Anime Portal",
     "status": "OPEN",
     "createdAt": "2026-02-09T23:06:38.271Z"
+  },
+  {
+    "id": "1770887369531",
+    "type": "feature",
+    "project": "Komify",
+    "title": "migrate to sqlite",
+    "description": "",
+    "status": "OPEN",
+    "createdAt": "2026-02-12T09:09:29.531Z"
   }
 ]
