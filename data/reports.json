@@ -343,8 +343,9 @@
     "project": "Komify",
     "title": "re-fill upload page",
     "description": "saat upload berhasil, input file jgn dikosongkan, lalu ada tombol refresh/reset untuk mengkosongkan input",
-    "status": "OPEN",
-    "createdAt": "2026-01-31T09:26:40.620Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-31T09:26:40.620Z",
+    "updatedAt": "2026-02-12T04:17:24.842Z"
   },
   {
     "id": "1769855733503",
