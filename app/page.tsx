@@ -36,7 +36,7 @@ export default function Home() {
               link="/komify"
             />
             <CardWebHome
-              logo="/Filmfy.png"
+              logo="/img/dummy-cover.png"
               name="Filmfy"
               status="development"
               startDate="17 December 2025"
@@ -44,7 +44,7 @@ export default function Home() {
               link="/filmfy"
             />
             <CardWebHome
-              logo="/Peoplefy.png"
+              logo="/img/dummy-cover.png"
               name="Peoplefy"
               startDate="05 Januari 2026"
               endDate="Present"
@@ -52,7 +52,7 @@ export default function Home() {
               link="/peoplefy"
             />
             <CardWebHome
-              logo="/Genfy.png"
+              logo="/img/dummy-cover.png"
               name="Genfy"
               startDate="27 Januari 2026"
               endDate="Present"
@@ -60,7 +60,7 @@ export default function Home() {
               link="/genfy"
             />
             <CardWebHome
-              logo="/Assetfy.png"
+              logo="/img/dummy-cover.png"
               name="Assetfy"
               startDate="07 February 2026"
               endDate="Present"
