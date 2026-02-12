@@ -64,6 +64,7 @@ interface ComicFormProps {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => void;
+  handleReset: () => void;
 }
 
 export default function ComicForm({
@@ -79,18 +80,27 @@ export default function ComicForm({
   setCoverDialogOpen,
   handleComicChange,
   reorderChapters,
+  handleReset,
 }: ComicFormProps) {
   const [statusOptions, setStatusOptions] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [fixOpen, setFixOpen] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
-  const [useDummyCover, setUseDummyCover] = useState(false);
 
   const [isExtractModalOpen, setIsExtractModalOpen] = useState(false);
   const [extractUrl, setExtractUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
 
+  const [useDummyCover, setUseDummyCover] = useState(false);
   const dummyPath = "/img/dummy-cover.png";
+
+  useEffect(() => {
+    if (comicData.cover !== dummyPath) {
+      setUseDummyCover(false);
+    } else {
+      setUseDummyCover(true);
+    }
+  }, [comicData.cover]);
 
   const handleDummyToggle = (checked: boolean) => {
     setUseDummyCover(checked);
@@ -361,6 +371,18 @@ export default function ComicForm({
                 >
                   PUBLISH
                 </PrimaryButton>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (confirm("Hapus semua input?")) handleReset();
+                  }}
+                  className="w-full py-3 bg-zinc-800 hover:bg-red-900/20 hover:text-red-500 text-zinc-400 rounded-2xl font-bold text-xs transition-all border border-zinc-700/50 flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                  RESET FORM
+                </button>
               </div>
 
               <div className="flex items-center gap-3 px-2 py-1 bg-zinc-950/30 rounded-xl border border-zinc-800/50">
@@ -419,9 +441,8 @@ export default function ComicForm({
                         />
                       )}
                       <span
-                        className={`text-xs font-medium ${
-                          item.isDone ? "text-zinc-300" : "text-zinc-600"
-                        }`}
+                        className={`text-xs font-medium ${item.isDone ? "text-zinc-300" : "text-zinc-600"
+                          }`}
                       >
                         {item.label}
                       </span>

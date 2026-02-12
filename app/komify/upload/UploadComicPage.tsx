@@ -58,8 +58,8 @@ export default function UploadComicPage({
   const [dialogData, setDialogData] = useState({
     title: "",
     desc: "",
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: () => { },
+    onCancel: () => { },
   });
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -259,14 +259,36 @@ export default function UploadComicPage({
           });
 
           setTimeout(() => {
-            window.location.reload();
+            setComicData((prev) => ({
+              ...prev,
+              slug: prev.slug + 1,
+              title: "",
+              parodies: "",
+              characters: "",
+              tags: "",
+              cover: "",
+            }));
+
+            setCoverFile(null);
+
+            setChapters([
+              {
+                number: "001",
+                title: "",
+                language: "English",
+                cencored: "Cencored",
+                files: [],
+              },
+            ]);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }, 2000);
         } else {
           let errMessage = "Terjadi kesalahan saat memproses upload.";
           try {
             const err = JSON.parse(xhr.responseText);
             errMessage = err.message || errMessage;
-          } catch {}
+          } catch { }
 
           setTimeout(() => {
             setAlertData({
@@ -297,6 +319,31 @@ export default function UploadComicPage({
           "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.",
       });
     }
+  };
+
+  const handleReset = () => {
+    setComicData({
+      slug: defaultSlug,
+      title: "",
+      authors: "",
+      artist: "",
+      groups: "",
+      parodies: "",
+      characters: "",
+      categories: "Doujinshi",
+      tags: "",
+      uploaded: new Date().toISOString().split("T")[0],
+      status: "Ongoing",
+      cover: "",
+    });
+    setCoverFile(null);
+    setChapters([{
+      number: "001",
+      title: "",
+      language: "English",
+      cencored: "Cencored",
+      files: [],
+    }]);
   };
 
   const [originalFiles, setOriginalFiles] = useState<File[]>([]);
@@ -410,6 +457,7 @@ export default function UploadComicPage({
           setCoverDialogOpen={setCoverDialogOpen}
           handleComicChange={handleComicChange}
           reorderChapters={reorderChapters}
+          handleReset={handleReset}
         />
       </main>
 
