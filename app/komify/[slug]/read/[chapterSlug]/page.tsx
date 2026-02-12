@@ -39,11 +39,12 @@ export default function ReaderPage() {
     offset: ["start start", "end end"],
   });
 
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
+  const smoothProgress = useSpring(scrollYProgress, springConfig);
+
+  const scaleX = useMemo(() => {
+    return (loading || pages.length === 0) ? 0 : smoothProgress;
+  }, [loading, pages.length, smoothProgress]);
 
   const comic = useMemo(
     () => comics.find((c: Comic) => String(c.slug) === slug),
@@ -94,8 +95,10 @@ export default function ReaderPage() {
           } else {
             window.scrollTo({ top: 0, behavior: "instant" });
           }
-          setLoading(false);
-        }, 100);
+          requestAnimationFrame(() => {
+            setLoading(false);
+          });
+        }, 200);
       } catch (err: unknown) {
         if (err instanceof Error && err.name !== "AbortError") setPages([]);
         setLoading(false);
@@ -104,7 +107,7 @@ export default function ReaderPage() {
 
     fetchPages();
     return () => controller.abort();
-  }, [slug, chapterSlug]);
+  }, [slug, chapterSlug, comic, chapter]);
 
   if (!comic || !chapter) {
     return (
@@ -124,31 +127,36 @@ export default function ReaderPage() {
   const nextChapter = comic.chapters[chapterIndex + 1] ?? null;
 
   return (
-    <main className=" text-zinc-100">
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-100"
-        style={{ scaleX }}
-      />
+    <main className="text-zinc-100">
+      {!loading && pages.length > 0 && (
+        <motion.div
+          className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-[100] shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+          style={{ scaleX: scaleX }}
+        />
+      )}
+
       <div className="sticky top-0 z-50 transition-transform duration-300">
         <HeaderRead
           comic={{ slug: comic.slug, title: comic.title }}
           chapter={chapter}
         />
       </div>
+
       <div className="max-w-4xl mx-auto px-0 sm:px-4 py-8">
         <div className="mb-10 px-4">
           <ReaderNav comic={comic} prev={prevChapter} next={nextChapter} />
         </div>
+
         <div
           ref={containerRef}
-          className="flex flex-col items-center bg-zinc-900/20 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl border border-white/5"
+          className="flex flex-col items-center bg-zinc-900/20 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl border border-white/5 min-h-[50vh]"
         >
-          <div className="flex flex-col items-center bg-zinc-900/20 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl border border-white/5">
-            {loading ? (
-              <SkeletonPages />
-            ) : (
-              <div className="w-full flex flex-col items-center gap-4 sm:gap-8">
-                {pages.map((filename, i) => (
+          {loading ? (
+            <SkeletonPages />
+          ) : (
+            <div className="w-full flex flex-col items-center gap-4 sm:gap-8">
+              {pages.length > 0 ? (
+                pages.map((filename, i) => (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -162,14 +170,20 @@ export default function ReaderPage() {
                       priority={i < 2}
                     />
                   </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
+                ))
+              ) : (
+                <div className="py-20 text-zinc-500 font-bold uppercase tracking-widest text-xs">
+                  Tidak ada gambar di chapter ini
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
         <div className="mt-12">
           <ReaderNav comic={comic} prev={prevChapter} next={nextChapter} />
-          <div>
+
+          <div className="mt-8">
             {chapter.summary && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -194,17 +208,6 @@ export default function ReaderPage() {
                   <p className="text-sm md:text-base text-zinc-400 leading-relaxed font-medium">
                     {chapter.summary}
                   </p>
-                </div>
-
-                <div className="absolute -bottom-4 -right-4 opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">
-                  <svg
-                    width="120"
-                    height="120"
-                    viewBox="0 0 24 24"
-                    fill="white"
-                  >
-                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-                  </svg>
                 </div>
               </motion.div>
             )}
