@@ -32,6 +32,7 @@ export interface ComicData {
 }
 
 export interface ChapterData {
+  id: string;
   number: string;
   title: string;
   language: string;

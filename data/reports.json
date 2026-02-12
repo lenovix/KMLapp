@@ -230,8 +230,9 @@
     "project": "Komify",
     "title": "ordering chapter animation",
     "description": "bug animation of ordering chapter on upload comic page",
-    "status": "OPEN",
-    "createdAt": "2026-01-30T10:12:19.580Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-01-30T10:12:19.580Z",
+    "updatedAt": "2026-02-12T07:00:31.501Z"
   },
   {
     "id": "1769777515620",

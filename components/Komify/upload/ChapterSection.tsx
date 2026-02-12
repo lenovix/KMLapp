@@ -36,6 +36,7 @@ import FileUploadInput from "@/components/UI/FileUploadInput";
 import InputText from "@/components/UI/InputText";
 
 interface Chapter {
+  id: string;
   number: string;
   title: string;
   language: string;
@@ -233,12 +234,13 @@ function SortableChapterItem(props: ChapterItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.ch.number });
+  } = useSortable({ id: props.ch.id });
 
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.3 : 1,
+    zIndex: isDragging ? 50 : 0,
   };
 
   return (
@@ -287,8 +289,8 @@ export default function ChapterSection({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = chapters.findIndex((ch) => ch.number === active.id);
-      const newIndex = chapters.findIndex((ch) => ch.number === over.id);
+      const oldIndex = chapters.findIndex((ch) => ch.id === active.id);
+      const newIndex = chapters.findIndex((ch) => ch.id === over.id);
 
       const newOrder = arrayMove(chapters, oldIndex, newIndex);
       const renumbered = newOrder.map((ch, i) => ({
@@ -301,7 +303,7 @@ export default function ChapterSection({
     setActiveId(null);
   };
 
-  const activeChapter = chapters.find((ch) => ch.number === activeId);
+  const activeChapter = chapters.find((ch) => ch.id === activeId);
 
   return (
     <div className="space-y-6">
@@ -339,12 +341,12 @@ export default function ChapterSection({
       >
         <div className="space-y-4">
           <SortableContext
-            items={chapters.map((ch) => ch.number)}
+            items={chapters.map((ch) => ch.id)}
             strategy={verticalListSortingStrategy}
           >
             {chapters.map((ch, index) => (
               <SortableChapterItem
-                key={ch.number}
+                key={ch.id}
                 index={index}
                 ch={ch}
                 removeChapter={removeChapter}
@@ -360,13 +362,15 @@ export default function ChapterSection({
 
         <DragOverlay adjustScale={true} style={{ translate: -650 }}>
           {activeId && activeChapter ? (
-            <ChapterCard
-              ch={activeChapter}
-              index={chapters.indexOf(activeChapter)}
-              languages={languages}
-              cencoredList={cencoredList}
-              isOverlay
-            />
+            <div className="w-full">
+              <ChapterCard
+                ch={activeChapter}
+                index={chapters.indexOf(activeChapter)}
+                languages={languages}
+                cencoredList={cencoredList}
+                isOverlay
+              />
+            </div>
           ) : null}
         </DragOverlay>
       </DndContext>

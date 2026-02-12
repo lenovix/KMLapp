@@ -65,6 +65,7 @@ export default function UploadComicPage({
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [chapters, setChapters] = useState([
     {
+      id: "initial-id-1",
       number: "001",
       title: "",
       language: "English",
@@ -113,6 +114,7 @@ export default function UploadComicPage({
     setChapters([
       ...chapters,
       {
+        id: crypto.randomUUID(),
         number: nextNumber,
         title: "",
         language: "English",
@@ -273,6 +275,7 @@ export default function UploadComicPage({
 
             setChapters([
               {
+                id: "initial-id-1",
                 number: "001",
                 title: "",
                 language: "English",
@@ -338,6 +341,7 @@ export default function UploadComicPage({
     });
     setCoverFile(null);
     setChapters([{
+      id: "initial-id-1",
       number: "001",
       title: "",
       language: "English",
