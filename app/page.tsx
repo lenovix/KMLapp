@@ -1,3 +1,5 @@
+import { Briefcase, Clapperboard, Users, Zap } from 'lucide-react';
+
 import HeaderHome from "@/components/Home/headerHome";
 import CardWebHome from "@/components/Home/cardWebHome";
 
@@ -36,31 +38,34 @@ export default function Home() {
               link="/komify"
             />
             <CardWebHome
-              logo="/img/dummy-cover.png"
+              logo={Clapperboard}
               name="Filmfy"
               status="development"
               startDate="17 December 2025"
               endDate="Present"
               link="/filmfy"
             />
+
             <CardWebHome
-              logo="/img/dummy-cover.png"
+              logo={Users}
               name="Peoplefy"
               startDate="05 Januari 2026"
               endDate="Present"
               status="development"
               link="/peoplefy"
             />
+
             <CardWebHome
-              logo="/img/dummy-cover.png"
+              logo={Zap}
               name="Genfy"
               startDate="27 Januari 2026"
               endDate="Present"
               status="development"
               link="/genfy"
             />
+
             <CardWebHome
-              logo="/img/dummy-cover.png"
+              logo={Briefcase}
               name="Assetfy"
               startDate="07 February 2026"
               endDate="Present"

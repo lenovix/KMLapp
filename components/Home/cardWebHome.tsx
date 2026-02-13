@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
 
 interface CardWebHomeProps {
-  logo?: string;
+  logo?: string | LucideIcon;
   name: string;
   status?: "release" | "development" | "not-started";
   version?: string;
@@ -45,7 +46,7 @@ function calculateDuration(start: string, end: string) {
 }
 
 export default function CardWebHome({
-  logo,
+  logo: Logo,
   name,
   status,
   version,
@@ -63,6 +64,8 @@ export default function CardWebHome({
     ? calculateDuration(startDate, endDate ?? "Present")
     : null;
 
+  const isImageIcon = typeof Logo === "string";
+
   return (
     <Link
       href={link}
@@ -75,13 +78,20 @@ export default function CardWebHome({
 
       <div className="relative mb-6">
         <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-        {logo ? (
-          <img
-            src={logo}
-            alt={name}
-            className="relative w-24 h-24 object-cover rounded-2xl border border-white/10 
-                       bg-black/20 group-hover:scale-110 transition-transform duration-500"
-          />
+
+        {Logo ? (
+          <div className="relative w-24 h-24 flex items-center justify-center rounded-2xl border border-white/10 
+                          bg-black/20 group-hover:scale-110 transition-transform duration-500 overflow-hidden">
+            {isImageIcon ? (
+              <img
+                src={Logo as string}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Logo className="w-12 h-12 text-blue-400 group-hover:text-blue-300 transition-colors" />
+            )}
+          </div>
         ) : (
           <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
             <span className="text-2xl font-black text-white/20">{name[0]}</span>
@@ -126,18 +136,8 @@ export default function CardWebHome({
       )}
 
       <div className="mt-6 text-blue-500 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M17 8l4 4m0 0l-4 4m4-4H3"
-          />
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
         </svg>
       </div>
     </Link>
