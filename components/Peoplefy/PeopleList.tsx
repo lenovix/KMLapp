@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MoreVertical, User } from "lucide-react";
+import { Search, User, Tag } from "lucide-react";
 import Link from "next/link";
 
 interface Person {
-    id: number;
+    id: number | string;
     name: string;
-    role: string;
-    profile_picture?: string;
+    tag: string;
+    profileImage?: string;
+    description?: string;
 }
 
 interface PeopleListProps {
@@ -20,7 +21,7 @@ export default function PeopleList({ initialPeople }: PeopleListProps) {
 
     const filteredPeople = initialPeople.filter((p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.role.toLowerCase().includes(searchQuery.toLowerCase())
+        (p.tag && p.tag.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     return (
@@ -32,7 +33,7 @@ export default function PeopleList({ initialPeople }: PeopleListProps) {
                     </div>
                     <input
                         type="text"
-                        placeholder="Cari nama atau hubungan..."
+                        placeholder="Cari nama atau kategori (ex: bestie)..."
                         className="w-full bg-slate-900/50 border border-slate-800 text-slate-200 text-sm rounded-2xl py-3 pl-10 pr-4 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -51,9 +52,9 @@ export default function PeopleList({ initialPeople }: PeopleListProps) {
                             <div className="bg-slate-800/20 rounded-[2.5rem] border border-slate-800/50 overflow-hidden hover:border-blue-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10">
 
                                 <div className="relative h-72 bg-slate-900 overflow-hidden">
-                                    {person.profile_picture ? (
+                                    {person.profileImage ? (
                                         <img
-                                            src={person.profile_picture}
+                                            src={person.profileImage}
                                             alt={person.name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
                                         />
@@ -66,29 +67,19 @@ export default function PeopleList({ initialPeople }: PeopleListProps) {
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-80" />
 
                                     <div className="absolute bottom-5 left-5">
-                                        <span className="text-[10px] uppercase tracking-[0.15em] font-bold bg-blue-500/10 backdrop-blur-md border border-blue-400/20 text-blue-400 px-3 py-1.5 rounded-full">
-                                            {person.role}
+                                        <span className="text-[10px] uppercase tracking-[0.15em] font-bold bg-blue-500/10 backdrop-blur-md border border-blue-400/20 text-blue-400 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                                            <Tag size={10} />
+                                            {person.tag}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div className="p-6 flex justify-between items-center bg-slate-900/40">
-                                    <div>
-                                        <h3 className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">
+                                <div className="p-6 flex justify-between items-center bg-slate-900/40 border-t border-slate-800/50">
+                                    <div className="flex-1 min-w-0 mr-2">
+                                        <h3 className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors truncate text-center">
                                             {person.name}
                                         </h3>
-                                        <p className="text-xs text-slate-500 mt-1">Lihat memori bersama →</p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="p-2 text-slate-600 hover:text-white hover:bg-slate-800 rounded-full transition"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            alert('Opsi menu segera hadir!');
-                                        }}
-                                    >
-                                        <MoreVertical size={18} />
-                                    </button>
                                 </div>
                             </div>
                         </Link>
@@ -100,7 +91,7 @@ export default function PeopleList({ initialPeople }: PeopleListProps) {
                         <Search size={32} className="text-slate-700" />
                     </div>
                     <h3 className="text-white font-medium">Tidak ada hasil ditemukan</h3>
-                    <p className="text-slate-500 text-sm mt-1">Coba gunakan kata kunci lain untuk mencari sahabatmu.</p>
+                    <p className="text-slate-500 text-sm mt-1">Coba gunakan kata kunci lain untuk mencari seseorang.</p>
                 </div>
             )}
         </div>

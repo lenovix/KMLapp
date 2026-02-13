@@ -38,11 +38,6 @@ export default async function PeoplefyHome() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6">
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white">Memori Bersama</h2>
-          <p className="text-slate-400 text-sm">Menyimpan kenangan indah bersama mereka yang berarti.</p>
-        </div>
-
         <PeopleList initialPeople={people} />
       </main>
     </div>
