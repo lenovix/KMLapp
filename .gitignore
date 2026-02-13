@@ -64,3 +64,5 @@ next-env.d.ts
 /data/assetfy/assets.json
 /data/assetfy/category.json
 /data/assetfy/status.json
+
+/data/peoplefy/people.json
