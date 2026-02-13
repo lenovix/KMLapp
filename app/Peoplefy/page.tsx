@@ -1,10 +1,18 @@
 import { Heart, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getPeople } from "@/data/peoplefy/db";
 import PeopleList from "@/components/Peoplefy/PeopleList";
 
-export default function PeoplefyHome() {
-  const people = getPeople();
+async function fetchPeople() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/peoplefy/people`, {
+    cache: 'no-store'
+  });
+
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export default async function PeoplefyHome() {
+  const people = await fetchPeople();
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans">
@@ -30,6 +38,11 @@ export default function PeoplefyHome() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-white">Memori Bersama</h2>
+          <p className="text-slate-400 text-sm">Menyimpan kenangan indah bersama mereka yang berarti.</p>
+        </div>
+
         <PeopleList initialPeople={people} />
       </main>
     </div>
