@@ -67,3 +67,4 @@ next-env.d.ts
 /data/assetfy/status.json
 
 /data/peoplefy/people.json
+/data/peoplefy/config.json

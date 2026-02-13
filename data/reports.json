@@ -439,5 +439,50 @@
     "description": "",
     "status": "OPEN",
     "createdAt": "2026-02-12T09:09:29.531Z"
+  },
+  {
+    "id": "1771002033014",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "add order by createAt and updateAt",
+    "description": "in homepage",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T17:00:33.014Z"
+  },
+  {
+    "id": "1771002065516",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "order chapter (change chapter to content)",
+    "description": "order by update/create",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T17:01:05.516Z"
+  },
+  {
+    "id": "1771002130503",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "filter by platform/other",
+    "description": "in detail, have filter content by platform",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T17:02:10.503Z"
+  },
+  {
+    "id": "1771002218161",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "edit information people",
+    "description": "in detail page have button to edit information detail",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T17:03:38.161Z"
+  },
+  {
+    "id": "1771002256215",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "hide the information null",
+    "description": "if there not found data, hide it",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T17:04:16.216Z"
   }
 ]
