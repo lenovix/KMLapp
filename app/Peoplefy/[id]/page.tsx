@@ -126,29 +126,35 @@ export default function PersonDetail({
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight italic">
             {person.name}
           </h1>
+          {((person.birthDate && person.birthPlace) ||
+            (person.lastPosition && person.lastCompany)) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 text-sm">
+              {person.birthDate && person.birthPlace && (
+                <div className="flex flex-col items-center md:items-end gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
+                    Personal Info
+                  </span>
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <Calendar size={14} className="text-blue-500" />
+                    {person.birthDate}{" "}
+                    {person.birthPlace ? `• ${person.birthPlace}` : ""}
+                  </div>
+                </div>
+              )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 text-sm">
-            <div className="flex flex-col items-center md:items-end gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
-              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
-                Personal Info
-              </span>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Calendar size={14} className="text-blue-500" />
-                {person.birthDate}{" "}
-                {person.birthPlace ? `• ${person.birthPlace}` : ""}
-              </div>
+              {person.lastPosition && person.lastCompany && (
+                <div className="flex flex-col items-center md:items-start gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
+                    Current Role
+                  </span>
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <MapPin size={14} className="text-blue-500" />
+                    {person.lastPosition} at {person.lastCompany}
+                  </div>
+                </div>
+              )}
             </div>
-
-            <div className="flex flex-col items-center md:items-start gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
-              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
-                Current Role
-              </span>
-              <div className="flex items-center gap-2 text-slate-300">
-                <MapPin size={14} className="text-blue-500" />
-                {person.lastPosition} at {person.lastCompany}
-              </div>
-            </div>
-          </div>
+          )}
 
           <div className="flex flex-wrap justify-center gap-3 mb-10">
             {person.socials?.map((soc: any) => (
@@ -196,43 +202,51 @@ export default function PersonDetail({
       </section>
 
       <main className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
-            <h3 className="flex items-center gap-2 text-white font-bold mb-4">
-              <Users size={18} className="text-blue-400" /> Keluarga
-            </h3>
-            <div className="space-y-3">
-              {person.family?.map((f: any, i: number) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center border-b border-slate-800 pb-2"
-                >
-                  <span className="text-slate-300">{f.name}</span>
-                  <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
-                    {f.relation}
-                  </span>
+        {((person.family && person.family.length > 0) ||
+          (person.newsLinks && person.newsLinks.length > 0)) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+            {person.family && person.family.length > 0 && (
+              <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
+                <h3 className="flex items-center gap-2 text-white font-bold mb-4">
+                  <Users size={18} className="text-blue-400" /> Keluarga
+                </h3>
+                <div className="space-y-3">
+                  {person.family?.map((f: any, i: number) => (
+                    <div
+                      key={i}
+                      className="flex justify-between items-center border-b border-slate-800 pb-2"
+                    >
+                      <span className="text-slate-300">{f.name}</span>
+                      <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                        {f.relation}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {person.newsLinks && person.newsLinks.length > 0 && (
+              <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
+                <h3 className="flex items-center gap-2 text-white font-bold mb-4">
+                  <Info size={18} className="text-blue-400" /> News & Links
+                </h3>
+                <div className="space-y-3">
+                  {person.newsLinks?.map((link: string, i: number) => (
+                    <a
+                      key={i}
+                      href={link}
+                      target="_blank"
+                      className="block text-sm text-blue-400 hover:underline truncate"
+                    >
+                      {link}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
-            <h3 className="flex items-center gap-2 text-white font-bold mb-4">
-              <Info size={18} className="text-blue-400" /> News & Links
-            </h3>
-            <div className="space-y-3">
-              {person.newsLinks?.map((link: string, i: number) => (
-                <a
-                  key={i}
-                  href={link}
-                  target="_blank"
-                  className="block text-sm text-blue-400 hover:underline truncate"
-                >
-                  {link}
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
 
         <h2 className="text-center text-sm font-bold tracking-[0.3em] uppercase text-slate-500 mb-12">
           Timeline Chapters
