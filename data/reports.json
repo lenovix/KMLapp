@@ -484,5 +484,14 @@
     "description": "if there not found data, hide it",
     "status": "OPEN",
     "createdAt": "2026-02-13T17:04:16.216Z"
+  },
+  {
+    "id": "1771026858360",
+    "type": "bug",
+    "project": "Peoplefy",
+    "title": "QA task",
+    "description": "add chapter",
+    "status": "OPEN",
+    "createdAt": "2026-02-13T23:54:18.361Z"
   }
 ]

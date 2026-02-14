@@ -10,10 +10,14 @@ import {
   Users,
   ChevronDown,
   ImageIcon,
+  ImagePlus,
+  FolderPlus,
+  Play,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
-import ImageViewer from "@/components/Peoplefy/ImageViewer";
+import AddChapterModal from "@/components/Peoplefy/AddChapterModal";
+import MediaViewer from "@/components/Peoplefy/MediaViewer";
 
 export default function PersonDetail({
   params,
@@ -26,8 +30,10 @@ export default function PersonDetail({
   const [person, setPerson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+
   const [openChapters, setOpenChapters] = useState<number[]>([]);
+  const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,10 +81,91 @@ export default function PersonDetail({
       0,
     ) || 0;
 
+  const handleSaveChapter = async (data: {
+    title: string;
+    description: string;
+  }) => {
+    try {
+      const response = await fetch("/api/peoplefy/add-chapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personId: Number(id),
+          title: data.title,
+          description: data.description,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+
+        setPerson((prev: any) => ({
+          ...prev,
+          chapters: [...prev.chapters, result.chapter],
+        }));
+
+        setIsChapterModalOpen(false);
+        alert("Chapter dan Folder berhasil dibuat!");
+      } else {
+        alert("Gagal menyimpan chapter");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Terjadi kesalahan koneksi");
+    }
+  };
+
+  const handleUploadMedia = async (
+    chapterId: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+      alert("Hanya boleh upload gambar atau video!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("personId", String(person.id));
+    formData.append("chapterId", String(chapterId));
+
+    try {
+      const response = await fetch("/api/peoplefy/upload-media", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setPerson((prev: any) => {
+          const newChapters = prev.chapters.map((c: any) => {
+            if (c.id === chapterId) {
+              return { ...c, images: [...c.images, result.url] };
+            }
+            return c;
+          });
+          return { ...prev, chapters: newChapters };
+        });
+        alert("Media berhasil diupload!");
+      }
+    } catch (error) {
+      alert("Gagal upload media");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200">
-      {selectedImg && (
-        <ImageViewer src={selectedImg} onClose={() => setSelectedImg(null)} />
+      {selectedMedia && (
+        <MediaViewer
+          src={selectedMedia}
+          onClose={() => setSelectedMedia(null)}
+        />
       )}
       <nav className="fixed top-0 w-full z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -248,10 +335,21 @@ export default function PersonDetail({
           </div>
         )}
 
-        <h2 className="text-center text-sm font-bold tracking-[0.3em] uppercase text-slate-500 mb-12">
-          Timeline Chapters
-        </h2>
+        <div className="flex justify-between items-end mb-12">
+          <div className="flex-1 text-center translate-x-12">
+            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-slate-500">
+              Timeline Chapters
+            </h2>
+          </div>
 
+          <button
+            onClick={() => setIsChapterModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-95"
+          >
+            <FolderPlus size={16} />
+            <span className="hidden md:inline">Chapter Baru</span>
+          </button>
+        </div>
         <div className="space-y-6">
           {person.chapters?.map((chapter: any) => {
             const isOpen = openChapters.includes(chapter.id);
@@ -261,11 +359,11 @@ export default function PersonDetail({
                 key={chapter.id}
                 className="border border-slate-800 rounded-4xl overflow-hidden bg-slate-900/20 backdrop-blur-sm transition-all duration-300"
               >
-                <button
-                  onClick={() => toggleChapter(chapter.id)}
-                  className="w-full flex items-center justify-between p-6 md:p-8 hover:bg-slate-800/30 transition-colors text-left"
-                >
-                  <div className="flex items-center gap-5">
+                <div className="flex items-center w-full pr-6 group/item">
+                  <button
+                    onClick={() => toggleChapter(chapter.id)}
+                    className="flex-1 flex items-center gap-5 p-6 md:p-8 transition-colors text-left"
+                  >
                     <div
                       className={`p-3 rounded-2xl ${isOpen ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-400"} transition-colors shadow-lg`}
                     >
@@ -280,14 +378,38 @@ export default function PersonDetail({
                         {chapter.description.substring(0, 50)}...
                       </p>
                     </div>
-                  </div>
+                  </button>
 
-                  <div
-                    className={`p-2 rounded-full border border-slate-700 transition-transform duration-300 ${isOpen ? "rotate-180 bg-slate-800" : "rotate-0"}`}
-                  >
-                    <ChevronDown size={20} className="text-slate-400" />
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="file"
+                      id={`upload-${chapter.id}`}
+                      className="hidden"
+                      accept="image/*,video/*"
+                      onChange={(e) => handleUploadMedia(chapter.id, e)}
+                    />
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        document
+                          .getElementById(`upload-${chapter.id}`)
+                          ?.click();
+                      }}
+                      className="p-3 bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white rounded-2xl transition-all active:scale-90"
+                      title="Tambah Gambar/Video"
+                    >
+                      <ImagePlus size={20} />
+                    </button>
+
+                    <div
+                      onClick={() => toggleChapter(chapter.id)}
+                      className={`p-2 rounded-full border border-slate-700 transition-transform duration-300 ${isOpen ? "rotate-180 bg-slate-800" : "rotate-0"}`}
+                    >
+                      <ChevronDown size={20} className="text-slate-400" />
+                    </div>
                   </div>
-                </button>
+                </div>
 
                 <div
                   className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
@@ -299,20 +421,37 @@ export default function PersonDetail({
 
                     <div className="max-h-[520px] overflow-y-auto pr-2 custom-scrollbar">
                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {chapter.images.map((img: string, idx: number) => (
-                          <div
-                            key={idx}
-                            className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer relative"
-                            onClick={() => setSelectedImg(img)}
-                          >
-                            <img
-                              src={img}
-                              alt={chapter.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
-                        ))}
+                        {chapter.images.map((img: string, idx: number) => {
+                          const isVideo = img.match(/\.(mp4|webm|ogg)$/i);
+
+                          return (
+                            <div
+                              key={idx}
+                              className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer relative"
+                            >
+                              {isVideo ? (
+                                <video
+                                  src={img}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                  onClick={() => setSelectedMedia(img)}
+                                />
+                              ) : (
+                                <img
+                                  src={img}
+                                  alt="Media"
+                                  onClick={() => setSelectedMedia(img)}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+                              )}
+                              {isVideo && (
+                                <div className="absolute top-2 right-2 bg-black/50 p-1 rounded-md">
+                                  <Play size={12} className="text-white" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -322,6 +461,11 @@ export default function PersonDetail({
           })}
         </div>
       </main>
+      <AddChapterModal
+        isOpen={isChapterModalOpen}
+        onClose={() => setIsChapterModalOpen(false)}
+        onSave={handleSaveChapter}
+      />
     </div>
   );
 }
