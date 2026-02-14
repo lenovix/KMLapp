@@ -175,10 +175,7 @@ export default function PersonDetail({
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200">
       {selectedMedia && (
-        <MediaViewer
-          src={selectedMedia}
-          onClose={() => setSelectedMedia(null)}
-        />
+        <MediaViewer src={selectedMedia} onClose={() => setSelectedMedia(null)} />
       )}
       <nav className="fixed top-0 w-full z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
