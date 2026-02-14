@@ -119,43 +119,56 @@ export default function PersonDetail({
     chapterId: number,
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-
-    if (!isImage && !isVideo) {
-      alert("Hanya boleh upload gambar atau video!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("personId", String(person.id));
-    formData.append("chapterId", String(chapterId));
+    const fileArray = Array.from(files);
+    const successfullyUploaded: string[] = [];
 
     try {
-      const response = await fetch("/api/peoplefy/upload-media", {
-        method: "POST",
-        body: formData,
-      });
+      // Gunakan for...of untuk upload satu per satu (sekuensial)
+      // Ini mencegah error "Unexpected end of JSON" karena rebutan akses file
+      for (const file of fileArray) {
+        const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
 
-      if (response.ok) {
-        const result = await response.json();
-        setPerson((prev: any) => {
-          const newChapters = prev.chapters.map((c: any) => {
-            if (c.id === chapterId) {
-              return { ...c, images: [...c.images, result.url] };
-            }
-            return c;
-          });
-          return { ...prev, chapters: newChapters };
+        if (!isImage && !isVideo) continue;
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("personId", String(person.id));
+        formData.append("chapterId", String(chapterId));
+
+        const response = await fetch("/api/peoplefy/upload-media", {
+          method: "POST",
+          body: formData,
         });
-        alert("Media berhasil diupload!");
+
+        if (response.ok) {
+          const result = await response.json();
+          successfullyUploaded.push(result.url);
+
+          // Update state secara bertahap agar user melihat progress
+          setPerson((prev: any) => {
+            const newChapters = prev.chapters.map((c: any) => {
+              if (c.id === chapterId) {
+                return { ...c, images: [...c.images, result.url] };
+              }
+              return c;
+            });
+            return { ...prev, chapters: newChapters };
+          });
+        }
+      }
+
+      if (successfullyUploaded.length > 0) {
+        alert(`${successfullyUploaded.length} file berhasil diupload!`);
       }
     } catch (error) {
-      alert("Gagal upload media");
+      console.error("Upload error:", error);
+      alert("Terjadi kesalahan sistem.");
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -386,6 +399,7 @@ export default function PersonDetail({
                       id={`upload-${chapter.id}`}
                       className="hidden"
                       accept="image/*,video/*"
+                      multiple
                       onChange={(e) => handleUploadMedia(chapter.id, e)}
                     />
 
