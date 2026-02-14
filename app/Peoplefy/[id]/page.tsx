@@ -216,7 +216,7 @@ export default function PersonDetail({
           {((person.birthDate && person.birthPlace) ||
             (person.lastPosition && person.lastCompany)) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 text-sm">
-              {person.birthDate && person.birthPlace && (
+              {(person.birthDate || person.birthPlace) && (
                 <div className="flex flex-col items-center md:items-end gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
                   <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
                     Personal Info
