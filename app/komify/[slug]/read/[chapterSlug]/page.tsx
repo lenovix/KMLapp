@@ -43,18 +43,18 @@ export default function ReaderPage() {
   const smoothProgress = useSpring(scrollYProgress, springConfig);
 
   const scaleX = useMemo(() => {
-    return (loading || pages.length === 0) ? 0 : smoothProgress;
+    return loading || pages.length === 0 ? 0 : smoothProgress;
   }, [loading, pages.length, smoothProgress]);
 
   const comic = useMemo(
     () => comics.find((c: Comic) => String(c.slug) === slug),
-    [slug]
+    [slug],
   );
 
   const chapter = useMemo(
     () =>
       comic?.chapters.find((ch: Chapter) => String(ch.number) === chapterSlug),
-    [comic, chapterSlug]
+    [comic, chapterSlug],
   );
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function ReaderPage() {
       const position = window.scrollY;
       localStorage.setItem(
         `read-pos-${slug}-${chapterSlug}`,
-        position.toString()
+        position.toString(),
       );
     };
 
@@ -81,14 +81,14 @@ export default function ReaderPage() {
       try {
         const res = await fetch(
           `/api/komify/read?slug=${comic?.slug}&chapter=${chapter?.number}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
         const data = await res.json();
         setPages(data.pages ?? []);
 
         setTimeout(() => {
           const savedPos = localStorage.getItem(
-            `read-pos-${slug}-${chapterSlug}`
+            `read-pos-${slug}-${chapterSlug}`,
           );
           if (savedPos) {
             window.scrollTo({ top: parseInt(savedPos), behavior: "instant" });
@@ -121,7 +121,7 @@ export default function ReaderPage() {
 
   const imagePath = `/komify/${comic.slug}/chapters/${chapter.number}`;
   const chapterIndex = comic.chapters.findIndex(
-    (ch: Chapter) => String(ch.number) === String(chapter.number)
+    (ch: Chapter) => String(ch.number) === String(chapter.number),
   );
   const prevChapter = comic.chapters[chapterIndex - 1] ?? null;
   const nextChapter = comic.chapters[chapterIndex + 1] ?? null;
@@ -130,7 +130,7 @@ export default function ReaderPage() {
     <main className="text-zinc-100">
       {!loading && pages.length > 0 && (
         <motion.div
-          className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-[100] shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+          className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-100 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
           style={{ scaleX: scaleX }}
         />
       )}

@@ -36,7 +36,7 @@ export default function FilterGroup({
         <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">
           {label}
         </span>
-        <div className="h-[1px] flex-1 bg-zinc-800/50"></div>
+        <div className="h-px flex-1 bg-zinc-800/50"></div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
