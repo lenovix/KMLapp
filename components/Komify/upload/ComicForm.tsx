@@ -169,6 +169,7 @@ export default function ComicForm({
           artist: result.data.Artists || [],
           groups: result.data.Groups || [],
           categories: result.data.Categories || "Doujinshi",
+          status: result.data.Status || "Ongoing",
         }));
 
         setIsExtractModalOpen(false);
