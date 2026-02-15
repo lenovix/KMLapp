@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import ComicCover from "@/components/Komify/upload/ComicCover";
 import ChapterSection from "@/components/Komify/upload/ChapterSection";
-import PrimaryButton from "@/components/UI/PrimaryButton";
 import FixParagraphModal from "@/components/Komify/Detail/FixParagraphModal";
 
 export interface ComicData {
@@ -53,11 +52,6 @@ interface ComicFormProps {
   reorderChapters: (newChapters: ChapterData[]) => void;
   handleChapterFile: (index: number, files: FileList | null) => void;
   openPreview: (index: number) => void;
-  handleOpenDialog: (
-    e:
-      | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => void;
 
   setCoverDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleComicChange: (
@@ -66,6 +60,11 @@ interface ComicFormProps {
     >,
   ) => void;
   handleReset: () => void;
+  handleOpenDialog: (
+    e:
+      | React.FormEvent<HTMLFormElement>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => void;
 }
 
 export default function ComicForm({
@@ -77,10 +76,10 @@ export default function ComicForm({
   handleChapterChange,
   handleChapterFile,
   openPreview,
-  handleOpenDialog,
   setCoverDialogOpen,
   handleComicChange,
   reorderChapters,
+  handleOpenDialog,
   handleReset,
 }: ComicFormProps) {
   const [statusOptions, setStatusOptions] = useState<string[]>([]);
@@ -157,18 +156,21 @@ export default function ComicForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: extractUrl }),
       });
+
       const result = await res.json();
 
       if (result.success) {
         setComicData((prev) => ({
           ...prev,
-          title: result.data.title || prev.title,
-          parodies: result.data.Parodies || prev.parodies,
-          characters: result.data.Characters || prev.characters,
-          tags: result.data.Tags || prev.tags,
-          artist: result.data.Artists || prev.artist,
-          groups: result.data.Groups || prev.groups,
+          title: result.data.title || "",
+          parodies: result.data.Parodies || [],
+          characters: result.data.Characters || [],
+          tags: result.data.Tags || [],
+          artist: result.data.Artists || [],
+          groups: result.data.Groups || [],
+          categories: result.data.Categories || "Doujinshi",
         }));
+
         setIsExtractModalOpen(false);
         setExtractUrl("");
       } else {
@@ -176,7 +178,6 @@ export default function ComicForm({
       }
     } catch (error) {
       console.error("Extract Error:", error);
-      alert("Connection error while extracting");
     } finally {
       setIsExtracting(false);
     }
@@ -190,10 +191,30 @@ export default function ComicForm({
       isDone:
         chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
     },
-    { label: "Parody", isDone: comicData.parodies.trim().length > 0 },
-    { label: "Characters", isDone: comicData.characters.trim().length > 0 },
-    { label: "Artist", isDone: comicData.artist.trim().length > 0 },
-    { label: "Groups", isDone: comicData.groups.trim().length > 0 },
+    {
+      label: "Parody",
+      isDone: Array.isArray(comicData.parodies)
+        ? comicData.parodies.length > 0
+        : comicData.parodies?.trim().length > 0,
+    },
+    {
+      label: "Characters",
+      isDone: Array.isArray(comicData.characters)
+        ? comicData.characters.length > 0
+        : comicData.characters?.trim().length > 0,
+    },
+    {
+      label: "Artist",
+      isDone: Array.isArray(comicData.artist)
+        ? comicData.artist.length > 0
+        : comicData.artist?.trim().length > 0,
+    },
+    {
+      label: "Groups",
+      isDone: Array.isArray(comicData.groups)
+        ? comicData.groups.length > 0
+        : comicData.groups?.trim().length > 0,
+    },
     { label: "Tags", isDone: comicData.tags.trim().length > 0 },
     ...(isManhwa
       ? [{ label: "Authors", isDone: comicData.authors.trim().length > 0 }]
@@ -212,8 +233,82 @@ export default function ComicForm({
 
   return (
     <>
-      <form onSubmit={handleOpenDialog} className="space-y-8 max-w-400 mx-auto">
+      <form
+        id="comic-upload-form"
+        onSubmit={handleOpenDialog}
+        className="space-y-8 max-w-400 mx-auto"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ">
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
+              <div className="flex items-center gap-3 px-2 py-1 bg-zinc-950/30 rounded-xl border border-zinc-800/50">
+                <input
+                  type="checkbox"
+                  id="dummyCover"
+                  checked={useDummyCover}
+                  onChange={(e) => handleDummyToggle(e.target.checked)}
+                  className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="dummyCover"
+                  className="text-[11px] font-bold text-zinc-400 cursor-pointer uppercase tracking-tight"
+                >
+                  Use Dummy Cover
+                </label>
+              </div>
+
+              <ComicCover
+                cover={comicData.cover}
+                onClick={() => setCoverDialogOpen(true)}
+                onDelete={() => setComicData({ ...comicData, cover: "" })}
+              />
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={comicData.status}
+                  onChange={handleComicChange}
+                  className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl p-2.5 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/30"
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status} className="bg-zinc-900">
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="border-t border-zinc-800 pt-4 space-y-3">
+                <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Upload Checklist
+                </h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {checkStatus.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 group">
+                      {item.isDone ? (
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                      ) : (
+                        <Circle
+                          size={16}
+                          className="text-zinc-700 group-hover:text-zinc-500 transition-colors"
+                        />
+                      )}
+                      <span
+                        className={`text-xs font-medium ${
+                          item.isDone ? "text-zinc-300" : "text-zinc-600"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="lg:col-span-4 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-md shadow-xl space-y-6 lg:sticky lg:top-20">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2 text-zinc-200">
@@ -358,100 +453,6 @@ export default function ComicForm({
               openPreview={openPreview}
               reorderChapters={reorderChapters}
             />
-          </div>
-
-          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20">
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col gap-5">
-              <div className="pt-2">
-                <PrimaryButton
-                  type="submit"
-                  onClick={handleOpenDialog}
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-900/20"
-                  icon={<Upload size={20} />}
-                  iconPosition="left"
-                >
-                  PUBLISH
-                </PrimaryButton>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (confirm("Hapus semua input?")) handleReset();
-                  }}
-                  className="w-full py-3 bg-zinc-800 hover:bg-red-900/20 hover:text-red-500 text-zinc-400 rounded-2xl font-bold text-xs transition-all border border-zinc-700/50 flex items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
-                  RESET FORM
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 px-2 py-1 bg-zinc-950/30 rounded-xl border border-zinc-800/50">
-                <input
-                  type="checkbox"
-                  id="dummyCover"
-                  checked={useDummyCover}
-                  onChange={(e) => handleDummyToggle(e.target.checked)}
-                  className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor="dummyCover"
-                  className="text-[11px] font-bold text-zinc-400 cursor-pointer uppercase tracking-tight"
-                >
-                  Use Dummy Cover
-                </label>
-              </div>
-
-              <ComicCover
-                cover={comicData.cover}
-                onClick={() => setCoverDialogOpen(true)}
-                onDelete={() => setComicData({ ...comicData, cover: "" })}
-              />
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  value={comicData.status}
-                  onChange={handleComicChange}
-                  className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl p-2.5 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/30"
-                >
-                  {statusOptions.map((status) => (
-                    <option key={status} value={status} className="bg-zinc-900">
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="border-t border-zinc-800 pt-4 space-y-3">
-                <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
-                  Upload Checklist
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {checkStatus.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 group">
-                      {item.isDone ? (
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                      ) : (
-                        <Circle
-                          size={16}
-                          className="text-zinc-700 group-hover:text-zinc-500 transition-colors"
-                        />
-                      )}
-                      <span
-                        className={`text-xs font-medium ${item.isDone ? "text-zinc-300" : "text-zinc-600"
-                          }`}
-                      >
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </form>
