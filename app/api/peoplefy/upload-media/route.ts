@@ -21,14 +21,14 @@ export async function POST(request: Request) {
       "public",
       "peoplefy",
       String(personId),
-      `chapter_${chapterId}`,
+      `${chapterId}`,
     );
 
     await fs.mkdir(folderPath, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileExtension = path.extname(file.name);
-    const fileName = `media_${Date.now()}${fileExtension}`;
+    const fileName = `img_${Date.now()}${fileExtension}`;
     const filePath = path.join(folderPath, fileName);
 
     await fs.writeFile(filePath, buffer);
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       (c: any) => c.id === Number(chapterId),
     );
 
-    const publicPath = `/peoplefy/${personId}/chapter_${chapterId}/${fileName}`;
+    const publicPath = `/peoplefy/${personId}/${chapterId}/${fileName}`;
     people[personIndex].chapters[chapterIndex].images.push(publicPath);
     people[personIndex].updatedAt = new Date().toISOString();
 

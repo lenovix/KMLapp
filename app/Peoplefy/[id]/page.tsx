@@ -13,7 +13,10 @@ import {
   ImagePlus,
   FolderPlus,
   Play,
+  Trash2,
+  X,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import AddChapterModal from "@/components/Peoplefy/AddChapterModal";
@@ -24,6 +27,7 @@ export default function PersonDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const resolvedParams = use(params);
   const id = resolvedParams.id;
 
@@ -81,6 +85,60 @@ export default function PersonDetail({
       0,
     ) || 0;
 
+  const handleDeletePerson = async () => {
+    if (!confirm("Apakah Anda yakin ingin menghapus semua data orang ini? Tindakan ini tidak dapat dibatalkan.")) return;
+
+    try {
+      const res = await fetch(`/api/peoplefy/people/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("Data berhasil dihapus");
+        router.push("/peoplefy");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  };
+
+  const handleDeleteChapter = async (chapterId: number) => {
+    if (!confirm("Hapus chapter ini beserta semua isinya?")) return;
+
+    try {
+      const res = await fetch(`/api/peoplefy/chapters/${chapterId}`, { method: "DELETE" });
+      if (res.ok) {
+        setPerson((prev: any) => ({
+          ...prev,
+          chapters: prev.chapters.filter((c: any) => c.id !== chapterId),
+        }));
+      }
+    } catch (error) {
+      console.error("Delete chapter error:", error);
+    }
+  };
+
+  const handleDeleteMedia = async (chapterId: number, mediaUrl: string) => {
+    try {
+      const res = await fetch(`/api/peoplefy/delete-media`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chapterId, mediaUrl }),
+      });
+
+      if (res.ok) {
+        setPerson((prev: any) => {
+          const newChapters = prev.chapters.map((c: any) => {
+            if (c.id === chapterId) {
+              return { ...c, images: c.images.filter((img: string) => img !== mediaUrl) };
+            }
+            return c;
+          });
+          return { ...prev, chapters: newChapters };
+        });
+      }
+    } catch (error) {
+      console.error("Delete media error:", error);
+    }
+  };
+
   const handleSaveChapter = async (data: {
     title: string;
     description: string;
@@ -126,8 +184,6 @@ export default function PersonDetail({
     const successfullyUploaded: string[] = [];
 
     try {
-      // Gunakan for...of untuk upload satu per satu (sekuensial)
-      // Ini mencegah error "Unexpected end of JSON" karena rebutan akses file
       for (const file of fileArray) {
         const isImage = file.type.startsWith("image/");
         const isVideo = file.type.startsWith("video/");
@@ -148,7 +204,6 @@ export default function PersonDetail({
           const result = await response.json();
           successfullyUploaded.push(result.url);
 
-          // Update state secara bertahap agar user melihat progress
           setPerson((prev: any) => {
             const newChapters = prev.chapters.map((c: any) => {
               if (c.id === chapterId) {
@@ -190,6 +245,12 @@ export default function PersonDetail({
           </Link>
 
           <div className="flex gap-2">
+            <button
+              onClick={handleDeletePerson}
+              className="p-3 bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-full hover:bg-red-500 hover:text-white text-red-500 transition-all"
+            >
+              <Trash2 size={18} />
+            </button>
             <button className="p-3 bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-full hover:bg-slate-800 transition">
               <Share2 size={18} />
             </button>
@@ -197,103 +258,109 @@ export default function PersonDetail({
         </div>
       </nav>
 
-      <section className="pt-32 pb-16 px-6">
+      <section className="relative pt-32 pb-16 px-6 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+          <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full" />
+        </div>
+
         <div className="max-w-4xl mx-auto text-center">
-          <div className="relative inline-block mb-8">
-            <img
-              src={person.profileImage}
-              alt={person.name}
-              className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-slate-800 shadow-2xl mx-auto"
-            />
-            <div
-              className="absolute bottom-2 right-2 bg-green-500 w-5 h-5 border-4 border-[#020617] rounded-full"
-              title="Active Account"
-            ></div>
+          <div className="relative inline-block mb-10">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-full blur-md opacity-20 animate-pulse" />
+            <div className="relative p-1 bg-slate-800/50 rounded-full backdrop-blur-sm border border-white/10">
+              <img
+                src={person.profileImage}
+                alt={person.name}
+                className="w-32 h-32 md:w-44 md:h-44 rounded-full object-cover border-2 border-slate-900 shadow-2xl"
+              />
+              <div
+                className="absolute bottom-4 right-4 bg-green-500 w-6 h-6 border-4 border-[#020617] rounded-full shadow-lg"
+                title="Active Account"
+              >
+                <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20" />
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-center gap-2 mb-4">
-            <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 font-bold text-[10px] uppercase tracking-widest">
-              {person.tag}
-            </span>
-            <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 font-bold text-[10px] uppercase tracking-widest">
-              {person.status}
-            </span>
+          <div className="flex justify-center gap-3 mb-6">
+            {[
+              { label: person.tag, color: 'text-blue-400', bg: 'bg-blue-500/5', border: 'border-blue-500/20' },
+              { label: person.status, color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'border-purple-500/20' }
+            ].map((badge, i) => (
+              <span key={i} className={`px-4 py-1.5 ${badge.bg} border ${badge.border} ${badge.color} rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-sm`}>
+                {badge.label}
+              </span>
+            ))}
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight italic">
+          <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-tight">
             {person.name}
           </h1>
-          {((person.birthDate && person.birthPlace) ||
-            (person.lastPosition && person.lastCompany)) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10 text-sm">
+
+          {((person.birthDate && person.birthPlace) || (person.lastPosition && person.lastCompany)) && (
+            <div className="flex flex-col md:flex-row items-stretch justify-center gap-4 max-w-3xl mx-auto mb-12">
               {(person.birthDate || person.birthPlace) && (
-                <div className="flex flex-col items-center md:items-end gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
-                    Personal Info
-                  </span>
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <Calendar size={14} className="text-blue-500" />
-                    {person.birthDate}{" "}
-                    {person.birthPlace ? `• ${person.birthPlace}` : ""}
+                <div className="flex-1 flex items-center gap-4 p-5 bg-white/[0.03] backdrop-blur-md border border-white/[0.08] rounded-2xl hover:bg-white/[0.05] transition-colors">
+                  <div className="w-10 h-10 flex items-center justify-center bg-blue-500/10 rounded-xl text-blue-400">
+                    <Calendar size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Born</p>
+                    <p className="text-slate-200 text-sm font-medium leading-tight">
+                      {person.birthDate} <span className="text-slate-600 mx-1">/</span> {person.birthPlace}
+                    </p>
                   </div>
                 </div>
               )}
 
               {person.lastPosition && person.lastCompany && (
-                <div className="flex flex-col items-center md:items-start gap-1 p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
-                    Current Role
-                  </span>
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <MapPin size={14} className="text-blue-500" />
-                    {person.lastPosition} at {person.lastCompany}
+                <div className="flex-1 flex items-center gap-4 p-5 bg-white/[0.03] backdrop-blur-md border border-white/[0.08] rounded-2xl hover:bg-white/[0.05] transition-colors">
+                  <div className="w-10 h-10 flex items-center justify-center bg-purple-500/10 rounded-xl text-purple-400">
+                    <MapPin size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Current Role</p>
+                    <p className="text-slate-200 text-sm font-medium leading-tight">
+                      {person.lastPosition} <span className="text-slate-500 font-normal">at</span> {person.lastCompany}
+                    </p>
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex flex-wrap justify-center gap-3 mb-10">
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
             {person.socials?.map((soc: any) => (
               <a
                 key={soc.platform}
                 href={soc.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white hover:border-blue-500 transition-all flex items-center gap-2 group"
+                className="px-5 py-2.5 bg-slate-900/50 border border-slate-800 rounded-full text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:border-blue-500/50 hover:bg-blue-500/5 transition-all flex items-center gap-2 group"
               >
                 {soc.platform}
-                <ExternalLink
-                  size={12}
-                  className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-                />
+                <ExternalLink size={14} className="opacity-40 group-hover:opacity-100 transition-opacity" />
               </a>
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto py-6 border-y border-slate-800/50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{totalImages}</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest">
-                Images
+          <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto py-8 px-4 border-y border-white/[0.05] relative">
+            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
+            <div className="absolute left-2/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
+
+            {[
+              { val: totalImages, label: 'Images' },
+              { val: person.family?.length, label: 'Family' },
+              { val: person.chapters?.length, label: 'Chapters' }
+            ].map((stat, i) => (
+              <div key={i} className="text-center group">
+                <div className="text-3xl font-black text-white group-hover:scale-110 transition-transform duration-300">
+                  {stat.val || 0}
+                </div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1 font-bold">
+                  {stat.label}
+                </div>
               </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {person.family?.length}
-              </div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest">
-                Family
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {person.chapters?.length}
-              </div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest">
-                Chapters
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -301,49 +368,74 @@ export default function PersonDetail({
       <main className="max-w-6xl mx-auto px-6 pb-24">
         {((person.family && person.family.length > 0) ||
           (person.newsLinks && person.newsLinks.length > 0)) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            {person.family && person.family.length > 0 && (
-              <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
-                <h3 className="flex items-center gap-2 text-white font-bold mb-4">
-                  <Users size={18} className="text-blue-400" /> Keluarga
-                </h3>
-                <div className="space-y-3">
-                  {person.family?.map((f: any, i: number) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center border-b border-slate-800 pb-2"
-                    >
-                      <span className="text-slate-300">{f.name}</span>
-                      <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
-                        {f.relation}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-left">
 
-            {person.newsLinks && person.newsLinks.length > 0 && (
-              <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl">
-                <h3 className="flex items-center gap-2 text-white font-bold mb-4">
-                  <Info size={18} className="text-blue-400" /> News & Links
-                </h3>
-                <div className="space-y-3">
-                  {person.newsLinks?.map((link: string, i: number) => (
-                    <a
-                      key={i}
-                      href={link}
-                      target="_blank"
-                      className="block text-sm text-blue-400 hover:underline truncate"
-                    >
-                      {link}
-                    </a>
-                  ))}
+              {person.family && person.family.length > 0 && (
+                <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="flex items-center gap-3 text-white font-bold text-lg">
+                      <div className="p-2 bg-blue-500/10 rounded-lg">
+                        <Users size={20} className="text-blue-400" />
+                      </div>
+                      Family Tree
+                    </h3>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-3 py-1 rounded-full">
+                      {person.family.length} Members
+                    </span>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {person.family?.map((f: any, i: number) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center p-3 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.03] transition-colors group/item"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 group-hover/item:bg-blue-400 transition-colors" />
+                          <span className="text-slate-200 font-medium text-sm">{f.name}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter border border-slate-800 px-2 py-0.5 rounded-md group-hover/item:border-slate-700 transition-colors">
+                          {f.relation}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+
+              {person.newsLinks && person.newsLinks.length > 0 && (
+                <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="flex items-center gap-3 text-white font-bold text-lg">
+                      <div className="p-2 bg-purple-500/10 rounded-lg">
+                        <Info size={20} className="text-purple-400" />
+                      </div>
+                      Featured News
+                    </h3>
+                  </div>
+
+                  <div className="space-y-3">
+                    {person.newsLinks?.map((link: string, i: number) => (
+                      <a
+                        key={i}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 p-4 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group/link"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-slate-400 group-hover/link:text-blue-400 transition-colors truncate">
+                            {link.replace(/^https?:\/\/(www\.)?/, '')}
+                          </p>
+                        </div>
+                        <ExternalLink size={14} className="text-slate-600 group-hover/link:text-blue-400 shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
         <div className="flex justify-between items-end mb-12">
           <div className="flex-1 text-center translate-x-12">
@@ -403,6 +495,17 @@ export default function PersonDetail({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        handleDeleteChapter(chapter.id);
+                      }}
+                      className="p-3 bg-slate-800 hover:bg-red-600 text-slate-400 hover:text-white rounded-2xl transition-all active:scale-90"
+                      title="Hapus Chapter"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         document
                           .getElementById(`upload-${chapter.id}`)
                           ?.click();
@@ -436,10 +539,16 @@ export default function PersonDetail({
                           const isVideo = img.match(/\.(mp4|webm|ogg)$/i);
 
                           return (
-                            <div
-                              key={idx}
-                              className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer relative"
-                            >
+                            <div key={idx} className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer relative">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteMedia(chapter.id, img);
+                                }}
+                                className="absolute top-2 left-2 z-10 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 shadow-xl"
+                              >
+                                <X size={12} />
+                              </button>
                               {isVideo ? (
                                 <video
                                   src={img}

@@ -482,8 +482,9 @@
     "project": "Peoplefy",
     "title": "hide the information null",
     "description": "if there not found data, hide it",
-    "status": "OPEN",
-    "createdAt": "2026-02-13T17:04:16.216Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-02-13T17:04:16.216Z",
+    "updatedAt": "2026-02-16T01:31:39.958Z"
   },
   {
     "id": "1771026858360",
@@ -491,7 +492,8 @@
     "project": "Peoplefy",
     "title": "QA task",
     "description": "add chapter",
-    "status": "OPEN",
-    "createdAt": "2026-02-13T23:54:18.361Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-02-13T23:54:18.361Z",
+    "updatedAt": "2026-02-16T01:31:12.640Z"
   }
 ]
