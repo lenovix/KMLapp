@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
-  Share2,
   Info,
   ExternalLink,
   Users,
@@ -15,6 +14,7 @@ import {
   Play,
   Trash2,
   X,
+  Edit,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -244,15 +244,24 @@ export default function PersonDetail({
             <span className="text-sm font-medium">Koleksi</span>
           </Link>
 
-          <div className="flex gap-2">
+          <div className="flex items-center bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 p-1.5 rounded-2xl shadow-2xl">
+            {/* Edit */}
+            <Link
+              href={`/peoplefy/edit/${person.id}`}
+              className="flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-xl transition-all"
+            >
+              <Edit size={16} />
+              <span>Edit</span>
+            </Link>
+
+            <div className="w-[1px] h-6 bg-slate-700/50 mx-1" />
+
             <button
               onClick={handleDeletePerson}
-              className="p-3 bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-full hover:bg-red-500 hover:text-white text-red-500 transition-all"
+              className="flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
             >
-              <Trash2 size={18} />
-            </button>
-            <button className="p-3 bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-full hover:bg-slate-800 transition">
-              <Share2 size={18} />
+              <Trash2 size={16} />
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -343,6 +352,77 @@ export default function PersonDetail({
             ))}
           </div>
 
+          {((person.family && person.family.length > 0) ||
+            (person.newsLinks && person.newsLinks.length > 0)) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-left">
+
+                {person.family && person.family.length > 0 && (
+                  <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="flex items-center gap-3 text-white font-bold text-lg">
+                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                          <Users size={20} className="text-blue-400" />
+                        </div>
+                        Family Tree
+                      </h3>
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-3 py-1 rounded-full">
+                        {person.family.length} Members
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3">
+                      {person.family?.map((f: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center p-3 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.03] transition-colors group/item"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 group-hover/item:bg-blue-400 transition-colors" />
+                            <span className="text-slate-200 font-medium text-sm">{f.name}</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter border border-slate-800 px-2 py-0.5 rounded-md group-hover/item:border-slate-700 transition-colors">
+                            {f.relation}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {person.newsLinks && person.newsLinks.length > 0 && (
+                  <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="flex items-center gap-3 text-white font-bold text-lg">
+                        <div className="p-2 bg-purple-500/10 rounded-lg">
+                          <Info size={20} className="text-purple-400" />
+                        </div>
+                        Featured News
+                      </h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      {person.newsLinks?.map((link: string, i: number) => (
+                        <a
+                          key={i}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 p-4 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group/link"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-slate-400 group-hover/link:text-blue-400 transition-colors truncate">
+                              {link.replace(/^https?:\/\/(www\.)?/, '')}
+                            </p>
+                          </div>
+                          <ExternalLink size={14} className="text-slate-600 group-hover/link:text-blue-400 shrink-0" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto py-8 px-4 border-y border-white/[0.05] relative">
             <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
             <div className="absolute left-2/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
@@ -366,76 +446,7 @@ export default function PersonDetail({
       </section>
 
       <main className="max-w-6xl mx-auto px-6 pb-24">
-        {((person.family && person.family.length > 0) ||
-          (person.newsLinks && person.newsLinks.length > 0)) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-left">
 
-              {person.family && person.family.length > 0 && (
-                <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="flex items-center gap-3 text-white font-bold text-lg">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <Users size={20} className="text-blue-400" />
-                      </div>
-                      Family Tree
-                    </h3>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-3 py-1 rounded-full">
-                      {person.family.length} Members
-                    </span>
-                  </div>
-
-                  <div className="grid gap-3">
-                    {person.family?.map((f: any, i: number) => (
-                      <div
-                        key={i}
-                        className="flex justify-between items-center p-3 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.03] transition-colors group/item"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 group-hover/item:bg-blue-400 transition-colors" />
-                          <span className="text-slate-200 font-medium text-sm">{f.name}</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter border border-slate-800 px-2 py-0.5 rounded-md group-hover/item:border-slate-700 transition-colors">
-                          {f.relation}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {person.newsLinks && person.newsLinks.length > 0 && (
-                <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="flex items-center gap-3 text-white font-bold text-lg">
-                      <div className="p-2 bg-purple-500/10 rounded-lg">
-                        <Info size={20} className="text-purple-400" />
-                      </div>
-                      Featured News
-                    </h3>
-                  </div>
-
-                  <div className="space-y-3">
-                    {person.newsLinks?.map((link: string, i: number) => (
-                      <a
-                        key={i}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-4 p-4 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group/link"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-400 group-hover/link:text-blue-400 transition-colors truncate">
-                            {link.replace(/^https?:\/\/(www\.)?/, '')}
-                          </p>
-                        </div>
-                        <ExternalLink size={14} className="text-slate-600 group-hover/link:text-blue-400 shrink-0" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
         <div className="flex justify-between items-end mb-12">
           <div className="flex-1 text-center translate-x-12">
