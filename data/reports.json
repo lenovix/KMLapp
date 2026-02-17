@@ -495,5 +495,33 @@
     "status": "RESOLVED",
     "createdAt": "2026-02-13T23:54:18.361Z",
     "updatedAt": "2026-02-16T01:31:12.640Z"
+  },
+  {
+    "id": "1771342793533",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "level urgent",
+    "description": "when add issue, there have level urgent (1-5)",
+    "status": "OPEN",
+    "createdAt": "2026-02-17T15:39:53.533Z"
+  },
+  {
+    "id": "1771342832941",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "issue status",
+    "description": "there only open or resolve",
+    "status": "OPEN",
+    "createdAt": "2026-02-17T15:40:32.941Z"
+  },
+  {
+    "id": "1771344319135",
+    "type": "bug",
+    "project": "Komify",
+    "title": "fix cover",
+    "description": "on list comic, fix the display cover on every comic (landscape or potrait)",
+    "status": "OPEN",
+    "createdAt": "2026-02-17T16:05:19.135Z",
+    "updatedAt": "2026-02-17T16:19:50.580Z"
   }
 ]
