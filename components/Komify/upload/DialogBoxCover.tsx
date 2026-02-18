@@ -81,12 +81,11 @@ export default function DialogBoxCover({
             <div className="p-6">
               <div
                 className={`
-                  border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center text-center 
-                  cursor-pointer transition-all duration-300 min-h-70
-                  ${
-                    preview
-                      ? "border-zinc-700 bg-zinc-950/30"
-                      : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
+                  relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center 
+                  cursor-pointer transition-all duration-300 aspect-3/4 max-h-[400px] mx-auto overflow-hidden
+                  ${preview
+                    ? "border-zinc-700 bg-zinc-950"
+                    : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
                   }
                 `}
                 onDragOver={(e) => e.preventDefault()}
@@ -99,9 +98,7 @@ export default function DialogBoxCover({
                       <UploadCloud size={32} className="text-zinc-600" />
                     </div>
                     <div>
-                      <p className="text-zinc-300 text-sm font-semibold">
-                        Drop image here
-                      </p>
+                      <p className="text-zinc-300 text-sm font-semibold">Drop image here</p>
                       <p className="text-zinc-500 text-[11px] mt-1 uppercase tracking-widest font-bold">
                         or click to browse
                       </p>
@@ -112,18 +109,28 @@ export default function DialogBoxCover({
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full group">
+                  <>
+                    <div
+                      className="absolute inset-0 opacity-40 blur-2xl scale-110 z-0"
+                      style={{
+                        backgroundImage: `url(${preview})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+
                     <img
                       src={preview}
                       alt="Preview"
-                      className="w-full rounded-xl shadow-xl max-h-80 object-cover border border-zinc-800"
+                      className="relative z-10 w-full h-full object-contain p-2"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                      <p className="text-white text-[10px] font-bold uppercase tracking-widest bg-blue-600 px-3 py-1.5 rounded-full">
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity z-20 flex items-center justify-center">
+                      <p className="text-white text-[10px] font-bold uppercase tracking-widest bg-blue-600 px-4 py-2 rounded-full shadow-lg">
                         Change Image
                       </p>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 
@@ -148,10 +155,9 @@ export default function DialogBoxCover({
                 <button
                   className={`
                     px-8 py-2.5 rounded-xl text-xs font-black transition-all shadow-lg
-                    ${
-                      selectedFile
-                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 active:scale-95"
-                        : "bg-zinc-800 text-zinc-600 cursor-not-allowed shadow-none"
+                    ${selectedFile
+                      ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 active:scale-95"
+                      : "bg-zinc-800 text-zinc-600 cursor-not-allowed shadow-none"
                     }
                   `}
                   onClick={() => selectedFile && onSave(selectedFile)}

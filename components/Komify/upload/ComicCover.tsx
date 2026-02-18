@@ -17,18 +17,26 @@ export default function ComicCover({
   return (
     <div
       className={`
-        relative w-full aspect-video rounded-2xl border-2 border-dashed 
+        relative w-full h-60 rounded-2xl border-2 border-dashed 
         transition-all duration-300 group overflow-hidden cursor-pointer
-        ${
-          cover
-            ? "border-zinc-800 bg-zinc-900"
-            : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
+        ${cover
+          ? "border-zinc-800 bg-zinc-900"
+          : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
         }
       `}
       onClick={onClick}
     >
       {cover ? (
         <>
+          <div
+            className="absolute inset-0 opacity-40 blur-2xl scale-110 z-0"
+            style={{
+              backgroundImage: `url(${cover})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          />
+
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex flex-col items-center justify-center gap-2">
             <div className="p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
               <UploadCloud className="text-white" size={24} />
@@ -54,11 +62,11 @@ export default function ComicCover({
             alt="Comic Cover Preview"
             fill
             unoptimized
-            className="object-cover z-10"
+            className="object-contain relative z-10 p-1"
           />
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full p-6 text-center gap-3">
+        <div className="relative z-10 flex flex-col items-center justify-center h-full p-6 text-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <ImageIcon
               className="text-zinc-600 group-hover:text-blue-500"
@@ -67,8 +75,8 @@ export default function ComicCover({
           </div>
           <div>
             <p className="text-zinc-400 text-sm font-semibold">Upload Cover</p>
-            <p className="text-zinc-600 text-[10px] mt-1">
-              Recommended 3:4 ratio
+            <p className="text-zinc-600 text-[10px] mt-1 uppercase tracking-tighter">
+              All orientations supported (3:4 box)
             </p>
           </div>
         </div>

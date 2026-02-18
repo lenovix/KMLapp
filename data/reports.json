@@ -519,9 +519,9 @@
     "id": "1771344319135",
     "type": "bug",
     "project": "Komify",
-    "title": "fix cover",
+    "title": "fix cover display",
     "description": "on list comic, fix the display cover on every comic (landscape or potrait)",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "createdAt": "2026-02-17T16:05:19.135Z",
     "updatedAt": "2026-02-17T16:19:50.580Z"
   },
@@ -533,5 +533,6 @@
     "description": "have year and month to structure nya",
     "status": "OPEN",
     "createdAt": "2026-02-17T22:56:05.804Z"
+    "updatedAt": "2026-02-18T04:42:12.645Z"
   }
 ]

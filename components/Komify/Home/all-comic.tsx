@@ -205,11 +205,20 @@ export default function AllComic() {
                       key={comic.slug}
                       href={`/komify/${comic.slug}`}
                       className="group relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden 
-                                 border border-gray-100 dark:border-slate-800
-                                 hover:border-blue-500 dark:hover:border-blue-400
-                                 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                   border border-gray-100 dark:border-slate-800
+                   hover:border-blue-500 dark:hover:border-blue-400
+                   transition-all duration-300  hover:shadow-xl flex flex-col"
                     >
-                      <div className="aspect-3/4 overflow-hidden relative">
+                      <div className="relative w-full aspect-3/4 bg-gray-100 dark:bg-slate-800/50 overflow-hidden">
+                        <div
+                          className="absolute inset-0 opacity-30 blur-xl scale-110"
+                          style={{
+                            backgroundImage: `url(${comic.cover})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                          }}
+                        />
+
                         <Image
                           src={comic.cover}
                           alt={title}
@@ -217,12 +226,12 @@ export default function AllComic() {
                           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                           loading="eager"
                           unoptimized
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-contain relative z-10 transition-transform duration-500 "
                         />
-                        <div className="absolute top-2 right-2">
+
+                        <div className="absolute top-2 right-2 z-20">
                           <span
-                            className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl border ${statusStyle[comic.status] ??
-                              "bg-zinc-700 text-white border-zinc-600"
+                            className={`px-2 py-1 text-[9px] font-black uppercase tracking-wider rounded-md shadow-lg border ${statusStyle[comic.status] ?? "bg-zinc-700 text-white border-zinc-600"
                               }`}
                           >
                             {comic.status}
@@ -230,11 +239,9 @@ export default function AllComic() {
                         </div>
                       </div>
 
-                      <div className="p-3">
-                        <h2
-                          className="text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2 
-                                       group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                        >
+                      <div className="p-3 bg-white dark:bg-slate-900 z-20">
+                        <h2 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2 
+                         group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {title}
                         </h2>
                       </div>
