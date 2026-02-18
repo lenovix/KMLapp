@@ -510,9 +510,10 @@
     "type": "feature",
     "project": "K.Platforms",
     "title": "issue status",
-    "description": "there only open or resolve",
+    "description": "there only status: open, resolve, cancel",
     "status": "OPEN",
-    "createdAt": "2026-02-17T15:40:32.941Z"
+    "createdAt": "2026-02-17T15:40:32.941Z",
+    "updatedAt": "2026-02-17T23:48:24.459Z"
   },
   {
     "id": "1771344319135",
@@ -523,5 +524,14 @@
     "status": "OPEN",
     "createdAt": "2026-02-17T16:05:19.135Z",
     "updatedAt": "2026-02-17T16:19:50.580Z"
+  },
+  {
+    "id": "1771368965804",
+    "type": "feature",
+    "project": "Komify",
+    "title": "file comic storage",
+    "description": "have year and month to structure nya",
+    "status": "OPEN",
+    "createdAt": "2026-02-17T22:56:05.804Z"
   }
 ]
