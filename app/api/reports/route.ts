@@ -8,7 +8,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
-  urgent: string;
+  urgent: "High" | "Medium" | "Low";
   status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;

@@ -8,7 +8,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
-  urgent: string;
+  urgent: "High" | "Medium" | "Low";
   status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;
@@ -116,7 +116,7 @@ export default function ReportDetailModal({
                   <select
                     className="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
                     value={formData.urgent}
-                    onChange={(e) => setFormData({ ...formData, urgent: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, urgent: e.target.value as any })}
                   >
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>

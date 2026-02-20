@@ -162,7 +162,9 @@
     "title": "upload subtitle (+script konversi .srt to .vtt)",
     "description": "",
     "status": "OPEN",
-    "createdAt": "2026-01-25T17:46:47.251Z"
+    "createdAt": "2026-01-25T17:46:47.251Z",
+    "urgent": "Low",
+    "updatedAt": "2026-02-20T03:52:50.159Z"
   },
   {
     "id": "1769363216529",
@@ -374,7 +376,9 @@
     "title": "crop feature",
     "description": "di production, fitur ini tidak berjalan",
     "status": "OPEN",
-    "createdAt": "2026-02-03T12:34:24.568Z"
+    "createdAt": "2026-02-03T12:34:24.568Z",
+    "updatedAt": "2026-02-20T04:09:40.895Z",
+    "urgent": "High"
   },
   {
     "id": "1770122272523",
