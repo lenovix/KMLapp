@@ -8,7 +8,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
-  status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+  status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;
 }
@@ -49,8 +49,8 @@ export default function ReportDetailModal({
 
   const statusColors = {
     OPEN: "bg-red-500/10 text-red-400 border-red-500/20",
-    IN_PROGRESS: "bg-amber-500/10 text-amber-400 border-amber-500/20",
     RESOLVED: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    CANCEL: "bg-slate-500/10 text-slate-400 border-white/10",
   };
 
   return (
@@ -118,16 +118,13 @@ export default function ReportDetailModal({
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        status: e.target.value as
-                          | "OPEN"
-                          | "IN_PROGRESS"
-                          | "RESOLVED",
+                        status: e.target.value as "OPEN" | "RESOLVED" | "CANCEL",
                       })
                     }
                   >
                     <option value="OPEN">🔴 OPEN</option>
-                    <option value="IN_PROGRESS">🟡 IN PROGRESS</option>
                     <option value="RESOLVED">🟢 RESOLVED</option>
+                    <option value="CANCEL">⚪ CANCEL</option>
                   </select>
                 </div>
                 <div className="space-y-2 opacity-50">

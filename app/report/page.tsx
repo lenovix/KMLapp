@@ -10,7 +10,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
-  status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+  status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;
 }
@@ -47,7 +47,7 @@ export default function ReportsPage() {
     "Animefy",
     "Peoplefy",
   ];
-  const statuses = ["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"];
+  const statuses = ["ALL", "OPEN", "RESOLVED", "CANCEL"];
 
   const filtered = reports.filter((r: Report) => {
     const typeMatch = filterType === "all" || r.type === filterType;
@@ -107,11 +107,10 @@ export default function ReportsPage() {
                 <button
                   key={t}
                   onClick={() => setFilterType(t)}
-                  className={`flex-1 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${
-                    filterType === t
-                      ? "bg-white text-black shadow-lg"
-                      : "bg-white/5 text-slate-400 hover:text-white"
-                  }`}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${filterType === t
+                    ? "bg-white text-black shadow-lg"
+                    : "bg-white/5 text-slate-400 hover:text-white"
+                    }`}
                 >
                   {t}
                 </button>
@@ -167,9 +166,8 @@ export default function ReportsPage() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${
-                      r.type === "bug" ? "bg-red-500/10" : "bg-blue-500/10"
-                    }`}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${r.type === "bug" ? "bg-red-500/10" : "bg-blue-500/10"
+                      }`}
                   >
                     {r.type === "bug" ? "🐛" : "✨"}
                   </div>
@@ -191,13 +189,12 @@ export default function ReportsPage() {
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-[10px] font-black border transition-colors ${
-                    r.status === "RESOLVED"
-                      ? "border-green-500 text-green-500 bg-green-500/5"
-                      : r.status === "IN_PROGRESS"
-                        ? "border-yellow-500 text-yellow-500 bg-yellow-500/5"
-                        : "border-blue-500 text-blue-500 bg-blue-500/5"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-[10px] font-black border transition-colors ${r.status === "RESOLVED"
+                    ? "border-emerald-500 text-emerald-500 bg-emerald-500/5"
+                    : r.status === "CANCEL"
+                      ? "border-slate-500 text-slate-500 bg-slate-500/5"
+                      : "border-red-500 text-red-500 bg-red-500/5"
+                    }`}
                 >
                   {r.status.replace("_", " ")}
                 </span>
