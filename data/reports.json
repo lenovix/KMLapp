@@ -511,9 +511,9 @@
     "project": "K.Platforms",
     "title": "issue status",
     "description": "there only status: open, resolve, cancel",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "createdAt": "2026-02-17T15:40:32.941Z",
-    "updatedAt": "2026-02-17T23:48:24.459Z"
+    "updatedAt": "2026-02-20T00:33:59.147Z"
   },
   {
     "id": "1771344319135",

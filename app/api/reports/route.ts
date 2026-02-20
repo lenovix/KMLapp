@@ -8,7 +8,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
-  status: "OPEN" | "RESOLVED";
+  status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;
 }
@@ -67,7 +67,7 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { id, type, project, title, description, status } = body;
 
-    if (status && !["OPEN", "RESOLVED"].includes(status)) {
+    if (status && !["OPEN", "RESOLVED", "CANCEL"].includes(status)) {
       return NextResponse.json({ message: "Invalid status" }, { status: 400 });
     }
 
