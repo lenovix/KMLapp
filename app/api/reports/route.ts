@@ -67,10 +67,14 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { id, type, project, title, description, status } = body;
+    const { id, type, project, title, description, status, urgent } = body;
 
     if (status && !["OPEN", "RESOLVED", "CANCEL"].includes(status)) {
       return NextResponse.json({ message: "Invalid status" }, { status: 400 });
+    }
+
+    if (urgent && !["High", "Medium", "Low"].includes(urgent)) {
+      return NextResponse.json({ message: "Invalid urgency level" }, { status: 400 });
     }
 
     if (type && !["feature", "bug"].includes(type)) {
@@ -90,6 +94,7 @@ export async function PUT(req: Request) {
       title: title || reports[index].title,
       description: description || reports[index].description,
       status: status || reports[index].status,
+      urgent: urgent || reports[index].urgent,
       updatedAt: new Date().toISOString(),
     };
 

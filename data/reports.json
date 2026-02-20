@@ -420,7 +420,9 @@
     "title": "fix word on cast field",
     "description": "",
     "status": "OPEN",
-    "createdAt": "2026-02-05T14:08:42.787Z"
+    "createdAt": "2026-02-05T14:08:42.787Z",
+    "urgent": "Medium",
+    "updatedAt": "2026-02-20T01:28:32.185Z"
   },
   {
     "id": "1770678398271",
@@ -429,7 +431,9 @@
     "title": "AnimeFy",
     "description": "Anime Portal",
     "status": "OPEN",
-    "createdAt": "2026-02-09T23:06:38.271Z"
+    "createdAt": "2026-02-09T23:06:38.271Z",
+    "urgent": "Low",
+    "updatedAt": "2026-02-20T01:28:25.733Z"
   },
   {
     "id": "1770887369531",
@@ -438,7 +442,9 @@
     "title": "migrate to sqlite",
     "description": "",
     "status": "OPEN",
-    "createdAt": "2026-02-12T09:09:29.531Z"
+    "createdAt": "2026-02-12T09:09:29.531Z",
+    "updatedAt": "2026-02-20T01:24:55.435Z",
+    "urgent": "Low"
   },
   {
     "id": "1771002033014",
@@ -447,7 +453,9 @@
     "title": "add order by createAt and updateAt",
     "description": "in homepage",
     "status": "OPEN",
-    "createdAt": "2026-02-13T17:00:33.014Z"
+    "urgent": "High",
+    "createdAt": "2026-02-13T17:00:33.014Z",
+    "updatedAt": "2026-02-20T01:29:59.912Z"
   },
   {
     "id": "1771002065516",
@@ -456,7 +464,9 @@
     "title": "order chapter (change chapter to content)",
     "description": "order by update/create",
     "status": "OPEN",
-    "createdAt": "2026-02-13T17:01:05.516Z"
+    "createdAt": "2026-02-13T17:01:05.516Z",
+    "urgent": "Medium",
+    "updatedAt": "2026-02-20T01:28:14.878Z"
   },
   {
     "id": "1771002130503",
@@ -465,7 +475,9 @@
     "title": "filter by platform/other",
     "description": "in detail, have filter content by platform",
     "status": "OPEN",
-    "createdAt": "2026-02-13T17:02:10.503Z"
+    "createdAt": "2026-02-13T17:02:10.503Z",
+    "urgent": "Medium",
+    "updatedAt": "2026-02-20T01:28:04.095Z"
   },
   {
     "id": "1771002218161",
@@ -474,7 +486,9 @@
     "title": "edit information people",
     "description": "in detail page have button to edit information detail",
     "status": "OPEN",
-    "createdAt": "2026-02-13T17:03:38.161Z"
+    "createdAt": "2026-02-13T17:03:38.161Z",
+    "updatedAt": "2026-02-20T01:27:01.868Z",
+    "urgent": "High"
   },
   {
     "id": "1771002256215",
@@ -534,6 +548,7 @@
     "description": "have year and month to structure nya",
     "status": "OPEN",
     "createdAt": "2026-02-17T22:56:05.804Z",
-    "updatedAt": "2026-02-18T04:42:12.645Z"
+    "updatedAt": "2026-02-20T01:25:43.541Z",
+    "urgent": "Low"
   }
 ]

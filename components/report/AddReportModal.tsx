@@ -16,7 +16,7 @@ export default function AddReportModal({
   const [project, setProject] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [urgent, setUrgent] = useState("Low");
+  const [urgent, setUrgent] = useState("Medium");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [alertConfig, setAlertConfig] = useState<{

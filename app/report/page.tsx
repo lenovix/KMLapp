@@ -177,7 +177,7 @@ export default function ReportsPage() {
                       ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/20"
                       : "bg-slate-500/20 text-slate-400 border border-white/5"
                     }`}>
-                    {r.urgent === "High" && "🔥"} {r.urgent}
+                    {r.urgent}
                   </span>
 
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black border transition-colors ${r.status === "RESOLVED"
