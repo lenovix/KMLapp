@@ -501,9 +501,10 @@
     "type": "feature",
     "project": "K.Platforms",
     "title": "level urgent",
-    "description": "when add issue, there have level urgent (1-5)",
-    "status": "OPEN",
-    "createdAt": "2026-02-17T15:39:53.533Z"
+    "description": "when add issue, there have level urgent (Low, Medium, High)",
+    "status": "RESOLVED",
+    "createdAt": "2026-02-17T15:39:53.533Z",
+    "updatedAt": "2026-02-20T01:13:55.004Z"
   },
   {
     "id": "1771342832941",

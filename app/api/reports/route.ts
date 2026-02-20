@@ -8,6 +8,7 @@ interface Report {
   project: string;
   title: string;
   description: string;
+  urgent: string;
   status: "OPEN" | "RESOLVED" | "CANCEL";
   createdAt: string;
   updatedAt?: string;
@@ -36,7 +37,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { type, project, title, description } = body;
+    const { type, project, title, description, urgent } = body;
 
     if (!type || !["feature", "bug"].includes(type)) {
       return NextResponse.json({ message: "Invalid type" }, { status: 400 });
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       project,
       title,
       description,
+      urgent,
       status: "OPEN",
       createdAt: new Date().toISOString(),
     };

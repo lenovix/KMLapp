@@ -16,6 +16,7 @@ export default function AddReportModal({
   const [project, setProject] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [urgent, setUrgent] = useState("Low");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [alertConfig, setAlertConfig] = useState<{
@@ -59,6 +60,7 @@ export default function AddReportModal({
           project,
           title,
           description,
+          urgent,
         }),
       });
 
@@ -146,17 +148,15 @@ export default function AddReportModal({
                   key={cat.id}
                   type="button"
                   onClick={() => setType(cat.id)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${
-                    type === cat.id
-                      ? "bg-white/10 border-white/20 ring-1 ring-white/10"
-                      : "bg-white/2 border-white/5 opacity-50 hover:opacity-100"
-                  }`}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${type === cat.id
+                    ? "bg-white/10 border-white/20 ring-1 ring-white/10"
+                    : "bg-white/2 border-white/5 opacity-50 hover:opacity-100"
+                    }`}
                 >
                   <span className="text-xl">{cat.icon}</span>
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider ${
-                      type === cat.id ? "text-white" : "text-slate-400"
-                    }`}
+                    className={`text-[10px] font-bold uppercase tracking-wider ${type === cat.id ? "text-white" : "text-slate-400"
+                      }`}
                   >
                     {cat.label}
                   </span>
@@ -165,6 +165,26 @@ export default function AddReportModal({
             </div>
 
             <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-500 ml-1 mb-2 block uppercase tracking-wider">
+                  Urgency Level
+                </label>
+                <div className="flex justify-between gap-2">
+                  {["Low", "Medium", "High"].map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setUrgent(lvl)}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${urgent === lvl
+                        ? "bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)]"
+                        : "bg-white/5 border-white/5 text-slate-500 hover:border-white/10"
+                        }`}
+                    >
+                      {lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="text-xs font-semibold text-slate-500 ml-1 mb-1.5 block uppercase tracking-wider">
                   Project
@@ -246,11 +266,10 @@ export default function AddReportModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`flex-2 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 ${
-                  isSubmitting
-                    ? "opacity-70 cursor-not-allowed"
-                    : "hover:bg-blue-500"
-                }`}
+                className={`flex-2 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 ${isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:bg-blue-500"
+                  }`}
               >
                 {isSubmitting ? (
                   <>
