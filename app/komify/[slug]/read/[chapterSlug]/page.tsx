@@ -144,6 +144,35 @@ export default function ReaderPage() {
 
       <div className="max-w-4xl mx-auto px-0 sm:px-4 py-8">
         <div className="mb-10 px-4">
+          <div className="mb-5">
+            {chapter.summary && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="w-full bg-zinc-900/50 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-md relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 shadow-[4px_0_15px_rgba(37,99,235,0.4)]" />
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md">
+                      Chapter Synopsis
+                    </span>
+                    <div className="h-px flex-1 bg-white/5" />
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white/90 italic">
+                    "{chapter.title || `Chapter ${chapter.number}`}"
+                  </h3>
+
+                  <p className="text-sm md:text-base text-zinc-400 leading-relaxed font-medium">
+                    {chapter.summary}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </div>
           <ReaderNav comic={comic} prev={prevChapter} next={nextChapter} />
         </div>
 
@@ -182,36 +211,6 @@ export default function ReaderPage() {
 
         <div className="mt-12">
           <ReaderNav comic={comic} prev={prevChapter} next={nextChapter} />
-
-          <div className="mt-8">
-            {chapter.summary && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="w-full max-w-2xl bg-zinc-900/50 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-md relative overflow-hidden group"
-              >
-                <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 shadow-[4px_0_15px_rgba(37,99,235,0.4)]" />
-
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md">
-                      Chapter Synopsis
-                    </span>
-                    <div className="h-px flex-1 bg-white/5" />
-                  </div>
-
-                  <h3 className="text-lg font-bold text-white/90 italic">
-                    "{chapter.title || `Chapter ${chapter.number}`}"
-                  </h3>
-
-                  <p className="text-sm md:text-base text-zinc-400 leading-relaxed font-medium">
-                    {chapter.summary}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </div>
         </div>
       </div>
     </main>

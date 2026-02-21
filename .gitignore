@@ -62,6 +62,8 @@ next-env.d.ts
 /backend/genfy/models/loras/*.safetensors
 /backend/genfy/genfy
 
+/backend/komify/
+
 /data/assetfy/assets.json
 /data/assetfy/category.json
 /data/assetfy/status.json
