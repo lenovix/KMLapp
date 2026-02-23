@@ -562,8 +562,9 @@
     "title": "strict tab close",
     "description": "",
     "urgent": "High",
-    "status": "OPEN",
-    "createdAt": "2026-02-20T23:44:29.476Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-02-20T23:44:29.476Z",
+    "updatedAt": "2026-02-23T04:24:50.374Z"
   },
   {
     "id": "1771641224501",

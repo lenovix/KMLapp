@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@/components/UI/Alert";
 import DialogBox from "@/components/Komify/upload/DialogBox";
 import DialogBoxCover from "@/components/Komify/upload/DialogBoxCover";
@@ -58,8 +58,8 @@ export default function UploadComicPage({
   const [dialogData, setDialogData] = useState({
     title: "",
     desc: "",
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: () => { },
+    onCancel: () => { },
   });
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -76,6 +76,23 @@ export default function UploadComicPage({
   const [previewChapterIndex, setPreviewChapterIndex] = useState<number | null>(
     null,
   );
+
+  useEffect(() => {
+    const isDirty =
+      comicData.title !== "" ||
+      chapters.some(ch => ch.title !== "" || ch.files.length > 0);
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [comicData, chapters]);
 
   const handleComicChange = (
     e: React.ChangeEvent<
@@ -295,7 +312,7 @@ export default function UploadComicPage({
           try {
             const err = JSON.parse(xhr.responseText);
             errMessage = err.message || errMessage;
-          } catch {}
+          } catch { }
 
           setTimeout(() => {
             setAlertData({
