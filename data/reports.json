@@ -554,5 +554,25 @@
     "createdAt": "2026-02-17T22:56:05.804Z",
     "updatedAt": "2026-02-20T01:25:43.541Z",
     "urgent": "Low"
+  },
+  {
+    "id": "1771631069476",
+    "type": "feature",
+    "project": "Komify",
+    "title": "strict tab close",
+    "description": "",
+    "urgent": "High",
+    "status": "OPEN",
+    "createdAt": "2026-02-20T23:44:29.476Z"
+  },
+  {
+    "id": "1771641224501",
+    "type": "feature",
+    "project": "Komify",
+    "title": "crop cover",
+    "description": "in upload page, when upload cover, there have crop feature",
+    "urgent": "Medium",
+    "status": "OPEN",
+    "createdAt": "2026-02-21T02:33:44.501Z"
   }
 ]
