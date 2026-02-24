@@ -27,7 +27,8 @@
     "description": "",
     "status": "OPEN",
     "createdAt": "2026-01-25T17:44:23.565Z",
-    "updatedAt": "2026-01-26T09:21:58.769Z"
+    "updatedAt": "2026-02-24T06:10:02.319Z",
+    "urgent": "Low"
   },
   {
     "id": "1769363075955",
@@ -357,7 +358,9 @@
     "title": "character list",
     "description": "jika manhwa, ada modal untuk character detail",
     "status": "OPEN",
-    "createdAt": "2026-01-31T10:35:33.503Z"
+    "createdAt": "2026-01-31T10:35:33.503Z",
+    "urgent": "Low",
+    "updatedAt": "2026-02-24T06:09:55.469Z"
   },
   {
     "id": "1770073642245",
@@ -570,10 +573,11 @@
     "id": "1771641224501",
     "type": "feature",
     "project": "Komify",
-    "title": "crop cover",
+    "title": "crop upload cover",
     "description": "in upload page, when upload cover, there have crop feature",
     "urgent": "Medium",
-    "status": "OPEN",
-    "createdAt": "2026-02-21T02:33:44.501Z"
+    "status": "RESOLVED",
+    "createdAt": "2026-02-21T02:33:44.501Z",
+    "updatedAt": "2026-02-24T06:55:47.993Z"
   }
 ]

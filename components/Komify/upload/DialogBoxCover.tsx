@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Image as ImageIcon, UploadCloud, X, Info } from "lucide-react";
+import { UploadCloud, X, Scissors } from "lucide-react";
+import Cropper from "react-easy-crop";
 
 interface DialogBoxCoverProps {
   open: boolean;
@@ -16,7 +17,9 @@ export default function DialogBoxCover({
   onSave,
 }: DialogBoxCoverProps) {
   const [preview, setPreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
   useEffect(() => {
     return () => {
@@ -31,21 +34,59 @@ export default function DialogBoxCover({
     if (file.size > 5 * 1024 * 1024) {
       return alert("Ukuran file terlalu besar (Maks 5MB).");
     }
-    setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
+  const onCropComplete = useCallback((_area: any, pixels: any) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const createCroppedImage = async () => {
+    if (!preview || !croppedAreaPixels) return;
+
+    try {
+      const image = new Image();
+      image.src = preview;
+      await new Promise((resolve) => (image.onload = resolve));
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      canvas.width = croppedAreaPixels.width;
+      canvas.height = croppedAreaPixels.height;
+
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height
+      );
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const croppedFile = new File([blob], "cover_cropped.jpg", {
+            type: "image/jpeg",
+          });
+          onSave(croppedFile);
+        }
+      }, "image/jpeg", 0.9);
+    } catch (e) {
+      console.error("Error cropping image:", e);
+    }
   };
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center z-100 p-4"
+          className="fixed inset-0 bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center z-100 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -59,14 +100,14 @@ export default function DialogBoxCover({
             <div className="flex items-center justify-between p-6 border-b border-zinc-800 bg-zinc-900/50">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500">
-                  <ImageIcon size={20} />
+                  <Scissors size={20} />
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-white uppercase tracking-tight">
-                    Upload Cover
+                    Adjust Cover
                   </h2>
                   <p className="text-[10px] text-zinc-500 font-medium">
-                    Resolution 3:4 recommended
+                    Crop to 3:4 aspect ratio
                   </p>
                 </div>
               </div>
@@ -82,15 +123,10 @@ export default function DialogBoxCover({
               <div
                 className={`
                   relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center 
-                  cursor-pointer transition-all duration-300 aspect-3/4 max-h-[400px] mx-auto overflow-hidden
-                  ${preview
-                    ? "border-zinc-700 bg-zinc-950"
-                    : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5"
-                  }
+                  transition-all duration-300 aspect-3/4 max-h-[400px] mx-auto overflow-hidden
+                  ${preview ? "border-zinc-700 bg-zinc-950" : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5 cursor-pointer"}
                 `}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={onDrop}
-                onClick={() => document.getElementById("coverInput")?.click()}
+                onClick={() => !preview && document.getElementById("coverInput")?.click()}
               >
                 {!preview ? (
                   <div className="flex flex-col items-center gap-4 py-8">
@@ -98,50 +134,64 @@ export default function DialogBoxCover({
                       <UploadCloud size={32} className="text-zinc-600" />
                     </div>
                     <div>
-                      <p className="text-zinc-300 text-sm font-semibold">Drop image here</p>
-                      <p className="text-zinc-500 text-[11px] mt-1 uppercase tracking-widest font-bold">
-                        or click to browse
+                      <p className="text-zinc-300 text-sm font-semibold">Upload cover image</p>
+                      <p className="text-zinc-500 text-[10px] mt-1 uppercase tracking-widest font-bold">
+                        Click to browse
                       </p>
-                    </div>
-                    <div className="mt-2 flex items-center gap-1.5 text-zinc-600">
-                      <Info size={12} />
-                      <p className="text-[10px]">JPG, PNG, WEBP (Max 5MB)</p>
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <div
-                      className="absolute inset-0 opacity-40 blur-2xl scale-110 z-0"
-                      style={{
-                        backgroundImage: `url(${preview})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
+                  <div className="relative w-full h-full">
+                    <Cropper
+                      image={preview}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={3 / 4}
+                      onCropChange={setCrop}
+                      onCropComplete={onCropComplete}
+                      onZoomChange={setZoom}
+                      classes={{
+                        containerClassName: "rounded-2xl",
                       }}
                     />
-
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="relative z-10 w-full h-full object-contain p-2"
-                    />
-
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity z-20 flex items-center justify-center">
-                      <p className="text-white text-[10px] font-bold uppercase tracking-widest bg-blue-600 px-4 py-2 rounded-full shadow-lg">
-                        Change Image
-                      </p>
-                    </div>
-                  </>
+                  </div>
                 )}
               </div>
+
+              {preview && (
+                <div className="mt-6 space-y-2">
+                  <div className="flex justify-between text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                    <span>Zoom</span>
+                    <span>{Math.round(zoom * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    value={zoom}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    aria-labelledby="Zoom"
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <button
+                    onClick={() => {
+                      setPreview(null);
+                      setZoom(1);
+                    }}
+                    className="w-full py-2 text-[10px] text-zinc-500 font-bold hover:text-red-400 transition-colors"
+                  >
+                    CHANGE IMAGE
+                  </button>
+                </div>
+              )}
 
               <input
                 id="coverInput"
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) =>
-                  e.target.files?.[0] && handleFileSelect(e.target.files[0])
-                }
+                onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               />
 
               <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-zinc-800">
@@ -155,15 +205,15 @@ export default function DialogBoxCover({
                 <button
                   className={`
                     px-8 py-2.5 rounded-xl text-xs font-black transition-all shadow-lg
-                    ${selectedFile
+                    ${preview
                       ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 active:scale-95"
                       : "bg-zinc-800 text-zinc-600 cursor-not-allowed shadow-none"
                     }
                   `}
-                  onClick={() => selectedFile && onSave(selectedFile)}
-                  disabled={!selectedFile}
+                  onClick={createCroppedImage}
+                  disabled={!preview}
                 >
-                  SAVE COVER
+                  SAVE CROPPED COVER
                 </button>
               </div>
             </div>
