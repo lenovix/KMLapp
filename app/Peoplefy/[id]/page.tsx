@@ -21,6 +21,8 @@ import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import AddChapterModal from "@/components/Peoplefy/AddChapterModal";
 import MediaViewer from "@/components/Peoplefy/MediaViewer";
+import DialogBox from "@/components/UI/DialogBox";
+import Alert from "@/components/UI/Alert";
 
 export default function PersonDetail({
   params,
@@ -38,6 +40,14 @@ export default function PersonDetail({
 
   const [openChapters, setOpenChapters] = useState<number[]>([]);
   const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
+
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean, chapterId: number | null, url: string }>({
+    show: false,
+    chapterId: null,
+    url: ""
+  });
+
+  const [alert, setAlert] = useState<{ show: boolean, type: "success" | "error" | "onprogress", title: string, message: string } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,8 +99,16 @@ export default function PersonDetail({
     try {
       const res = await fetch(`/api/peoplefy/people/${id}`, { method: "DELETE" });
       if (res.ok) {
-        alert("Data berhasil dihapus");
-        router.push("/peoplefy");
+        setAlert({
+          show: true,
+          type: "success",
+          title: "Data Terhapus",
+          message: "Profil dan semua media terkait telah berhasil dibersihkan dari database."
+        });
+        setTimeout(() => {
+          router.push("/peoplefy");
+        }, 2000);
+
       }
     } catch (error) {
       console.error("Delete error:", error);
@@ -113,7 +131,22 @@ export default function PersonDetail({
     }
   };
 
-  const handleDeleteMedia = async (chapterId: number, mediaUrl: string) => {
+  const confirmDeleteMedia = (chapterId: number, mediaUrl: string) => {
+    setDeleteConfirm({ show: true, chapterId, url: mediaUrl });
+  };
+
+  const handleDeleteMedia = async () => {
+    const { chapterId, url: mediaUrl } = deleteConfirm;
+    if (!chapterId) return;
+
+    setDeleteConfirm({ show: false, chapterId: null, url: "" });
+    setAlert({
+      show: true,
+      type: "onprogress",
+      title: "Deleting Media",
+      message: "Sedang menghapus data dari server..."
+    });
+
     try {
       const res = await fetch(`/api/peoplefy/delete-media`, {
         method: "POST",
@@ -131,9 +164,23 @@ export default function PersonDetail({
           });
           return { ...prev, chapters: newChapters };
         });
+
+        setAlert({
+          show: true,
+          type: "success",
+          title: "Deleted!",
+          message: "Media berhasil dihapus selamanya."
+        });
+      } else {
+        throw new Error("Failed to delete");
       }
     } catch (error) {
-      console.error("Delete media error:", error);
+      setAlert({
+        show: true,
+        type: "error",
+        title: "Error",
+        message: "Gagal menghapus media. Silakan coba lagi."
+      });
     }
   };
 
@@ -161,13 +208,30 @@ export default function PersonDetail({
         }));
 
         setIsChapterModalOpen(false);
-        alert("Chapter dan Folder berhasil dibuat!");
+
+        setAlert({
+          show: true,
+          type: "success",
+          title: "Chapter Created",
+          message: "Chapter dan Folder baru berhasil dibuat di sistem!"
+        });
       } else {
-        alert("Gagal menyimpan chapter");
+        setAlert({
+          show: true,
+          type: "error",
+          title: "Gagal Menyimpan",
+          message: "Sistem tidak dapat menyimpan chapter. Coba periksa koneksi atau nama folder."
+        });
       }
     } catch (error) {
       console.error("Fetch error:", error);
-      alert("Terjadi kesalahan koneksi");
+
+      setAlert({
+        show: true,
+        type: "error",
+        title: "Koneksi Bermasalah",
+        message: "Terjadi kesalahan fatal pada saat menghubungi server."
+      });
     }
   };
 
@@ -252,11 +316,22 @@ export default function PersonDetail({
       }
 
       if (successfullyUploaded.length > 0) {
-        alert(`${successfullyUploaded.length} file berhasil diupload!`);
+        setAlert({
+          show: true,
+          type: "success",
+          title: "Upload Berhasil",
+          message: `${successfullyUploaded.length} media baru telah ditambahkan ke chapter ini.`
+        });
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Terjadi kesalahan sistem saat upload.");
+
+      setAlert({
+        show: true,
+        type: "error",
+        title: "Upload Gagal",
+        message: "Terjadi kesalahan sistem. Pastikan koneksi stabil dan coba lagi."
+      });
     } finally {
       e.target.value = "";
     }
@@ -518,7 +593,7 @@ export default function PersonDetail({
 
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
           {person.chapters?.map((chapter: any) => {
             const isOpen = openChapters.includes(chapter.id);
             const firstImage = chapter.images?.[0];
@@ -527,103 +602,129 @@ export default function PersonDetail({
             return (
               <div
                 key={chapter.id}
-                className={`group border transition-all duration-500 rounded-[2.5rem] overflow-hidden flex flex-col ${isOpen
-                  ? "col-span-1 md:col-span-2 lg:col-span-3 border-blue-500/50 bg-slate-900/40"
-                  : "border-slate-800 bg-slate-900/20 hover:border-slate-600 hover:bg-slate-900/40"
+                className={`group relative transition-all duration-700 ease-in-out rounded-4xl overflow-hidden flex flex-col border ${isOpen
+                  ? "col-span-1 md:col-span-2 lg:col-span-3 border-blue-500/40 bg-slate-900/60 ring-1 ring-blue-500/20"
+                  : "border-slate-800 bg-slate-900/30 hover:border-blue-500/30 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]"
                   }`}
               >
+                <div className="absolute top-4 right-4 z-20 flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteChapter(chapter.id);
+                    }}
+                    className="p-2 bg-slate-950/50 backdrop-blur-md hover:bg-red-500/80 text-white/70 hover:text-white rounded-xl transition-all border border-white/10 opacity-0 group-hover:opacity-100 shadow-lg"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById(`upload-${chapter.id}`)?.click();
+                    }}
+                    className="p-2 bg-slate-950/50 backdrop-blur-md hover:bg-blue-600/80 text-white/70 hover:text-white rounded-xl transition-all border border-white/10 opacity-0 group-hover:opacity-100 shadow-lg"
+                  >
+                    <ImagePlus size={16} />
+                    <input
+                      type="file"
+                      id={`upload-${chapter.id}`}
+                      className="hidden"
+                      accept="image/*,video/*"
+                      multiple
+                      onChange={(e) => handleUploadMedia(chapter.id, e)}
+                    />
+                  </button>
+                </div>
+
                 <div
                   onClick={() => toggleChapter(chapter.id)}
                   className="cursor-pointer flex flex-col h-full"
                 >
                   {!isOpen && (
-                    <div className="relative h-48 w-full bg-slate-950 overflow-hidden">
+                    <div className="relative h-56 w-full bg-slate-950 overflow-hidden">
                       {firstImage ? (
                         isVideo ? (
-                          <video src={firstImage} className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" muted />
+                          <video src={firstImage} className="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-1000" muted />
                         ) : (
-                          <img src={firstImage} alt="" className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
+                          <img src={firstImage} alt="" className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-1000" />
                         )
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon size={40} className="text-slate-800" />
+                        <div className="w-full h-full flex items-center justify-center bg-slate-900/50">
+                          <ImageIcon size={32} className="text-slate-700" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-linear-to-t from-slate-900 to-transparent" />
-                      <div className="absolute bottom-4 left-6 right-6 flex justify-between items-end">
-                        <div className="bg-blue-600/20 backdrop-blur-md border border-blue-500/30 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
-                          <ImageIcon size={12} />
-                          {chapter.images.length} Media
+                      <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/20 to-transparent" />
+
+                      <div className="absolute bottom-4 left-6">
+                        <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md text-blue-400 text-[10px] font-bold tracking-widest uppercase">
+                          {chapter.images?.length || 0} Media
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <div className="p-6 md:p-8 flex flex-col flex-1">
-                    <div className="flex justify-between items-start gap-4">
+                  <div className={`p-8 flex flex-col flex-1 transition-all duration-500 ${isOpen ? "md:p-12" : "p-6"}`}>
+                    <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <h3 className={`font-bold transition-all ${isOpen ? "text-3xl text-blue-400" : "text-xl text-white group-hover:text-blue-400"}`}>
+                        <h3 className={`font-bold transition-all duration-500 ${isOpen ? "text-4xl text-white tracking-tight" : "text-xl text-slate-200 group-hover:text-blue-400"
+                          }`}>
                           {chapter.title}
                         </h3>
-                        <p className={`text-slate-500 text-sm mt-2 line-clamp-2 ${isOpen ? "hidden" : "block"}`}>
-                          {chapter.description}
-                        </p>
+                        {!isOpen && (
+                          <p className="text-slate-500 text-sm mt-2 line-clamp-1 italic font-light">
+                            {chapter.description || "No description provided..."}
+                          </p>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          onClick={() => handleDeleteChapter(chapter.id)}
-                          className="p-2.5 bg-slate-800/50 hover:bg-red-600 text-slate-400 hover:text-white rounded-xl transition-all"
-                          title="Hapus"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => document.getElementById(`upload-${chapter.id}`)?.click()}
-                          className="p-2.5 bg-slate-800/50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all"
-                          title="Upload"
-                        >
-                          <ImagePlus size={16} />
-                          <input
-                            type="file"
-                            id={`upload-${chapter.id}`}
-                            className="hidden"
-                            accept="image/*,video/*"
-                            multiple
-                            onChange={(e) => handleUploadMedia(chapter.id, e)}
-                          />
-                        </button>
-                        <div className={`p-2 rounded-full border border-slate-700 transition-transform duration-500 ${isOpen ? "rotate-180 bg-blue-600 border-blue-500" : ""}`}>
-                          <ChevronDown size={16} className={isOpen ? "text-white" : "text-slate-500"} />
-                        </div>
+                      <div className={`p-2 rounded-full border border-slate-700/50 transition-all duration-500 ${isOpen ? "rotate-180 bg-blue-600 border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "bg-slate-800/30"
+                        }`}>
+                        <ChevronDown size={18} className={isOpen ? "text-white" : "text-slate-500"} />
                       </div>
                     </div>
 
                     {isOpen && (
-                      <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                        <p className="text-slate-300 text-lg mb-8 leading-relaxed max-w-3xl">
-                          {chapter.description}
+                      <div className="mt-10 animate-in fade-in zoom-in-95 duration-700">
+                        <div className="w-16 h-1 bg-blue-600 rounded-full mb-8" />
+                        <p className="text-slate-300 text-lg leading-relaxed max-w-4xl font-light italic">
+                          &ldquo;{chapter.description}&rdquo;
                         </p>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
                           {chapter.images.map((img: string, idx: number) => {
                             const isMediaVideo = img.match(/\.(mp4|webm|ogg)$/i);
                             return (
-                              <div key={idx} className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group/media cursor-pointer relative shadow-xl">
+                              <div
+                                key={idx}
+                                className="group/media aspect-square rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 relative shadow-2xl hover:border-blue-500/50 transition-all duration-500"
+                              >
                                 <button
-                                  onClick={() => handleDeleteMedia(chapter.id, img)}
-                                  className="absolute top-2 left-2 z-10 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover/media:opacity-100 transition-opacity hover:bg-red-500 shadow-xl"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    confirmDeleteMedia(chapter.id, img);
+                                  }}
+                                  className="absolute top-3 right-3 z-10 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/media:opacity-100 transition-all scale-75 group-hover/media:scale-100 hover:bg-red-600 shadow-xl cursor-pointer"
                                 >
                                   <X size={12} />
                                 </button>
+
                                 {isMediaVideo ? (
-                                  <video src={img} className="w-full h-full object-cover" muted onClick={() => setSelectedMedia(img)} />
+                                  <video src={img} className="w-full h-full object-cover" muted onClick={(e) => { e.stopPropagation(); setSelectedMedia(img); }} />
                                 ) : (
-                                  <img src={img} alt="" onClick={() => setSelectedMedia(img)} className="w-full h-full object-cover group-hover/media:scale-110 transition-transform duration-700" />
+                                  <img
+                                    src={img}
+                                    alt=""
+                                    onClick={(e) => { e.stopPropagation(); setSelectedMedia(img); }}
+                                    className="w-full h-full object-cover group-hover/media:scale-110 transition-transform duration-1000 cursor-pointer"
+                                  />
                                 )}
+
                                 {isMediaVideo && (
-                                  <div className="absolute top-2 right-2 bg-black/50 p-1 rounded-md">
-                                    <Play size={12} className="text-white" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+                                    <div className="p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                                      <Play size={16} className="text-white fill-white" />
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -632,8 +733,11 @@ export default function PersonDetail({
                         </div>
 
                         <button
-                          onClick={() => toggleChapter(chapter.id)}
-                          className="mt-8 text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-2 mx-auto uppercase tracking-widest"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleChapter(chapter.id);
+                          }}
+                          className="mt-12 py-3 px-8 rounded-full border border-slate-800 text-[11px] font-bold text-slate-500 hover:text-white hover:border-slate-600 hover:bg-slate-800/50 transition-all mx-auto block uppercase tracking-[0.3em]"
                         >
                           Tutup Chapter
                         </button>
@@ -651,6 +755,25 @@ export default function PersonDetail({
         onClose={() => setIsChapterModalOpen(false)}
         onSave={handleSaveChapter}
       />
+      <DialogBox
+        open={deleteConfirm.show}
+        type="danger"
+        title="Hapus Media?"
+        desc="Tindakan ini tidak dapat dibatalkan. Foto/Video akan dihapus permanen dari sistem."
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        onConfirm={handleDeleteMedia}
+        onCancel={() => setDeleteConfirm({ show: false, chapterId: null, url: "" })}
+      />
+      {alert && (
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          duration={3000}
+          onClose={() => setAlert(null)}
+        />
+      )}
     </div>
   );
 }

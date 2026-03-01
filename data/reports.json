@@ -600,5 +600,25 @@
     "urgent": "High",
     "status": "OPEN",
     "createdAt": "2026-03-01T15:48:58.820Z"
+  },
+  {
+    "id": "1772381069715",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "header people",
+    "description": "in every people have header",
+    "urgent": "Medium",
+    "status": "OPEN",
+    "createdAt": "2026-03-01T16:04:29.715Z"
+  },
+  {
+    "id": "1772381146061",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "have type on edit report",
+    "description": "",
+    "urgent": "Medium",
+    "status": "OPEN",
+    "createdAt": "2026-03-01T16:05:46.061Z"
   }
 ]
