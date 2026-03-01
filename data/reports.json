@@ -470,10 +470,10 @@
     "project": "Peoplefy",
     "title": "order chapter (change chapter to content)",
     "description": "order by update/create",
-    "status": "OPEN",
+    "status": "CANCEL",
     "createdAt": "2026-02-13T17:01:05.516Z",
     "urgent": "Medium",
-    "updatedAt": "2026-02-20T01:28:14.878Z"
+    "updatedAt": "2026-03-01T09:48:56.866Z"
   },
   {
     "id": "1771002130503",
@@ -481,10 +481,10 @@
     "project": "Peoplefy",
     "title": "filter by platform/other",
     "description": "in detail, have filter content by platform",
-    "status": "OPEN",
+    "status": "CANCEL",
     "createdAt": "2026-02-13T17:02:10.503Z",
     "urgent": "Medium",
-    "updatedAt": "2026-02-20T01:28:04.095Z"
+    "updatedAt": "2026-03-01T09:48:09.512Z"
   },
   {
     "id": "1771002218161",
