@@ -459,10 +459,10 @@
     "project": "Peoplefy",
     "title": "add order by createAt and updateAt",
     "description": "in homepage",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "urgent": "High",
     "createdAt": "2026-02-13T17:00:33.014Z",
-    "updatedAt": "2026-02-20T01:29:59.912Z"
+    "updatedAt": "2026-03-01T09:24:48.742Z"
   },
   {
     "id": "1771002065516",
@@ -492,9 +492,9 @@
     "project": "Peoplefy",
     "title": "edit information people",
     "description": "in detail page have button to edit information detail",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "createdAt": "2026-02-13T17:03:38.161Z",
-    "updatedAt": "2026-02-20T01:27:01.868Z",
+    "updatedAt": "2026-02-28T22:37:25.621Z",
     "urgent": "High"
   },
   {

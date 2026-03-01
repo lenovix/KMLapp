@@ -10,6 +10,8 @@ interface Person {
   tag: string;
   profileImage?: string;
   description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface PeopleListProps {
@@ -19,11 +21,17 @@ interface PeopleListProps {
 export default function PeopleList({ initialPeople }: PeopleListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPeople = initialPeople.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.tag && p.tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  );
+  const filteredPeople = initialPeople
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.tag && p.tag.toLowerCase().includes(searchQuery.toLowerCase())),
+    )
+    .sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
 
   return (
     <div className="space-y-8">
