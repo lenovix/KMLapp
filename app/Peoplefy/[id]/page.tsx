@@ -176,20 +176,57 @@ export default function PersonDetail({
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = e.target.files;
+
     if (!files || files.length === 0) return;
+    if (typeof window === "undefined") return;
 
     const fileArray = Array.from(files);
     const successfullyUploaded: string[] = [];
 
     try {
+      const heicModule = await import("heic2any");
+      const heic2any = heicModule.default;
+
       for (const file of fileArray) {
-        const isImage = file.type.startsWith("image/");
+        const isHEIC = file.name.toLowerCase().endsWith(".heic") ||
+          file.type === "image/heic" ||
+          file.type === "image/heif";
+
+        const isImage = file.type.startsWith("image/") || isHEIC;
         const isVideo = file.type.startsWith("video/");
 
         if (!isImage && !isVideo) continue;
 
+        let fileToUpload: File | Blob = file;
+
+        if (isHEIC) {
+          try {
+            console.log(`Memulai konversi: ${file.name}`);
+
+            const arrayBuffer = await file.arrayBuffer();
+            const blobToConvert = new Blob([arrayBuffer], { type: "image/heic" });
+
+            const convertedBlob = await heic2any({
+              blob: blobToConvert,
+              toType: "image/jpeg",
+              quality: 0.8,
+            });
+
+            const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+
+            fileToUpload = new File([finalBlob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), {
+              type: "image/jpeg",
+            });
+
+            console.log("Konversi Berhasil!");
+          } catch (convError: any) {
+            console.warn("Konversi HEIC dilewati (Fallback aktif). File akan diupload dalam format asli.");
+            fileToUpload = file;
+          }
+        }
+
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", fileToUpload);
         formData.append("personId", String(person.id));
         formData.append("chapterId", String(chapterId));
 
@@ -219,7 +256,7 @@ export default function PersonDetail({
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Terjadi kesalahan sistem.");
+      alert("Terjadi kesalahan sistem saat upload.");
     } finally {
       e.target.value = "";
     }

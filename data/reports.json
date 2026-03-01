@@ -579,5 +579,26 @@
     "status": "RESOLVED",
     "createdAt": "2026-02-21T02:33:44.501Z",
     "updatedAt": "2026-02-24T06:55:47.993Z"
+  },
+  {
+    "id": "1772360150534",
+    "type": "bug",
+    "project": "Peoplefy",
+    "title": ".heic image cannot upload",
+    "description": "add extension .heic",
+    "urgent": "High",
+    "status": "RESOLVED",
+    "createdAt": "2026-03-01T10:15:50.534Z",
+    "updatedAt": "2026-03-01T15:48:30.397Z"
+  },
+  {
+    "id": "1772380138820",
+    "type": "bug",
+    "project": "Peoplefy",
+    "title": "grid chapter close everywhere",
+    "description": "",
+    "urgent": "High",
+    "status": "OPEN",
+    "createdAt": "2026-03-01T15:48:58.820Z"
   }
 ]

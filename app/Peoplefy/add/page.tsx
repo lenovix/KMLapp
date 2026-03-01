@@ -45,6 +45,33 @@ export default function AddPeoplePage() {
     { id: 1, title: "", description: "", images: [] as string[] },
   ]);
 
+  const convertHeicToJpeg = async (file: File): Promise<File | Blob> => {
+    const isHEIC = file.name.toLowerCase().endsWith(".heic") || file.type === "image/heic";
+
+    if (isHEIC && typeof window !== "undefined") {
+      try {
+        const heic2any = (await import("heic2any")).default;
+
+        console.log(`Mengonversi ${file.name}...`);
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.7,
+        });
+
+        const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+
+        return new File([finalBlob], file.name.replace(/\.heic$/i, ".jpg"), {
+          type: "image/jpeg",
+        });
+      } catch (error) {
+        console.warn("HEIC conversion failed, using original file:", error);
+        return file;
+      }
+    }
+    return file;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -54,17 +81,21 @@ export default function AddPeoplePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleProfileImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleProfileImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
     if (file) {
+      setLoading(true);
+      const processedFile = await convertHeicToJpeg(file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({
           ...prev,
           profileImage: reader.result as string,
         }));
+        setLoading(false);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
     }
   };
 
@@ -85,13 +116,18 @@ export default function AddPeoplePage() {
     if (chapters.length > 1) setChapters(chapters.filter((c) => c.id !== id));
   };
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     chapterId: number,
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach((file) => {
+
+    const fileArray = Array.from(files);
+
+    for (const file of fileArray) {
+      const processedFile = await convertHeicToJpeg(file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setChapters((prev) =>
@@ -102,8 +138,9 @@ export default function AddPeoplePage() {
           ),
         );
       };
-      reader.readAsDataURL(file);
-    });
+      reader.readAsDataURL(processedFile);
+    }
+    e.target.value = "";
   };
 
   const removeImage = (chapterId: number, imgIndex: number) => {
@@ -422,7 +459,7 @@ export default function AddPeoplePage() {
                         type="file"
                         multiple
                         className="hidden"
-                        accept="image/*"
+                        accept="image/*,.heic"
                         onChange={(e) => handleImageUpload(chapter.id, e)}
                       />
                     </label>
@@ -452,10 +489,13 @@ export default function AddPeoplePage() {
                     className="w-full h-full object-cover"
                   />
                   <button
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, profileImage: "" }))
-                    }
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg text-white"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setFormData((prev) => ({ ...prev, profileImage: "" }));
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg text-white z-20 hover:bg-red-600 transition-colors"
                   >
                     <X size={14} />
                   </button>
@@ -471,9 +511,9 @@ export default function AddPeoplePage() {
               )}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic"
                 onChange={handleProfileImage}
-                className="absolute inset-0 opacity-0 cursor-pointer"
+                className="absolute inset-0 opacity-0 cursor-pointer z-10"
               />
             </div>
           </section>
