@@ -55,10 +55,8 @@ export default function PersonDetail({
   }, [id]);
 
   useEffect(() => {
-    if (person?.chapters && person.chapters.length > 0) {
-      setOpenChapters([person.chapters[0].id]);
-    }
-  }, [person]);
+    setOpenChapters([]);
+  }, [person?.id]);
 
   if (loading)
     return (
@@ -245,7 +243,6 @@ export default function PersonDetail({
           </Link>
 
           <div className="flex items-center bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 p-1.5 rounded-2xl shadow-2xl">
-            {/* Edit */}
             <Link
               href={`/peoplefy/edit/${person.id}`}
               className="flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-xl transition-all"
@@ -254,7 +251,7 @@ export default function PersonDetail({
               <span>Edit</span>
             </Link>
 
-            <div className="w-[1px] h-6 bg-slate-700/50 mx-1" />
+            <div className="w-px h-6 bg-slate-700/50 mx-1" />
 
             <button
               onClick={handleDeletePerson}
@@ -274,7 +271,7 @@ export default function PersonDetail({
 
         <div className="max-w-4xl mx-auto text-center">
           <div className="relative inline-block mb-10">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-full blur-md opacity-20 animate-pulse" />
+            <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-full blur-md opacity-20 animate-pulse" />
             <div className="relative p-1 bg-slate-800/50 rounded-full backdrop-blur-sm border border-white/10">
               <img
                 src={person.profileImage}
@@ -308,7 +305,7 @@ export default function PersonDetail({
           {((person.birthDate && person.birthPlace) || (person.lastPosition && person.lastCompany)) && (
             <div className="flex flex-col md:flex-row items-stretch justify-center gap-4 max-w-3xl mx-auto mb-12">
               {(person.birthDate || person.birthPlace) && (
-                <div className="flex-1 flex items-center gap-4 p-5 bg-white/[0.03] backdrop-blur-md border border-white/[0.08] rounded-2xl hover:bg-white/[0.05] transition-colors">
+                <div className="flex-1 flex items-center gap-4 p-5 bg-white/3 backdrop-blur-md border border-white/8 rounded-2xl hover:bg-white/5 transition-colors">
                   <div className="w-10 h-10 flex items-center justify-center bg-blue-500/10 rounded-xl text-blue-400">
                     <Calendar size={20} />
                   </div>
@@ -322,7 +319,7 @@ export default function PersonDetail({
               )}
 
               {person.lastPosition && person.lastCompany && (
-                <div className="flex-1 flex items-center gap-4 p-5 bg-white/[0.03] backdrop-blur-md border border-white/[0.08] rounded-2xl hover:bg-white/[0.05] transition-colors">
+                <div className="flex-1 flex items-center gap-4 p-5 bg-white/3 backdrop-blur-md border border-white/8 rounded-2xl hover:bg-white/5 transition-colors">
                   <div className="w-10 h-10 flex items-center justify-center bg-purple-500/10 rounded-xl text-purple-400">
                     <MapPin size={20} />
                   </div>
@@ -357,7 +354,7 @@ export default function PersonDetail({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-left">
 
                 {person.family && person.family.length > 0 && (
-                  <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                  <div className="group bg-white/2 hover:bg-white/4 border border-white/5 p-8 rounded-4xl transition-all duration-300">
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="flex items-center gap-3 text-white font-bold text-lg">
                         <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -374,7 +371,7 @@ export default function PersonDetail({
                       {person.family?.map((f: any, i: number) => (
                         <div
                           key={i}
-                          className="flex justify-between items-center p-3 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.03] transition-colors group/item"
+                          className="flex justify-between items-center p-3 rounded-xl border border-white/3 bg-white/1 hover:bg-white/3 transition-colors group/item"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 group-hover/item:bg-blue-400 transition-colors" />
@@ -390,7 +387,7 @@ export default function PersonDetail({
                 )}
 
                 {person.newsLinks && person.newsLinks.length > 0 && (
-                  <div className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] p-8 rounded-[2rem] transition-all duration-300">
+                  <div className="group bg-white/2 hover:bg-white/4 border border-white/5 p-8 rounded-4xl transition-all duration-300">
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="flex items-center gap-3 text-white font-bold text-lg">
                         <div className="p-2 bg-purple-500/10 rounded-lg">
@@ -407,7 +404,7 @@ export default function PersonDetail({
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-4 p-4 rounded-xl border border-white/[0.03] bg-white/[0.01] hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group/link"
+                          className="flex items-center gap-4 p-4 rounded-xl border border-white/3 bg-white/1 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group/link"
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-sm text-slate-400 group-hover/link:text-blue-400 transition-colors truncate">
@@ -423,9 +420,9 @@ export default function PersonDetail({
               </div>
             )}
 
-          <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto py-8 px-4 border-y border-white/[0.05] relative">
-            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
-            <div className="absolute left-2/3 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-gradient-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
+          <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto py-8 px-4 border-y border-white/5 relative">
+            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-px h-8 bg-linear-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
+            <div className="absolute left-2/3 top-1/2 -translate-y-1/2 w-px h-8 bg-linear-to-b from-transparent via-slate-700 to-transparent md:block hidden" />
 
             {[
               { val: totalImages, label: 'Images' },
@@ -445,146 +442,166 @@ export default function PersonDetail({
         </div>
       </section>
 
-      <main className="max-w-6xl mx-auto px-6 pb-24">
-
-
-        <div className="flex justify-between items-end mb-12">
-          <div className="flex-1 text-center translate-x-12">
-            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-slate-500">
+      <main className="max-w-7xl mx-auto px-6 pb-24">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
+          <div className="text-left">
+            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-slate-500 mb-1">
               Timeline Chapters
             </h2>
+            <p className="text-slate-400 text-xs">Jelajahi setiap momen berharga</p>
           </div>
 
-          <button
-            onClick={() => setIsChapterModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-95"
-          >
-            <FolderPlus size={16} />
-            <span className="hidden md:inline">Chapter Baru</span>
-          </button>
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <div className="flex items-center p-1 bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl">
+              <button
+                onClick={() => setOpenChapters(person.chapters.map((c: any) => c.id))}
+                className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-xl transition-all"
+              >
+                Expand All
+              </button>
+              <div className="w-px h-4 bg-slate-800 mx-1" />
+              <button
+                onClick={() => setOpenChapters([])}
+                className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
+              >
+                Collapse All
+              </button>
+            </div>
+
+            <button
+              onClick={() => setIsChapterModalOpen(true)}
+              className="group flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold transition-all shadow-lg shadow-blue-900/40 active:scale-95 w-full md:w-auto justify-center border border-blue-400/30"
+            >
+              <div className="p-1 bg-white/20 rounded-lg group-hover:rotate-90 transition-transform duration-300">
+                <FolderPlus size={16} />
+              </div>
+              <span>NEW CHAPTER</span>
+            </button>
+          </div>
+
         </div>
-        <div className="space-y-6">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {person.chapters?.map((chapter: any) => {
             const isOpen = openChapters.includes(chapter.id);
+            const firstImage = chapter.images?.[0];
+            const isVideo = firstImage?.match(/\.(mp4|webm|ogg)$/i);
 
             return (
               <div
                 key={chapter.id}
-                className="border border-slate-800 rounded-4xl overflow-hidden bg-slate-900/20 backdrop-blur-sm transition-all duration-300"
+                className={`group border transition-all duration-500 rounded-[2.5rem] overflow-hidden flex flex-col ${isOpen
+                  ? "col-span-1 md:col-span-2 lg:col-span-3 border-blue-500/50 bg-slate-900/40"
+                  : "border-slate-800 bg-slate-900/20 hover:border-slate-600 hover:bg-slate-900/40"
+                  }`}
               >
-                <div className="flex items-center w-full pr-6 group/item">
-                  <button
-                    onClick={() => toggleChapter(chapter.id)}
-                    className="flex-1 flex items-center gap-5 p-6 md:p-8 transition-colors text-left"
-                  >
-                    <div
-                      className={`p-3 rounded-2xl ${isOpen ? "bg-blue-600 text-white" : "bg-slate-800 text-slate-400"} transition-colors shadow-lg`}
-                    >
-                      <ImageIcon size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white tracking-tight">
-                        {chapter.title}
-                      </h3>
-                      <p className="text-slate-500 text-xs mt-1">
-                        {chapter.images.length} Photos •{" "}
-                        {chapter.description.substring(0, 50)}...
-                      </p>
-                    </div>
-                  </button>
-
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="file"
-                      id={`upload-${chapter.id}`}
-                      className="hidden"
-                      accept="image/*,video/*"
-                      multiple
-                      onChange={(e) => handleUploadMedia(chapter.id, e)}
-                    />
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteChapter(chapter.id);
-                      }}
-                      className="p-3 bg-slate-800 hover:bg-red-600 text-slate-400 hover:text-white rounded-2xl transition-all active:scale-90"
-                      title="Hapus Chapter"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        document
-                          .getElementById(`upload-${chapter.id}`)
-                          ?.click();
-                      }}
-                      className="p-3 bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white rounded-2xl transition-all active:scale-90"
-                      title="Tambah Gambar/Video"
-                    >
-                      <ImagePlus size={20} />
-                    </button>
-
-                    <div
-                      onClick={() => toggleChapter(chapter.id)}
-                      className={`p-2 rounded-full border border-slate-700 transition-transform duration-300 ${isOpen ? "rotate-180 bg-slate-800" : "rotate-0"}`}
-                    >
-                      <ChevronDown size={20} className="text-slate-400" />
-                    </div>
-                  </div>
-                </div>
-
                 <div
-                  className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+                  onClick={() => toggleChapter(chapter.id)}
+                  className="cursor-pointer flex flex-col h-full"
                 >
-                  <div className="p-6 md:p-8 pt-0 border-t border-slate-800/50">
-                    <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                      {chapter.description}
-                    </p>
-
-                    <div className="max-h-[520px] overflow-y-auto pr-2 custom-scrollbar">
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {chapter.images.map((img: string, idx: number) => {
-                          const isVideo = img.match(/\.(mp4|webm|ogg)$/i);
-
-                          return (
-                            <div key={idx} className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer relative">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteMedia(chapter.id, img);
-                                }}
-                                className="absolute top-2 left-2 z-10 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 shadow-xl"
-                              >
-                                <X size={12} />
-                              </button>
-                              {isVideo ? (
-                                <video
-                                  src={img}
-                                  className="w-full h-full object-cover"
-                                  muted
-                                  onClick={() => setSelectedMedia(img)}
-                                />
-                              ) : (
-                                <img
-                                  src={img}
-                                  alt="Media"
-                                  onClick={() => setSelectedMedia(img)}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
-                              )}
-                              {isVideo && (
-                                <div className="absolute top-2 right-2 bg-black/50 p-1 rounded-md">
-                                  <Play size={12} className="text-white" />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                  {!isOpen && (
+                    <div className="relative h-48 w-full bg-slate-950 overflow-hidden">
+                      {firstImage ? (
+                        isVideo ? (
+                          <video src={firstImage} className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" muted />
+                        ) : (
+                          <img src={firstImage} alt="" className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
+                        )
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon size={40} className="text-slate-800" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-linear-to-t from-slate-900 to-transparent" />
+                      <div className="absolute bottom-4 left-6 right-6 flex justify-between items-end">
+                        <div className="bg-blue-600/20 backdrop-blur-md border border-blue-500/30 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+                          <ImageIcon size={12} />
+                          {chapter.images.length} Media
+                        </div>
                       </div>
                     </div>
+                  )}
+
+                  <div className="p-6 md:p-8 flex flex-col flex-1">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <h3 className={`font-bold transition-all ${isOpen ? "text-3xl text-blue-400" : "text-xl text-white group-hover:text-blue-400"}`}>
+                          {chapter.title}
+                        </h3>
+                        <p className={`text-slate-500 text-sm mt-2 line-clamp-2 ${isOpen ? "hidden" : "block"}`}>
+                          {chapter.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleDeleteChapter(chapter.id)}
+                          className="p-2.5 bg-slate-800/50 hover:bg-red-600 text-slate-400 hover:text-white rounded-xl transition-all"
+                          title="Hapus"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => document.getElementById(`upload-${chapter.id}`)?.click()}
+                          className="p-2.5 bg-slate-800/50 hover:bg-blue-600 text-slate-400 hover:text-white rounded-xl transition-all"
+                          title="Upload"
+                        >
+                          <ImagePlus size={16} />
+                          <input
+                            type="file"
+                            id={`upload-${chapter.id}`}
+                            className="hidden"
+                            accept="image/*,video/*"
+                            multiple
+                            onChange={(e) => handleUploadMedia(chapter.id, e)}
+                          />
+                        </button>
+                        <div className={`p-2 rounded-full border border-slate-700 transition-transform duration-500 ${isOpen ? "rotate-180 bg-blue-600 border-blue-500" : ""}`}>
+                          <ChevronDown size={16} className={isOpen ? "text-white" : "text-slate-500"} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {isOpen && (
+                      <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <p className="text-slate-300 text-lg mb-8 leading-relaxed max-w-3xl">
+                          {chapter.description}
+                        </p>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                          {chapter.images.map((img: string, idx: number) => {
+                            const isMediaVideo = img.match(/\.(mp4|webm|ogg)$/i);
+                            return (
+                              <div key={idx} className="aspect-square rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group/media cursor-pointer relative shadow-xl">
+                                <button
+                                  onClick={() => handleDeleteMedia(chapter.id, img)}
+                                  className="absolute top-2 left-2 z-10 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover/media:opacity-100 transition-opacity hover:bg-red-500 shadow-xl"
+                                >
+                                  <X size={12} />
+                                </button>
+                                {isMediaVideo ? (
+                                  <video src={img} className="w-full h-full object-cover" muted onClick={() => setSelectedMedia(img)} />
+                                ) : (
+                                  <img src={img} alt="" onClick={() => setSelectedMedia(img)} className="w-full h-full object-cover group-hover/media:scale-110 transition-transform duration-700" />
+                                )}
+                                {isMediaVideo && (
+                                  <div className="absolute top-2 right-2 bg-black/50 p-1 rounded-md">
+                                    <Play size={12} className="text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => toggleChapter(chapter.id)}
+                          className="mt-8 text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-2 mx-auto uppercase tracking-widest"
+                        >
+                          Tutup Chapter
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

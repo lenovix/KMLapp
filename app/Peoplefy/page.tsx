@@ -21,7 +21,7 @@ export default async function PeoplefyHome() {
           <Link href="/" className="p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition border border-slate-700">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+          <h1 className="text-xl md:text-2xl font-bold bg-linear-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
             Peoplefy
           </h1>
         </div>
