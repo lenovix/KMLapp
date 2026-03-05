@@ -29,6 +29,7 @@ interface ComicData {
 export default function UploadComicPage({
   defaultSlug,
 }: UploadComicHeaderProps) {
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [coverDialogOpen, setCoverDialogOpen] = useState(false);
   const [alertData, setAlertData] = useState<{
     title: string;
@@ -39,8 +40,14 @@ export default function UploadComicPage({
     onClose?: () => void;
   } | null>(null);
 
+  const [currentSlug, setCurrentSlug] = useState(defaultSlug);
+  useEffect(() => {
+    setCurrentSlug(defaultSlug);
+    setComicData(prev => ({ ...prev, slug: defaultSlug }));
+  }, [defaultSlug]);
+
   const [comicData, setComicData] = useState<ComicData>({
-    slug: defaultSlug,
+    slug: currentSlug,
     title: "",
     authors: "",
     artist: "",
@@ -211,6 +218,11 @@ export default function UploadComicPage({
     setDialogOpen(true);
   };
 
+  const confirmReset = () => {
+    handleReset();
+    setResetDialogOpen(false);
+  };
+
   const handleUpload = async () => {
     setDialogOpen(false);
 
@@ -274,6 +286,8 @@ export default function UploadComicPage({
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
+          const nextSlug = parseInt(String(comicData.slug)) + 1;
+          setCurrentSlug(nextSlug);
           setAlertData({
             type: "success",
             title: "Upload Berhasil",
@@ -282,29 +296,7 @@ export default function UploadComicPage({
           });
 
           setTimeout(() => {
-            setComicData((prev) => ({
-              ...prev,
-              slug: prev.slug + 1,
-              title: "",
-              parodies: "",
-              characters: "",
-              tags: "",
-              cover: "",
-            }));
-
-            setCoverFile(null);
-
-            setChapters([
-              {
-                id: "initial-id-1",
-                number: "001",
-                title: "",
-                language: "English",
-                cencored: "Cencored",
-                files: [],
-              },
-            ]);
-
+            handleReset(nextSlug);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }, 2000);
         } else {
@@ -345,9 +337,10 @@ export default function UploadComicPage({
     }
   };
 
-  const handleReset = () => {
+  const handleReset = (newSlug?: number) => {
+    const targetSlug = newSlug || currentSlug;
     setComicData({
-      slug: defaultSlug,
+      slug: targetSlug,
       title: "",
       authors: "",
       artist: "",
@@ -468,10 +461,20 @@ export default function UploadComicPage({
 
   return (
     <>
+      <DialogBox
+        open={resetDialogOpen}
+        title="Reset Form"
+        desc="Semua data yang sudah kamu input akan dihapus. Lanjutkan?"
+        type="danger"
+        confirmText="Ya, Reset"
+        cancelText="Batal"
+        onConfirm={confirmReset}
+        onCancel={() => setResetDialogOpen(false)}
+      />
       <HeaderUpload
         defaulftSlug={comicData.slug}
         onPublish={() => handleOpenDialog()}
-        onReset={handleReset}
+        onReset={() => setResetDialogOpen(true)}
       />
 
       <main className="w-full p-4  space-y-6">

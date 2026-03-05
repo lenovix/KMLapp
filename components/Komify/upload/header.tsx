@@ -36,9 +36,7 @@ export default function UploadComicHeader({
         <div className="flex items-center gap-2 md:gap-3">
           <button
             type="button"
-            onClick={() => {
-              if (confirm("Hapus semua input?")) onReset();
-            }}
+            onClick={onReset}
             className="flex items-center gap-2 px-3 py-2 text-zinc-400 hover:text-red-400 transition-all text-xs font-bold hover:bg-red-500/10 rounded-xl"
           >
             <RotateCcw size={16} />
