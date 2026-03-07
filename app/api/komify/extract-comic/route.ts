@@ -8,16 +8,10 @@ export async function POST(req: Request) {
   try {
     const { url } = await req.json();
 
-    // if (!url || !url.includes("ni.net")) {
-    //   return NextResponse.json(
-    //     { success: false, message: "URL tidak valid." },
-    //     { status: 400 }
-    //   );
-    // }
-
     browser = await puppeteer.launch({
       headless: true,
-      // executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      executablePath:
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -45,36 +39,23 @@ export async function POST(req: Request) {
     } catch (gotoError: any) {
       console.error("[Network Error]:", gotoError.message);
       let friendlyMessage = "Koneksi Timeout. ";
-
       if (
         gotoError.message.includes("ERR_CONNECTION_TIMED_OUT") ||
         gotoError.message.includes("ERR_CONNECTION_REFUSED")
       ) {
         friendlyMessage +=
-          "ISP kamu memblokir akses ke nHentai. Gunakan Cloudflare WARP atau VPN.";
+          "ISP kamu memblokir akses. Gunakan Cloudflare WARP atau VPN.";
       } else {
         friendlyMessage += gotoError.message;
       }
-
       throw new Error(friendlyMessage);
     }
 
     const html = await page.content();
     const $ = cheerio.load(html);
-    const infoDiv = $("#info");
-
-    if (!infoDiv.length) {
-      throw new Error(
-        "Konten tidak ditemukan. Mungkin terkena Cloudflare Challenge.",
-      );
-    }
-
-    const title = (
-      infoDiv.find("h1.title").text() || infoDiv.find("h2.title").text()
-    ).trim();
 
     const extractedData: any = {
-      title,
+      title: "",
       Parodies: "",
       Characters: "",
       Tags: "",
@@ -82,31 +63,73 @@ export async function POST(req: Request) {
       Groups: "",
     };
 
-    infoDiv.find(".tag-container").each((_, element) => {
-      const categoryText = $(element)
+    if (url.includes("hentai2read.com")) {
+      extractedData.title = $("h3.block-title a")
         .contents()
+        .filter((_, el) => el.type === "text")
         .first()
         .text()
-        .replace(":", "")
         .trim();
-      const tags: string[] = [];
-      $(element)
-        .find(".tag .name")
-        .each((_, nameEl) => {
-          tags.push($(nameEl).text().trim());
-        });
 
-      if (extractedData.hasOwnProperty(categoryText)) {
-        extractedData[categoryText] = tags.join(", ");
+      $(".text-primary").each((_, element) => {
+        const label = $(element).find("b").text().trim().replace(":", "");
+        const tags: string[] = [];
+
+        $(element)
+          .find("a.tagButton")
+          .each((_, tagEl) => {
+            const val = $(tagEl).text().trim();
+            if (val !== "-") tags.push(val);
+          });
+
+        const tagString = tags.join(", ");
+
+        if (label === "Parody") extractedData.Parodies = tagString;
+        if (label === "Artist") extractedData.Artists = tagString;
+        if (label === "Character") extractedData.Characters = tagString;
+        if (label === "Category" || label === "Content") {
+          extractedData.Tags = extractedData.Tags
+            ? `${extractedData.Tags}, ${tagString}`
+            : tagString;
+        }
+      });
+    } else {
+      const infoDiv = $("#info");
+      if (!infoDiv.length) {
+        throw new Error(
+          "Konten tidak ditemukan. Mungkin terkena Cloudflare Challenge.",
+        );
       }
-    });
+
+      extractedData.title = (
+        infoDiv.find("h1.title").text() || infoDiv.find("h2.title").text()
+      ).trim();
+
+      infoDiv.find(".tag-container").each((_, element) => {
+        const categoryText = $(element)
+          .contents()
+          .first()
+          .text()
+          .replace(":", "")
+          .trim();
+        const tags: string[] = [];
+        $(element)
+          .find(".tag .name")
+          .each((_, nameEl) => {
+            tags.push($(nameEl).text().trim());
+          });
+
+        if (extractedData.hasOwnProperty(categoryText)) {
+          extractedData[categoryText] = tags.join(", ");
+        }
+      });
+    }
 
     await browser.close();
     return NextResponse.json({ success: true, data: extractedData });
   } catch (error: any) {
     if (browser) await browser.close();
     console.error("[Final Scraping Error]:", error.message);
-
     return NextResponse.json(
       {
         success: false,

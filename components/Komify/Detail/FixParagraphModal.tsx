@@ -20,12 +20,14 @@ export default function FixParagraphModal({
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
-  const fixParagraph = useCallback((text: string) => {
+  const fixParagraph = useCallback((text: any) => {
     if (!text) return "";
-    let result = text;
+
+    let result = Array.isArray(text) ? text.join(", ") : String(text);
 
     ["|", "♀", "♂", "•", "−"].forEach((s) => {
-      result = result.replaceAll(s, ",");
+      const escapeSymbol = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      result = result.replace(new RegExp(escapeSymbol, "g"), ",");
     });
 
     const parts = result
