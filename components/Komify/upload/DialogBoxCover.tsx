@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, X, Scissors } from "lucide-react";
+import { UploadCloud, X, Scissors, RefreshCw } from "lucide-react";
 import Cropper from "react-easy-crop";
 
 interface DialogBoxCoverProps {
@@ -20,6 +20,7 @@ export default function DialogBoxCover({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
@@ -28,13 +29,18 @@ export default function DialogBoxCover({
   }, [preview]);
 
   const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      return alert("File harus berupa gambar (JPG/PNG/WEBP).");
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      return alert("Ukuran file terlalu besar (Maks 5MB).");
-    }
+    if (!file.type.startsWith("image/")) return alert("File harus berupa gambar.");
+    if (file.size > 5 * 1024 * 1024) return alert("Maksimal 5MB.");
+
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
     setPreview(URL.createObjectURL(file));
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFileSelect(file);
   };
 
   const onCropComplete = useCallback((_area: any, pixels: any) => {
@@ -86,10 +92,12 @@ export default function DialogBoxCover({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center z-100 p-4"
+          className="fixed inset-0 bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center z-110 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
         >
           <motion.div
             className="bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
@@ -97,72 +105,81 @@ export default function DialogBoxCover({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
           >
-            <div className="flex items-center justify-between p-6 border-b border-zinc-800 bg-zinc-900/50">
+            <div className="flex items-center justify-between p-6 border-b border-zinc-800">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500">
                   <Scissors size={20} />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-white uppercase tracking-tight">
-                    Adjust Cover
-                  </h2>
-                  <p className="text-[10px] text-zinc-500 font-medium">
-                    Crop to 3:4 aspect ratio
-                  </p>
+                  <h2 className="text-sm font-bold text-white uppercase">Adjust Cover</h2>
+                  <p className="text-[10px] text-zinc-500 font-medium">3:4 Ratio Supported</p>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 transition-colors"
-              >
-                <X size={18} />
-              </button>
+              <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500"><X size={18} /></button>
             </div>
 
             <div className="p-6">
               <div
                 className={`
-                  relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center 
-                  transition-all duration-300 aspect-3/4 max-h-[400px] mx-auto overflow-hidden
+                  relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center 
+                  transition-all duration-500 aspect-3/4 max-h-[380px] mx-auto overflow-hidden group
                   ${preview ? "border-zinc-700 bg-zinc-950" : "border-zinc-800 bg-zinc-950/50 hover:border-blue-500/50 hover:bg-blue-500/5 cursor-pointer"}
                 `}
-                onClick={() => !preview && document.getElementById("coverInput")?.click()}
               >
                 {!preview ? (
-                  <div className="flex flex-col items-center gap-4 py-8">
-                    <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                      <UploadCloud size={32} className="text-zinc-600" />
+                  <div
+                    className="flex flex-col items-center gap-4 w-full h-full justify-center"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:scale-110 group-hover:border-blue-500/50 transition-all duration-500">
+                      <UploadCloud size={32} className="text-zinc-600 group-hover:text-blue-500" />
                     </div>
-                    <div>
-                      <p className="text-zinc-300 text-sm font-semibold">Upload cover image</p>
-                      <p className="text-zinc-500 text-[10px] mt-1 uppercase tracking-widest font-bold">
-                        Click to browse
-                      </p>
+                    <div className="text-center">
+                      <p className="text-zinc-300 text-sm font-semibold tracking-tight">Drop or Click to Upload</p>
+                      <p className="text-zinc-500 text-[10px] mt-1 uppercase tracking-widest font-black opacity-60">Max 5MB (JPG/PNG)</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-full">
-                    <Cropper
-                      image={preview}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={3 / 4}
-                      onCropChange={setCrop}
-                      onCropComplete={onCropComplete}
-                      onZoomChange={setZoom}
-                      classes={{
-                        containerClassName: "rounded-2xl",
-                      }}
-                    />
-                  </div>
+                  <>
+                    <div className="relative w-full h-full z-0">
+                      <Cropper
+                        image={preview}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={3 / 4}
+                        onCropChange={setCrop}
+                        onCropComplete={onCropComplete}
+                        onZoomChange={setZoom}
+                      />
+                    </div>
+
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" />
+
+                    <div className="absolute center top-4 right-4 z-20">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="
+                          flex items-center gap-2 bg-zinc-900/80 backdrop-blur-md border border-white/10 
+                          p-2 pr-4 rounded-full text-white shadow-2xl 
+                          translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 
+                          transition-all duration-300 hover:bg-blue-600 hover:border-blue-400
+                        "
+                      >
+                        <div className="bg-white/10 p-1.5 rounded-full">
+                          <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider">Change Image</span>
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
 
               {preview && (
-                <div className="mt-6 space-y-2">
+                <div className="mt-6 space-y-3">
                   <div className="flex justify-between text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                    <span>Zoom</span>
-                    <span>{Math.round(zoom * 100)}%</span>
+                    <span>Zoom Control</span>
+                    <span className="text-blue-400">{Math.round(zoom * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -170,24 +187,14 @@ export default function DialogBoxCover({
                     min={1}
                     max={3}
                     step={0.1}
-                    aria-labelledby="Zoom"
                     onChange={(e) => setZoom(Number(e.target.value))}
                     className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
                   />
-                  <button
-                    onClick={() => {
-                      setPreview(null);
-                      setZoom(1);
-                    }}
-                    className="w-full py-2 text-[10px] text-zinc-500 font-bold hover:text-red-400 transition-colors"
-                  >
-                    CHANGE IMAGE
-                  </button>
                 </div>
               )}
 
               <input
-                id="coverInput"
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
@@ -196,24 +203,21 @@ export default function DialogBoxCover({
 
               <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-zinc-800">
                 <button
-                  className="px-6 py-2.5 rounded-xl text-xs font-bold text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"
+                  className="px-6 py-2.5 rounded-xl text-xs font-bold text-zinc-500 hover:text-white transition-all"
                   onClick={onClose}
                 >
                   CANCEL
                 </button>
 
                 <button
-                  className={`
-                    px-8 py-2.5 rounded-xl text-xs font-black transition-all shadow-lg
-                    ${preview
-                      ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 active:scale-95"
-                      : "bg-zinc-800 text-zinc-600 cursor-not-allowed shadow-none"
-                    }
-                  `}
+                  className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all shadow-lg ${preview
+                    ? "bg-blue-600 hover:bg-blue-500 text-white active:scale-95"
+                    : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+                    }`}
                   onClick={createCroppedImage}
                   disabled={!preview}
                 >
-                  SAVE CROPPED COVER
+                  SAVE COVER
                 </button>
               </div>
             </div>

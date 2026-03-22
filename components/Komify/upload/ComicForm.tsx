@@ -144,8 +144,12 @@ export default function ComicForm({
   };
 
   const handleExtract = async () => {
-    if (!extractUrl.includes("nhentai.net")) {
-      alert("Please enter a valid nHentai link");
+    const isValidUrl =
+      extractUrl.includes("nhentai.net") ||
+      extractUrl.includes("hentai2read.com");
+
+    if (!isValidUrl) {
+      alert("Please enter a valid nHentai or Hentai2Read link");
       return;
     }
 
@@ -163,11 +167,11 @@ export default function ComicForm({
         setComicData((prev) => ({
           ...prev,
           title: result.data.title || "",
-          parodies: result.data.Parodies || [],
-          characters: result.data.Characters || [],
-          tags: result.data.Tags || [],
-          artist: result.data.Artists || [],
-          groups: result.data.Groups || [],
+          parodies: result.data.Parodies || "",
+          characters: result.data.Characters || "",
+          tags: result.data.Tags || "",
+          artist: result.data.Artists || "",
+          groups: result.data.Groups || "",
           categories: result.data.Categories || "Doujinshi",
           status: result.data.Status || "Ongoing",
         }));
@@ -184,6 +188,11 @@ export default function ComicForm({
     }
   };
 
+  const isFieldFilled = (field: any) => {
+    if (Array.isArray(field)) return field.length > 0;
+    return (field?.toString().trim().length ?? 0) > 0;
+  };
+
   const checkStatus = [
     { label: `Cover (Require)`, isDone: comicData.cover.trim().length > 0 },
     { label: "Title (Require)", isDone: comicData.title.trim().length > 0 },
@@ -192,34 +201,11 @@ export default function ComicForm({
       isDone:
         chapters.length > 0 && chapters.every((c) => c.title.trim().length > 0),
     },
-    {
-      label: "Parody",
-      isDone: Array.isArray(comicData.parodies)
-        ? comicData.parodies.length > 0
-        : comicData.parodies?.trim().length > 0,
-    },
-    {
-      label: "Characters",
-      isDone: Array.isArray(comicData.characters)
-        ? comicData.characters.length > 0
-        : comicData.characters?.trim().length > 0,
-    },
-    {
-      label: "Artist",
-      isDone: Array.isArray(comicData.artist)
-        ? comicData.artist.length > 0
-        : comicData.artist?.trim().length > 0,
-    },
-    {
-      label: "Groups",
-      isDone: Array.isArray(comicData.groups)
-        ? comicData.groups.length > 0
-        : comicData.groups?.trim().length > 0,
-    },
-    { label: "Tags", isDone: comicData.tags.trim().length > 0 },
-    ...(isManhwa
-      ? [{ label: "Authors", isDone: comicData.authors.trim().length > 0 }]
-      : []),
+    { label: "Parody", isDone: isFieldFilled(comicData.parodies) },
+    { label: "Characters", isDone: isFieldFilled(comicData.characters) },
+    { label: "Artist", isDone: isFieldFilled(comicData.artist) },
+    { label: "Groups", isDone: isFieldFilled(comicData.groups) },
+    { label: "Tags", isDone: isFieldFilled(comicData.tags) },
     {
       label: "Chapter Files",
       isDone: chapters.length > 0 && chapters.every((c) => c.files.length > 0),
