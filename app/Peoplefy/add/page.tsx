@@ -126,7 +126,11 @@ export default function AddPeoplePage() {
     const fileArray = Array.from(files);
 
     for (const file of fileArray) {
-      const processedFile = await convertHeicToJpeg(file);
+      let processedFile: File | Blob = file;
+
+      if (file.type.startsWith("image/") || file.name.toLowerCase().endsWith(".heic")) {
+        processedFile = await convertHeicToJpeg(file);
+      }
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -436,30 +440,32 @@ export default function AddPeoplePage() {
                     placeholder="Details..."
                   />
                   <div className="flex flex-wrap gap-3">
-                    {chapter.images?.map((imgUrl, imgIndex) => (
-                      <div
-                        key={imgIndex}
-                        className="relative w-20 h-20 rounded-xl bg-slate-900 border border-slate-700 overflow-hidden group/img"
-                      >
-                        <img
-                          src={imgUrl}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() => removeImage(chapter.id, imgIndex)}
-                          className="absolute inset-0 bg-red-500/80 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
+                    {chapter.images?.map((url, imgIndex) => {
+                      const isVideo = url.startsWith("data:video/") || url.endsWith(".mp4");
+
+                      return (
+                        <div key={imgIndex} className="relative w-20 h-20 rounded-xl bg-slate-900 border border-slate-700 overflow-hidden group/img">
+                          {isVideo ? (
+                            <video src={url} className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={url} className="w-full h-full object-cover" />
+                          )}
+                          <button
+                            onClick={() => removeImage(chapter.id, imgIndex)}
+                            className="absolute inset-0 bg-red-500/80 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      );
+                    })}
                     <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-xl hover:border-blue-500/50 cursor-pointer">
                       <Upload size={16} className="text-slate-500" />
                       <input
                         type="file"
                         multiple
                         className="hidden"
-                        accept="image/*,.heic"
+                        accept="image/*,video/*,.heic"
                         onChange={(e) => handleImageUpload(chapter.id, e)}
                       />
                     </label>

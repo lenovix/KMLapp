@@ -620,5 +620,26 @@
     "urgent": "Medium",
     "status": "OPEN",
     "createdAt": "2026-03-01T16:05:46.061Z"
+  },
+  {
+    "id": "1772454179196",
+    "type": "bug",
+    "project": "Peoplefy",
+    "title": "support video upload",
+    "description": "on upload page, support to upload video (video and .heic)",
+    "urgent": "High",
+    "status": "OPEN",
+    "createdAt": "2026-03-02T12:22:59.196Z",
+    "updatedAt": "2026-03-02T13:24:50.943Z"
+  },
+  {
+    "id": "1772455914485",
+    "type": "feature",
+    "project": "K.Platforms",
+    "title": "save on localstorage",
+    "description": "for anticipate force close, the data on upload page, save on localstorage",
+    "urgent": "Low",
+    "status": "OPEN",
+    "createdAt": "2026-03-02T12:51:54.485Z"
   }
 ]
