@@ -652,5 +652,15 @@
     "urgent": "Low",
     "status": "OPEN",
     "createdAt": "2026-03-02T12:51:54.485Z"
+  },
+  {
+    "id": "1774203987006",
+    "type": "feature",
+    "project": "Peoplefy",
+    "title": "timeline video",
+    "description": "add timeline for video (like media player have button to play, timeline, dll)",
+    "urgent": "Medium",
+    "status": "OPEN",
+    "createdAt": "2026-03-22T18:26:27.006Z"
   }
 ]
