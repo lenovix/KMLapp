@@ -378,9 +378,9 @@
     "project": "Filmfy",
     "title": "crop feature",
     "description": "di production, fitur ini tidak berjalan",
-    "status": "OPEN",
+    "status": "RESOLVED",
     "createdAt": "2026-02-03T12:34:24.568Z",
-    "updatedAt": "2026-02-20T04:09:40.895Z",
+    "updatedAt": "2026-03-23T16:23:48.387Z",
     "urgent": "High"
   },
   {

@@ -18,11 +18,15 @@ export async function POST(req: NextRequest) {
     const originalPath = path.join(filmDir, "cover_original.jpg");
     const coverPath = path.join(filmDir, "cover.jpg");
 
-    if (!fs.existsSync(originalPath) && fs.existsSync(coverPath)) {
-      fs.renameSync(coverPath, originalPath);
-    } else if (!fs.existsSync(originalPath) && !fs.existsSync(coverPath)) {
-      const possibleOrig = path.join(filmDir, "cover_original.jpg");
-      if (fs.existsSync(possibleOrig)) {
+    if (!fs.existsSync(filmDir)) {
+      return NextResponse.json({ message: "Directory not found" }, { status: 404 });
+    }
+
+    if (!fs.existsSync(originalPath)) {
+      if (fs.existsSync(coverPath)) {
+        fs.copyFileSync(coverPath, originalPath);
+      } else {
+        return NextResponse.json({ message: "Source image not found" }, { status: 400 });
       }
     }
 
@@ -32,13 +36,10 @@ export async function POST(req: NextRequest) {
     if (fs.existsSync(DATA_FILE)) {
       const fileData = fs.readFileSync(DATA_FILE, "utf-8");
       let films = JSON.parse(fileData || "[]");
-
       const filmIndex = films.findIndex((f: any) => f.code === code);
 
       if (filmIndex !== -1) {
-        films[filmIndex].cover = `/filmfy/movie/${code}/cover.jpg`;
         films[filmIndex].createdAt = new Date().toISOString();
-
         fs.writeFileSync(DATA_FILE, JSON.stringify(films, null, 2));
       }
     }

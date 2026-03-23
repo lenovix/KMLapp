@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { X, Crop, Check, Loader2 } from "lucide-react";
 import Cropper from "react-easy-crop";
@@ -65,9 +65,25 @@ export default function CoverViewer({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
-  const [imgSrc, setImgSrc] = useState(
-    `/filmfy/movie/${code}/cover_original.jpg?v=${Date.now()}`
-  );
+  const [imgSrc, setImgSrc] = useState(coverUrl);
+
+  useEffect(() => {
+    const checkOriginalImage = async () => {
+      const originalUrl = `/filmfy/movie/${code}/cover_original.jpg?v=${Date.now()}`;
+      try {
+        const response = await fetch(originalUrl, { method: 'HEAD' });
+        if (response.ok) {
+          setImgSrc(originalUrl);
+        } else {
+          setImgSrc(coverUrl);
+        }
+      } catch (error) {
+        setImgSrc(coverUrl);
+      }
+    };
+
+    checkOriginalImage();
+  }, [code, coverUrl]);
 
   const onCropComplete = useCallback((_: any, pixels: any) => {
     setCroppedAreaPixels(pixels);
