@@ -113,26 +113,28 @@ export async function POST(req: Request) {
     clean(payload.physical);
     clean(payload.profile);
     clean(payload.debut);
-
     if (
       Array.isArray(payload.socialMedia) &&
       payload.socialMedia.length === 0
     ) {
       delete payload.socialMedia;
     }
-
     clean(payload);
 
     const avatarFile = formData.get("avatar") as File | null;
+    let avatarPathInJson = undefined;
+
     if (avatarFile && avatarFile.size > 0) {
       const buffer = Buffer.from(await avatarFile.arrayBuffer());
       const castDir = path.join(AVATAR_BASE_DIR, slug);
       ensureDir(castDir);
 
-      const avatarFilename = "avatar.jpg";
+      const avatarFilename = `avatar.jpg`;
       const avatarPath = path.join(castDir, avatarFilename);
+
       fs.writeFileSync(avatarPath, buffer);
-      payload.avatar = `/filmfy/casts/${slug}/${avatarFilename}`;
+      avatarPathInJson = `/filmfy/casts/${slug}/${avatarFilename}`;
+      payload.avatar = avatarPathInJson;
     }
 
     const raw = fs.existsSync(CAST_JSON)
@@ -162,7 +164,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       slug,
-      avatar: payload.avatar,
+      avatar: payload.avatar || (index >= 0 ? casts[index].avatar : null),
+      updatedAt: now,
     });
   } catch (err) {
     console.error("CAST SAVE ERROR:", err);

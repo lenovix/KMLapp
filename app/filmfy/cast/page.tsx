@@ -22,7 +22,7 @@ export default function CastPage() {
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
@@ -41,20 +41,25 @@ export default function CastPage() {
       result = result.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
-          (c.slug && c.slug.toLowerCase().includes(q))
+          (c.slug && c.slug.toLowerCase().includes(q)),
       );
     }
 
     if (selectedTags.length > 0) {
       result = result.filter((cast) =>
-        cast.tags?.some((tag) => selectedTags.includes(tag))
+        cast.tags?.some((tag) => selectedTags.includes(tag)),
       );
     }
 
     return result.sort((a, b) => {
       const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
       const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-      return dateB !== dateB ? dateB - dateA : a.name.localeCompare(b.name);
+
+      if (dateA !== dateB) {
+        return dateB - dateA;
+      }
+
+      return a.name.localeCompare(b.name);
     });
   }, [casts, query, selectedTags]);
 
@@ -153,10 +158,11 @@ export default function CastPage() {
                   <button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 active:scale-90 ${active
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-2 ring-blue-500/20"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500"
-                      }`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 active:scale-90 ${
+                      active
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-2 ring-blue-500/20"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500"
+                    }`}
                   >
                     {tag}
                   </button>
@@ -176,10 +182,15 @@ export default function CastPage() {
               <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-700">
                 {cast.avatar ? (
                   <Image
-                    src={cast.avatar}
+                    src={
+                      cast.updatedAt
+                        ? `${cast.avatar}?t=${new Date(cast.updatedAt).getTime()}`
+                        : cast.avatar
+                    }
                     alt={cast.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
