@@ -1,87 +1,118 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+import tkinter as tk
+from tkinter import ttk, messagebox
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import StaleElementReferenceException
-from webdriver_manager.chrome import ChromeDriverManager
-import requests
-import os
 import time
+import json
+import subprocess
+import os
+import threading
 
-def get_video_src_with_retry(driver, wait, retries=3):
-    """Fungsi khusus untuk menangani elemen yang suka hilang/berubah (stale)"""
-    for i in range(retries):
-        try:
-            # Tunggu sampai tag video muncul
-            video_element = wait.until(EC.presence_of_element_located((By.TAG_NAME, "video")))
-            
-            # Tarik SRC secepat mungkin
-            src = video_element.get_attribute("src")
-            
-            # Jika src kosong, cek tag <source> di dalamnya
-            if not src:
-                source_element = video_element.find_element(By.TAG_NAME, "source")
-                src = source_element.get_attribute("src")
-            
-            if src:
-                return src
-        except StaleElementReferenceException:
-            print(f"Percobaan {i+1}: Elemen berubah tiba-tiba, mencoba lagi...")
-            time.sleep(1) # Beri jeda sebentar untuk re-render
-        except Exception as e:
-            print(f"Gagal di percobaan {i+1}: {e}")
-    return None
+class FilmfyApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Filmfy Trailer Downloader v1.0")
+        self.root.geometry("500x400")
+        self.root.configure(bg="#1e1e1e")
 
-def download_jav_trailer(url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    wait = WebDriverWait(driver, 15)
-
-    try:
-        print(f"Mengakses: {url}")
-        driver.get(url)
-
-        # Kadang perlu trigger scroll sedikit agar video dimuat
-        driver.execute_script("window.scrollTo(0, 300);")
+        style = ttk.Style()
+        style.theme_use('clam')
         
-        print("Mencari link video...")
-        video_url = get_video_src_with_retry(driver, wait)
+        tk.Label(root, text="Filmfy Downloader", font=("Arial", 18, "bold"), fg="white", bg="#1e1e1e").pack(pady=10)
+        
+        tk.Label(root, text="Masukkan URL Video:", fg="#aaaaaa", bg="#1e1e1e").pack(anchor="w", padx=20)
+        self.url_entry = tk.Entry(root, width=50, font=("Consolas", 10))
+        self.url_entry.insert(0, "https://javtrailers.com/video/atid00635")
+        self.url_entry.pack(pady=5, padx=20)
 
-        if video_url:
-            # Filter jika link-nya adalah 'blob:...' (ini butuh teknik berbeda)
-            if video_url.startswith('blob:'):
-                print("Link berupa BLOB. Butuh teknik Network Log. Mencoba mencari link mentah...")
-                # Jika blob, link mp4 biasanya ada di attribute 'src' di tab network
-                # Tapi kita coba dulu cara standar ini.
-            
-            print(f"Link ditemukan: {video_url}")
-            file_name = "trailer_result.mp4"
-            
-            print("Memulai pengunduhan...")
-            # Menggunakan stream agar tidak memakan RAM
-            with requests.get(video_url, stream=True) as r:
-                r.raise_for_status()
-                with open(file_name, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-            
-            print(f"Sukses! Tersimpan di: {os.path.abspath(file_name)}")
-        else:
-            print("Gagal mendapatkan link video setelah beberapa kali percobaan.")
+        self.btn_download = tk.Button(root, text="MULAI DOWNLOAD", command=self.start_thread, 
+                                      bg="#0078d4", fg="white", font=("Arial", 10, "bold"), 
+                                      padx=20, pady=10, relief="flat")
+        self.btn_download.pack(pady=15)
 
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        driver.quit()
+        tk.Label(root, text="Log Aktivitas:", fg="#aaaaaa", bg="#1e1e1e").pack(anchor="w", padx=20)
+        self.log_text = tk.Text(root, height=10, width=55, bg="#000000", fg="#00ff00", font=("Consolas", 9))
+        self.log_text.pack(pady=5, padx=20)
+
+    def write_log(self, message):
+        self.log_text.insert(tk.END, f"> {message}\n")
+        self.log_text.see(tk.END)
+
+    def start_thread(self):
+        url = self.url_entry.get()
+        if not url:
+            messagebox.showwarning("Peringatan", "Isi URL dulu bos!")
+            return
+        
+        self.btn_download.config(state="disabled")
+        thread = threading.Thread(target=self.process_download, args=(url,))
+        thread.daemon = True
+        thread.start()
+
+    def process_download(self, url):
+        driver = None
+        try:
+            output_dir = r"D:\KMLapp\tools\output"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            video_id = url.split('/')[-1] if url.split('/')[-1] else "trailer_result"
+            output_path = os.path.join(output_dir, f"{video_id}.mp4")
+
+            self.write_log(f"Inisialisasi browser untuk {video_id}...")
+            
+            options = uc.ChromeOptions()
+            options.add_argument("--mute-audio")
+            options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+
+            driver = uc.Chrome(options=options)
+            
+            driver.set_window_rect(x=510, y=100, width=800, height=600)
+
+            driver.get(url)
+            self.write_log("Menunggu Cloudflare & Page Load...")
+            time.sleep(15)
+
+            self.write_log("Memicu Play via Script...")
+            driver.execute_script("""
+                var player = document.querySelector('.video-js');
+                if (player && player.player) { player.player.play(); }
+                var bigPlay = document.querySelector('.vjs-big-play-button');
+                if (bigPlay) bigPlay.click();
+                var videoTag = document.querySelector('video');
+                if (videoTag) { videoTag.muted = true; videoTag.play(); }
+            """)
+
+            time.sleep(10)
+            self.write_log("Mencari link stream...")
+
+            logs = driver.get_log("performance")
+            video_url = None
+            for entry in logs:
+                msg = json.loads(entry["message"])["message"]
+                if msg.get("method") == "Network.requestWillBeSent":
+                    req_url = msg["params"]["request"]["url"]
+                    if ".m3u8" in req_url.lower() and "poster" not in req_url.lower():
+                        video_url = req_url
+
+            if video_url:
+                self.write_log("Link ditemukan! Memulai FFmpeg...")
+                cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-i', video_url, '-c', 'copy', output_path]
+                subprocess.run(cmd, check=True)
+                self.write_log(f"SUKSES: {video_id}.mp4")
+                messagebox.showinfo("Berhasil", f"Video tersimpan di:\n{output_path}")
+            else:
+                self.write_log("GAGAL: Link m3u8 tidak ditemukan.")
+
+        except Exception as e:
+            self.write_log(f"ERROR: {str(e)}")
+        finally:
+            if driver:
+                self.write_log("Menutup browser...")
+                driver.quit()
+            self.btn_download.config(state="normal")
 
 if __name__ == "__main__":
-    target = "https://javtrailers.com/video/juy00841"
-    download_jav_trailer(target)
+    root = tk.Tk()
+    app = FilmfyApp(root)
+    root.mainloop()
