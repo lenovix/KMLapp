@@ -146,10 +146,11 @@ export default function ComicForm({
   const handleExtract = async () => {
     const isValidUrl =
       extractUrl.includes("nhentai.net") ||
-      extractUrl.includes("hentai2read.com");
+      extractUrl.includes("hentai2read.com") ||
+      extractUrl.includes("e-hentai.org");
 
     if (!isValidUrl) {
-      alert("Please enter a valid nHentai or Hentai2Read link");
+      alert("Please enter a valid nHentai, Hentai2Read, or E-Hentai link");
       return;
     }
 

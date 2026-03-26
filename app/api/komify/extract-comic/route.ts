@@ -28,23 +28,25 @@ export async function POST(req: Request) {
     });
 
     await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     );
+
+    await page.setCookie({
+      name: "nw",
+      value: "1",
+      domain: ".e-hentai.org",
+    });
 
     try {
       await page.goto(url, {
-        waitUntil: "domcontentloaded",
-        timeout: 25000,
+        waitUntil: "networkidle2",
+        timeout: 30000,
       });
     } catch (gotoError: any) {
       console.error("[Network Error]:", gotoError.message);
       let friendlyMessage = "Koneksi Timeout. ";
-      if (
-        gotoError.message.includes("ERR_CONNECTION_TIMED_OUT") ||
-        gotoError.message.includes("ERR_CONNECTION_REFUSED")
-      ) {
-        friendlyMessage +=
-          "ISP kamu memblokir akses. Gunakan Cloudflare WARP atau VPN.";
+      if (gotoError.message.includes("ERR_CONNECTION_TIMED_OUT")) {
+        friendlyMessage += "ISP kamu memblokir akses atau server tujuan sibuk.";
       } else {
         friendlyMessage += gotoError.message;
       }
@@ -70,20 +72,16 @@ export async function POST(req: Request) {
         .first()
         .text()
         .trim();
-
       $(".text-primary").each((_, element) => {
         const label = $(element).find("b").text().trim().replace(":", "");
         const tags: string[] = [];
-
         $(element)
           .find("a.tagButton")
           .each((_, tagEl) => {
             const val = $(tagEl).text().trim();
             if (val !== "-") tags.push(val);
           });
-
         const tagString = tags.join(", ");
-
         if (label === "Parody") extractedData.Parodies = tagString;
         if (label === "Artist") extractedData.Artists = tagString;
         if (label === "Character") extractedData.Characters = tagString;
@@ -93,18 +91,66 @@ export async function POST(req: Request) {
             : tagString;
         }
       });
+    } else if (url.includes("e-hentai.org")) {
+      try {
+        await page.waitForSelector("#gn", { timeout: 15000 });
+      } catch (e) {
+        throw new Error(
+          "Gagal menemukan elemen data. E-Hentai mungkin membatasi akses bot kamu.",
+        );
+      }
+
+      const ehHtml = await page.content();
+      const $eh = cheerio.load(ehHtml);
+
+      extractedData.title = $eh("#gn").text().trim();
+      const categoryLabel = $eh("#gdc div").text().trim();
+      if (categoryLabel) extractedData.Categories = categoryLabel;
+
+      $eh("#taglist table tr").each((_, row) => {
+        const categoryRaw = $eh(row).find("td.tc").text().trim().toLowerCase();
+        const category = categoryRaw.replace(":", "");
+        const tags: string[] = [];
+
+        $eh(row)
+          .find("td:nth-child(2) div a")
+          .each((_, tagEl) => {
+            const cleanText = $eh(tagEl).text().split(" | ")[0].trim();
+            if (cleanText) tags.push(cleanText);
+          });
+
+        if (tags.length === 0) return;
+        const tagString = tags.join(", ");
+
+        switch (category) {
+          case "parody":
+            extractedData.Parodies = tagString;
+            break;
+          case "character":
+            extractedData.Characters = tagString;
+            break;
+          case "artist":
+            extractedData.Artists = tagString;
+            break;
+          case "group":
+            extractedData.Groups = tagString;
+            break;
+          default:
+            if (extractedData.Tags) extractedData.Tags += `, ${tagString}`;
+            else extractedData.Tags = tagString;
+            break;
+        }
+      });
     } else {
       const infoDiv = $("#info");
-      if (!infoDiv.length) {
+      if (!infoDiv.length)
         throw new Error(
           "Konten tidak ditemukan. Mungkin terkena Cloudflare Challenge.",
         );
-      }
 
       extractedData.title = (
         infoDiv.find("h1.title").text() || infoDiv.find("h2.title").text()
       ).trim();
-
       infoDiv.find(".tag-container").each((_, element) => {
         const categoryText = $(element)
           .contents()
@@ -118,7 +164,6 @@ export async function POST(req: Request) {
           .each((_, nameEl) => {
             tags.push($(nameEl).text().trim());
           });
-
         if (extractedData.hasOwnProperty(categoryText)) {
           extractedData[categoryText] = tags.join(", ");
         }
@@ -126,6 +171,7 @@ export async function POST(req: Request) {
     }
 
     await browser.close();
+    console.log("DEBUG EXTRACTED:", extractedData);
     return NextResponse.json({ success: true, data: extractedData });
   } catch (error: any) {
     if (browser) await browser.close();
