@@ -143,7 +143,6 @@ export async function POST(req: NextRequest) {
         .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
         .replace("T", " "),
 
-      // Path cover yang disimpan di JSON tetap konsisten ke folder komify
       cover: `/komify/${slug}/cover.jpg`,
 
       rating: Number(formData.get("rating") ?? 0),

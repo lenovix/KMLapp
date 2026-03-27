@@ -171,7 +171,6 @@ export async function POST(req: Request) {
     }
 
     await browser.close();
-    console.log("DEBUG EXTRACTED:", extractedData);
     return NextResponse.json({ success: true, data: extractedData });
   } catch (error: any) {
     if (browser) await browser.close();

@@ -107,9 +107,9 @@ export default function AllComic() {
     () =>
       filteredComics.slice(
         (currentPage - 1) * COMICS_PER_PAGE,
-        currentPage * COMICS_PER_PAGE
+        currentPage * COMICS_PER_PAGE,
       ),
-    [filteredComics, currentPage]
+    [filteredComics, currentPage],
   );
 
   const goToPage = (page: number) => {
@@ -131,13 +131,13 @@ export default function AllComic() {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
@@ -198,7 +198,7 @@ export default function AllComic() {
                   const title =
                     typeof comic.title === "string"
                       ? comic.title
-                      : comic.title?.[0] ?? "Comic";
+                      : (comic.title?.[0] ?? "Comic");
 
                   return (
                     <Link
@@ -214,8 +214,8 @@ export default function AllComic() {
                           className="absolute inset-0 opacity-30 blur-xl scale-110"
                           style={{
                             backgroundImage: `url(${comic.cover})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
                           }}
                         />
 
@@ -231,8 +231,10 @@ export default function AllComic() {
 
                         <div className="absolute top-2 right-2 z-20">
                           <span
-                            className={`px-2 py-1 text-[9px] font-black uppercase tracking-wider rounded-md shadow-lg border ${statusStyle[comic.status] ?? "bg-zinc-700 text-white border-zinc-600"
-                              }`}
+                            className={`px-2 py-1 text-[9px] font-black uppercase tracking-wider rounded-md shadow-lg border ${
+                              statusStyle[comic.status] ??
+                              "bg-zinc-700 text-white border-zinc-600"
+                            }`}
                           >
                             {comic.status}
                           </span>
@@ -240,8 +242,11 @@ export default function AllComic() {
                       </div>
 
                       <div className="p-3 bg-white dark:bg-slate-900 z-20">
-                        <h2 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2 
-                         group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <h2
+                          className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2 
+                          group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                          title={title}
+                        >
                           {title}
                         </h2>
                       </div>
